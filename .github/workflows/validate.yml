@@ -1,0 +1,65 @@
+name: Validate Scripts
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.detect.outputs.matrix }}
+      has_changes: ${{ steps.detect.outputs.has_changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: detect
+        name: Detect changed script directories
+        run: |
+          # Note: github.base_ref is only available on pull_request events
+          # Find all script directories that changed in this PR
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'scripts/' \
+            | grep -oP 'scripts/[^/]+/[^/]+/' \
+            | sort -u \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          if [ "$CHANGED" = "[]" ] || [ -z "$CHANGED" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "matrix=[]" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "matrix=$CHANGED" >> "$GITHUB_OUTPUT"
+          fi
+
+  validate:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_changes == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        script_dir: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    name: Validate ${{ matrix.script_dir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Create venv and install dependencies
+        run: |
+          python -m venv /tmp/validate_venv
+          /tmp/validate_venv/bin/python -m pip install -r ${{ matrix.script_dir }}requirements.txt
+          /tmp/validate_venv/bin/python -m pip install pytest ruff
+
+      - name: Lint with ruff
+        run: |
+          /tmp/validate_venv/bin/python -m ruff check ${{ matrix.script_dir }}
+
+      - name: Run tests
+        run: |
+          PYTHONPATH=${{ matrix.script_dir }} /tmp/validate_venv/bin/python -m pytest ${{ matrix.script_dir }}tests/ -v
