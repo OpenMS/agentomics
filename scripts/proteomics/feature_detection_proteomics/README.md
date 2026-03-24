@@ -1,7 +1,7 @@
 # Feature Detection for Proteomics
 
 Detect peptide isotope features in centroided LC-MS/MS data using the
-`FeatureFinderCentroided` algorithm. Output is written as a featureXML file.
+`FeatureFinderAlgorithmPicked` algorithm. Output is written as a featureXML file.
 
 ## Usage
 

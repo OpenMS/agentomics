@@ -21,6 +21,9 @@ PYTHONPATH=scripts/proteomics/peptide_mass_calculator python -m pytest scripts/p
 # Lint all scripts
 ruff check scripts/
 
+# Run all tests across all scripts
+for d in scripts/*/*/; do PYTHONPATH="$d" python -m pytest "$d/tests/" -v; done
+
 # Run a script directly
 python scripts/proteomics/peptide_mass_calculator/peptide_mass_calculator.py --sequence PEPTIDEK --charge 2
 python scripts/metabolomics/isotope_pattern_matcher/isotope_pattern_matcher.py --formula C6H12O6
