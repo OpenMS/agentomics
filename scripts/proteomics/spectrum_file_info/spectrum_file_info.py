@@ -117,8 +117,10 @@ def main():
     for level, count in sorted(summary["ms_levels"].items()):
         print(f"  {'MS' + str(level) + ' spectra':<20}: {count}")
     rt_min, rt_max = summary["rt_range_sec"]
-    print(f"{'RT range':<22}: {rt_min:.2f} – {rt_max:.2f} s  "
-          f"({rt_min/60:.2f} – {rt_max/60:.2f} min)")
+    print(
+        f"{'RT range':<22}: {rt_min:.2f} – {rt_max:.2f} s  "
+        f"({rt_min/60:.2f} – {rt_max/60:.2f} min)"
+    )
     mz_lo, mz_hi = summary["mz_range"]
     print(f"{'m/z range':<22}: {mz_lo:.4f} – {mz_hi:.4f}")
     print(f"{'Total TIC':<22}: {summary['tic_total']:.3e}")

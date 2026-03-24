@@ -71,11 +71,11 @@ def detect_metabolite_features(
 
     # --- Feature detection ---
     feature_map = oms.FeatureMap()
-    chrom_fwhm = 0.0
+    output_chromatograms = []  # pyopenms >= 3.x requires a list here
     ffm_params = oms.FeatureFindingMetabo().getDefaults()
     ffm = oms.FeatureFindingMetabo()
     ffm.setParameters(ffm_params)
-    ffm.run(mass_traces_final, feature_map, chrom_fwhm)
+    ffm.run(mass_traces_final, feature_map, output_chromatograms)
 
     feature_map.setUniqueIds()
     oms.FeatureXMLFile().store(output_path, feature_map)

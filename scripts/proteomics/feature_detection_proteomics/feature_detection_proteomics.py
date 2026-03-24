@@ -48,11 +48,9 @@ def detect_features(
     feature_map = oms.FeatureMap()
     seeds = oms.FeatureMap()
 
-    ff = oms.FeatureFinder()
-    ff.setLogType(oms.LogType.CMD)
-
-    params = oms.FeatureFinder().getParameters("centroided")
-    ff.run("centroided", exp, feature_map, params, seeds)
+    ff = oms.FeatureFinderAlgorithmPicked()
+    params = ff.getParameters()
+    ff.run(exp, feature_map, params, seeds)
 
     feature_map.setUniqueIds()
     oms.FeatureXMLFile().store(output_path, feature_map)
