@@ -40,12 +40,10 @@ def get_element_counts(formula: str) -> dict[str, int]:
         Mapping element symbol to count, e.g. {"C": 6, "H": 12, "O": 6}.
     """
     ef = oms.EmpiricalFormula(formula)
-    element_db = oms.ElementDB()
+    ec = ef.getElementalComposition()
     counts = {}
-    for element_name in ["Carbon", "Hydrogen", "Oxygen", "Nitrogen", "Sulfur", "Phosphorus"]:
-        element = element_db.getElement(element_name)
-        symbol = element.getSymbol()
-        count = ef.getNumberOf(element)
+    for key, count in ec.items():
+        symbol = key.decode() if isinstance(key, bytes) else str(key)
         if count > 0:
             counts[symbol] = count
     return counts
@@ -181,7 +179,7 @@ def classify_metabolite(
             confidence = "high" if 0.8 <= oc <= 1.1 and 1.8 <= hc <= 2.2 else "medium"
 
         # Amino acids / peptides: N present, moderate ratios
-        elif has_n and 1.0 <= hc <= 2.2 and 0.2 <= oc <= 0.8 and rdbe < 6:
+        elif has_n and 1.0 <= hc <= 2.5 and 0.2 <= oc <= 0.8 and rdbe < 6:
             predicted_class = "Amino acid / Peptide"
             confidence = "medium"
 
