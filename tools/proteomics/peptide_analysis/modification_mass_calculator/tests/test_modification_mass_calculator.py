@@ -1,9 +1,8 @@
 """Tests for modification_mass_calculator."""
 
-from conftest import requires_pyopenms
+import pytest
 
-
-@requires_pyopenms
+pytest.importorskip("pyopenms")
 class TestModificationMassCalculator:
     def test_search_oxidation(self):
         from modification_mass_calculator import search_modification
