@@ -45,12 +45,11 @@ def search_modification(name: str) -> list:
         List of dicts with modification details.
     """
     mod_db = oms.ModificationsDB()
-    mod_names = []
-    mod_db.searchModifications(mod_names, name, "", oms.ResidueModification.TermSpecificity.ANYWHERE)
+    mods = set()
+    mod_db.searchModifications(mods, name, "", 0)
     results = []
     seen = set()
-    for mod_name in mod_names:
-        mod = mod_db.getModification(mod_name)
+    for mod in mods:
         full_id = mod.getFullId()
         if full_id in seen:
             continue

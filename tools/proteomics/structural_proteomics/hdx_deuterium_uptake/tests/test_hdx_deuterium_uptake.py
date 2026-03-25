@@ -15,8 +15,8 @@ class TestHdxDeuteriumUptake:
 
     def test_count_exchangeable_amides_with_proline(self):
         from hdx_deuterium_uptake import count_exchangeable_amides
-        # PPPPAAAA: 8 residues, 4 prolines, exchangeable = 8 - 4 - 2 = 2
-        assert count_exchangeable_amides("PPPPAAAA") == 2
+        # PPPPAAAA: 8 residues, 2 prolines at pos>=2, exchangeable = 8 - 2 - 2 = 4
+        assert count_exchangeable_amides("PPPPAAAA") == 4
 
     def test_count_exchangeable_amides_short(self):
         from hdx_deuterium_uptake import count_exchangeable_amides

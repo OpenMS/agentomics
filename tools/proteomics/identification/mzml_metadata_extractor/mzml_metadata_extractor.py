@@ -80,12 +80,17 @@ def extract_metadata(exp: oms.MSExperiment) -> dict:
 
     # Software
     software_list = []
-    for dp in exp.getDataProcessing():
-        sw = dp.getSoftware()
-        software_list.append({
-            "name": sw.getName(),
-            "version": sw.getVersion(),
-        })
+    seen_sw = set()
+    for spec in exp:
+        for dp in spec.getDataProcessing():
+            sw = dp.getSoftware()
+            sw_key = (sw.getName(), sw.getVersion())
+            if sw_key not in seen_sw:
+                seen_sw.add(sw_key)
+                software_list.append({
+                    "name": sw.getName(),
+                    "version": sw.getVersion(),
+                })
 
     metadata = {
         "n_spectra": n_spectra,

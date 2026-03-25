@@ -1,7 +1,6 @@
 """Tests for proteoform_delta_annotator."""
 
 import csv
-import sys
 
 from conftest import requires_pyopenms
 
@@ -54,6 +53,7 @@ def test_annotate_proteoform_deltas():
 
 @requires_pyopenms
 def test_cli_roundtrip(tmp_path):
+    from click.testing import CliRunner
     from proteoform_delta_annotator import main
 
     input_file = tmp_path / "input.tsv"
@@ -65,13 +65,13 @@ def test_cli_roundtrip(tmp_path):
         writer.writerow(["P1_unmod", "10000.0"])
         writer.writerow(["P1_phospho", "10079.966"])
 
-    sys.argv = [
-        "proteoform_delta_annotator.py",
+    runner = CliRunner()
+    result = runner.invoke(main, [
         "--input", str(input_file),
         "--tolerance", "0.5",
         "--output", str(output_file),
-    ]
-    main()
+    ])
+    assert result.exit_code == 0, f"CLI failed: {result.output}\n{result.exception}"
 
     assert output_file.exists()
     with open(output_file) as fh:

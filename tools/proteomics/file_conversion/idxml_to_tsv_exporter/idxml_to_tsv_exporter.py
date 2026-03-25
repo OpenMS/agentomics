@@ -39,7 +39,7 @@ def export_peptide_ids(peptide_ids: List[oms.PeptideIdentification], output_path
         writer = csv.writer(fh, delimiter="\t")
         writer.writerow([
             "spectrum_reference", "rt", "mz", "sequence", "charge",
-            "score", "score_type", "rank", "protein_accessions",
+            "score", "score_type", "protein_accessions",
         ])
 
         for pep_id in peptide_ids:
@@ -62,7 +62,6 @@ def export_peptide_ids(peptide_ids: List[oms.PeptideIdentification], output_path
                     hit.getCharge(),
                     f"{hit.getScore():.6f}",
                     score_type,
-                    hit.getRank(),
                     accessions,
                 ])
                 total_psms += 1

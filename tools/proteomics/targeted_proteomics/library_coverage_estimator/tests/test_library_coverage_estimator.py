@@ -1,7 +1,6 @@
 """Tests for library_coverage_estimator."""
 
 import csv
-import sys
 
 from conftest import requires_pyopenms
 
@@ -61,6 +60,7 @@ def test_compute_coverage():
 @requires_pyopenms
 def test_cli_roundtrip(tmp_path):
     import pyopenms as oms
+    from click.testing import CliRunner
     from library_coverage_estimator import main
 
     # Create FASTA
@@ -84,12 +84,12 @@ def test_cli_roundtrip(tmp_path):
             writer.writerow([p])
 
     output_file = tmp_path / "coverage.tsv"
-    sys.argv = [
-        "library_coverage_estimator.py",
+    runner = CliRunner()
+    result = runner.invoke(main, [
         "--library", str(lib_file),
         "--fasta", str(fasta_file),
         "--enzyme", "Trypsin",
         "--output", str(output_file),
-    ]
-    main()
+    ])
+    assert result.exit_code == 0, f"CLI failed: {result.output}\n{result.exception}"
     assert output_file.exists()

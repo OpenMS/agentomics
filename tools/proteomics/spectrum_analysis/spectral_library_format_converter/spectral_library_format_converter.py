@@ -106,19 +106,20 @@ def msp_to_targeted_experiment(spectra: list[dict]) -> oms.TargetedExperiment:
     transitions = []
 
     for spec_idx, spec in enumerate(spectra):
-        peptide_id = f"peptide_{spec_idx}"
-        protein_id = f"protein_{spec_idx}"
+        peptide_id = f"peptide_{spec_idx}".encode()
+        protein_id = f"protein_{spec_idx}".encode()
 
         # Create protein
-        protein = oms.TargetedExperiment.Protein()
+        protein = oms.Protein()
         protein.id = protein_id
         proteins.append(protein)
 
         # Create peptide
-        peptide = oms.TargetedExperiment.Peptide()
+        peptide = oms.Peptide()
         peptide.id = peptide_id
         peptide.protein_refs = [protein_id]
-        peptide.sequence = spec["name"].split("/")[0] if "/" in spec["name"] else spec["name"]
+        seq_str = spec["name"].split("/")[0] if "/" in spec["name"] else spec["name"]
+        peptide.sequence = seq_str.encode() if isinstance(seq_str, str) else seq_str
         if spec["charge"] > 0:
             peptide.setChargeState(spec["charge"])
         peptides.append(peptide)
@@ -130,7 +131,7 @@ def msp_to_targeted_experiment(spectra: list[dict]) -> oms.TargetedExperiment:
 
         for peak_idx, (mz, intensity) in enumerate(spec["peaks"]):
             transition = oms.ReactionMonitoringTransition()
-            transition.setNativeID(f"transition_{spec_idx}_{peak_idx}")
+            transition.setNativeID(f"transition_{spec_idx}_{peak_idx}".encode())
             transition.setPeptideRef(peptide_id)
             transition.setPrecursorMZ(precursor_mz)
             transition.setProductMZ(mz)

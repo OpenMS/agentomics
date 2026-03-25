@@ -58,7 +58,7 @@ def test_export_content():
             lines = fh.readlines()
 
         # Check first data row contains expected peptide sequence
-        data_row = lines[1].strip().split("\t")
-        assert len(data_row) == 9
+        data_row = lines[1].split("\t")
+        assert len(data_row) == 8
         # sequence column is index 3
-        assert data_row[3] in ["ACDEFGHIK", "MNPQRSTWY"]
+        assert data_row[3].strip() in ["ACDEFGHIK", "MNPQRSTWY"]

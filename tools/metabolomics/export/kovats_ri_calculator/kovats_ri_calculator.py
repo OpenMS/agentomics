@@ -103,7 +103,11 @@ def calculate_kovats_ri(
     for i in range(len(alkane_table) - 1):
         cn_n, rt_n = alkane_table[i]
         cn_n1, rt_n1 = alkane_table[i + 1]
-        if rt_n <= rt <= rt_n1:
+        if rt == rt_n:
+            return round(100.0 * cn_n, 2)
+        if rt == rt_n1:
+            return round(100.0 * cn_n1, 2)
+        if rt_n < rt < rt_n1:
             if rt_n <= 0 or rt_n1 <= 0:
                 return None
             log_rt = math.log10(rt)

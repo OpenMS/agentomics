@@ -147,11 +147,9 @@ def lipid_exact_mass(lipid_class: str, chains: list[tuple[int, int]]) -> float:
     headgroup = HEADGROUP_FORMULAS.get(lipid_class, "")
     if not headgroup:
         return 0.0
-    full_formula = headgroup
+    ef = oms.EmpiricalFormula(headgroup)
     for c, db in chains:
-        full_formula += " " + acyl_chain_formula(c, db)
-    # pyopenms EmpiricalFormula can parse additive formula strings
-    ef = oms.EmpiricalFormula(full_formula)
+        ef = ef + oms.EmpiricalFormula(acyl_chain_formula(c, db))
     return ef.getMonoWeight()
 
 

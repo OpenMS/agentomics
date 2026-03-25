@@ -157,7 +157,7 @@ def score_localization(experimental_mz: list, experimental_intensities: list,
     # Find the modification in the given peptide
     mod_info = None
     for i in range(aa_seq.size()):
-        if aa_seq.isModified(i):
+        if aa_seq.getResidue(i).isModified():
             mod_info = (i, aa_seq.getResidue(i).getModificationName())
             break
 
@@ -167,12 +167,9 @@ def score_localization(experimental_mz: list, experimental_intensities: list,
         # Determine applicable residues from the mod origin
         applicable = set()
         mod_db = oms.ModificationsDB()
-        mod_names_list = []
-        mod_db.searchModifications(
-            mod_names_list, mod_name, "", oms.ResidueModification.TermSpecificity.ANYWHERE
-        )
-        for mn in mod_names_list:
-            mod_obj = mod_db.getModification(mn)
+        mods_set = set()
+        mod_db.searchModifications(mods_set, mod_name, "", 0)
+        for mod_obj in mods_set:
             origin = mod_obj.getOrigin()
             if origin:
                 applicable.add(origin)

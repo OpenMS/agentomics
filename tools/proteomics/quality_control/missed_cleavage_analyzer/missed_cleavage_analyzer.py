@@ -41,12 +41,11 @@ def count_missed_cleavages(sequence: str, enzyme: str = "Trypsin") -> int:
     int
         Number of missed cleavages.
     """
-    aa_seq = oms.AASequence.fromString(sequence)
     digest = oms.ProteaseDigestion()
     digest.setEnzyme(enzyme)
 
     # Count internal cleavage sites (K/R for trypsin, not at the end)
-    count = digest.missedCleavages(aa_seq)
+    count = digest.countInternalCleavageSites(sequence)
     return count
 
 

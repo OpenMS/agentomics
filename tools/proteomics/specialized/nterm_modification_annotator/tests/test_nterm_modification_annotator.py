@@ -74,7 +74,7 @@ class TestNtermModificationAnnotator:
     def test_classify_signal_peptide_candidate(self):
         from nterm_modification_annotator import classify_nterm_type
         # Position 20, preceded by 'A' (small residue)
-        protein_seq = "M" + "K" * 19 + "ADEFGHIJKLMNOP"
+        protein_seq = "M" + "K" * 18 + "A" + "DEFGHIJKLMNOP"
         result = classify_nterm_type(20, protein_seq)
         assert result == "signal_peptide_candidate"
 

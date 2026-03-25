@@ -34,7 +34,7 @@ class TestPhosphoMotifAnalyzer:
         from phospho_motif_analyzer import extract_window
         seq = "ABCDEFGHIJ"
         window = extract_window(seq, 2, 3)  # 'B'
-        assert window == "_ABCDEF"
+        assert window == "__ABCDE"
         assert len(window) == 7
 
     def test_extract_window_near_end(self):

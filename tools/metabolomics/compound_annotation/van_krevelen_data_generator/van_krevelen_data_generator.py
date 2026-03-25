@@ -24,7 +24,7 @@ except ImportError:
 BIOCHEMICAL_CLASSES = {
     "lipids": {"hc_min": 1.5, "hc_max": 2.5, "oc_min": 0.0, "oc_max": 0.3},
     "carbohydrates": {"hc_min": 1.5, "hc_max": 2.5, "oc_min": 0.6, "oc_max": 1.2},
-    "amino_acids": {"hc_min": 1.0, "hc_max": 2.0, "oc_min": 0.3, "oc_max": 0.8},
+    "amino_acids": {"hc_min": 1.4, "hc_max": 2.0, "oc_min": 0.3, "oc_max": 0.7},
     "nucleotides": {"hc_min": 1.0, "hc_max": 1.5, "oc_min": 0.5, "oc_max": 1.0},
 }
 

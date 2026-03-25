@@ -1,7 +1,6 @@
 """Tests for topdown_coverage_calculator."""
 
 import csv
-import sys
 
 from conftest import requires_pyopenms
 
@@ -66,6 +65,7 @@ def test_coverage_summary():
 
 @requires_pyopenms
 def test_cli_roundtrip(tmp_path):
+    from click.testing import CliRunner
     from topdown_coverage_calculator import main, theoretical_fragments
 
     seq = "PEPTIDE"
@@ -80,13 +80,13 @@ def test_cli_roundtrip(tmp_path):
         for _, mass in frags["b"][:3]:
             writer.writerow([f"{mass:.6f}"])
 
-    sys.argv = [
-        "topdown_coverage_calculator.py",
+    runner = CliRunner()
+    result = runner.invoke(main, [
         "--sequence", seq,
         "--fragments", str(frag_file),
         "--tolerance", "10",
         "--output", str(output_file),
-    ]
-    main()
+    ])
+    assert result.exit_code == 0, f"CLI failed: {result.output}\n{result.exception}"
 
     assert output_file.exists()

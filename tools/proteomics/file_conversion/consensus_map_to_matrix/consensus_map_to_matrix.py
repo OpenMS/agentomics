@@ -112,15 +112,12 @@ def create_synthetic_consensus(output_path: str, n_features: int = 5, n_maps: in
         cf.setCharge(2)
         cf.setQuality(0.9)
 
-        handles = []
         for i in range(n_maps):
-            fh = oms.FeatureHandle()
-            fh.setRT(100.0 + j * 10 + i * 0.1)
-            fh.setMZ(500.0 + j * 50)
-            fh.setIntensity(10000.0 + i * 1000 + j * 500)
-            fh.setMapIndex(i)
-            handles.append(fh)
-        cf.setFeatureList(handles)
+            peak = oms.Peak2D()
+            peak.setRT(100.0 + j * 10 + i * 0.1)
+            peak.setMZ(500.0 + j * 50)
+            peak.setIntensity(10000.0 + i * 1000 + j * 500)
+            cf.insert(i, peak, j)
         cmap.push_back(cf)
 
     oms.ConsensusXMLFile().store(output_path, cmap)

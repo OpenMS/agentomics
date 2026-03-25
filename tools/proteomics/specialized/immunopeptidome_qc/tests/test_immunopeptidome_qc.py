@@ -88,8 +88,7 @@ def test_run_qc():
 
 @requires_pyopenms
 def test_cli_roundtrip(tmp_path):
-    import sys
-
+    from click.testing import CliRunner
     from immunopeptidome_qc import main
 
     input_file = tmp_path / "input.tsv"
@@ -102,14 +101,14 @@ def test_cli_roundtrip(tmp_path):
         for seq in ["AAGIGILTV", "GILGFVFTL", "PEPTIDEK", "AAFGIILPK"]:
             writer.writerow([seq])
 
-    sys.argv = [
-        "immunopeptidome_qc.py",
+    runner = CliRunner()
+    result = runner.invoke(main, [
         "--input", str(input_file),
         "--hla-class", "I",
         "--output", str(output_file),
         "--motifs", str(motifs_file),
-    ]
-    main()
+    ])
+    assert result.exit_code == 0, f"CLI failed: {result.output}\n{result.exception}"
 
     assert output_file.exists()
     assert motifs_file.exists()

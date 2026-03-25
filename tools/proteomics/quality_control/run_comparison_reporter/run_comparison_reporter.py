@@ -69,7 +69,7 @@ def pearson_correlation(xs: list[float], ys: list[float]) -> float:
     sx = math.sqrt(sum((x - mx) ** 2 for x in xs))
     sy = math.sqrt(sum((y - my) ** 2 for y in ys))
     if sx == 0 or sy == 0:
-        return 0.0
+        return 1.0 if sx == 0 and sy == 0 else 0.0
     return cov / (sx * sy)
 
 

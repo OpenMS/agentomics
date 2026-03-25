@@ -103,8 +103,7 @@ def write_sirius_ms(
                     precursors = spectrum.getPrecursors()
                     ce = 0.0
                     if precursors:
-                        activation = precursors[0].getActivation()
-                        ce = activation.getEnergy()
+                        ce = precursors[0].getActivationEnergy()
 
                     fh.write(f"\n>ms2 {feature['mz']:.6f}")
                     if ce > 0:

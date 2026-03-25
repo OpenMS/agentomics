@@ -58,7 +58,7 @@ def analyze_modification(sequence: str, charge: int = 1) -> dict:
         # Check for modification
         mod_name = ""
         mod_mass = 0.0
-        if aa_seq.isModified(i):
+        if residue.isModified():
             mod_name = residue.getModificationName()
             # Unmodified residue mass from ResidueDB
             unmod_residue = oms.ResidueDB().getResidue(one_letter)

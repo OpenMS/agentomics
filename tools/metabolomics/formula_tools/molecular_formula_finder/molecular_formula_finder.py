@@ -87,6 +87,10 @@ def check_senior_rule(element_counts: dict[str, int]) -> bool:
     if total_atoms == 0:
         return False
     total_valence = sum(VALENCES.get(e, 0) * c for e, c in element_counts.items())
+    # Senior's rule: sum of valences >= 2*(atoms-1) AND number of odd-valence atoms must be even
+    odd_valence_atoms = sum(c for e, c in element_counts.items() if VALENCES.get(e, 0) % 2 == 1)
+    if odd_valence_atoms % 2 != 0:
+        return False
     return total_valence >= 2 * (total_atoms - 1)
 
 

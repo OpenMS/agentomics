@@ -46,7 +46,8 @@ def count_exchangeable_amides(sequence: str) -> int:
     """
     aa = oms.AASequence.fromString(sequence)
     n = aa.size()
-    proline_count = sum(1 for i in range(n) if aa.getResidue(i).getOneLetterCode() == "P")
+    # Only count prolines at positions >= 2 (first two residues are already excluded by -2)
+    proline_count = sum(1 for i in range(2, n) if aa.getResidue(i).getOneLetterCode() == "P")
     exchangeable = n - proline_count - 2
     return max(0, exchangeable)
 

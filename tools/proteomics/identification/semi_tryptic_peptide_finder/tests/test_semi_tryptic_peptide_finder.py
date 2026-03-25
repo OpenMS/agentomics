@@ -17,7 +17,7 @@ class TestSemiTrypticPeptideFinder:
         from semi_tryptic_peptide_finder import classify_peptide
 
         # Peptide starts after K (tryptic N-term) but does not end with K/R
-        protein = "PEPTIDEKAVLID"
+        protein = "PEPTIDEKAVLIDXYZ"
         result = classify_peptide("AVLID", protein, "Trypsin")
         assert result == "semi_tryptic"
 
