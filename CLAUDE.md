@@ -9,19 +9,19 @@ Agentomics is a collection of standalone CLI tools built with [pyopenms](https:/
 ## Commands
 
 ```bash
-# Install dependencies for a specific script
+# Install dependencies for a specific tool
 pip install -r scripts/proteomics/peptide_analysis/peptide_mass_calculator/requirements.txt
 
-# Lint a specific script
+# Lint a specific tool
 ruff check scripts/proteomics/peptide_analysis/peptide_mass_calculator/
 
-# Run tests for a specific script
+# Run tests for a specific tool
 PYTHONPATH=scripts/proteomics/peptide_analysis/peptide_mass_calculator python -m pytest scripts/proteomics/peptide_analysis/peptide_mass_calculator/tests/ -v
 
-# Lint all scripts
+# Lint all tools
 ruff check scripts/
 
-# Run all tests across all scripts
+# Run all tests across all tools
 for d in scripts/*/*/*/; do PYTHONPATH="$d" python -m pytest "$d/tests/" -v; done
 
 # Run a script directly
@@ -31,9 +31,9 @@ python scripts/metabolomics/formula_tools/isotope_pattern_matcher/isotope_patter
 
 ## Architecture
 
-### Per-Script Directory Structure
+### Per-Tool Directory Structure
 
-Each script is a self-contained directory under `scripts/<domain>/<topic>/<tool_name>/`:
+Each tool is a self-contained directory under `scripts/<domain>/<topic>/<tool_name>/`:
 
 ```
 scripts/<domain>/<topic>/<tool_name>/
