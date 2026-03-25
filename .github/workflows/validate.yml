@@ -1,9 +1,9 @@
-name: Validate Scripts
+name: Validate Tools
 
 on:
   pull_request:
     paths:
-      - 'scripts/**'
+      - 'tools/**'
 
 jobs:
   detect-changes:
@@ -17,12 +17,12 @@ jobs:
           fetch-depth: 0
 
       - id: detect
-        name: Detect changed script directories
+        name: Detect changed tool directories
         run: |
           # Note: github.base_ref is only available on pull_request events
-          # Find all script directories that changed in this PR
-          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'scripts/' \
-            | grep -oP 'scripts/[^/]+/[^/]+/' \
+          # Find all tool directories that changed in this PR
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'tools/' \
+            | grep -oP 'tools/[^/]+/[^/]+/[^/]+/' \
             | sort -u \
             | jq -R -s -c 'split("\n") | map(select(length > 0))')
 
@@ -38,11 +38,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.has_changes == 'true'
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        script_dir: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
-    name: Validate ${{ matrix.script_dir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -50,16 +45,33 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Create venv and install dependencies
+      - name: Create shared venv and install dependencies
         run: |
           python -m venv /tmp/validate_venv
-          /tmp/validate_venv/bin/python -m pip install -r ${{ matrix.script_dir }}requirements.txt
-          /tmp/validate_venv/bin/python -m pip install pytest ruff
+          /tmp/validate_venv/bin/python -m pip install pyopenms numpy scipy click pytest ruff
+          DIRS='${{ needs.detect-changes.outputs.matrix }}'
+          echo "$DIRS" | jq -r '.[]' | while read -r dir; do
+            if [ -f "${dir}requirements.txt" ]; then
+              /tmp/validate_venv/bin/python -m pip install -r "${dir}requirements.txt"
+            fi
+          done
 
-      - name: Lint with ruff
+      - name: Lint changed tools
         run: |
-          /tmp/validate_venv/bin/python -m ruff check ${{ matrix.script_dir }}
+          DIRS='${{ needs.detect-changes.outputs.matrix }}'
+          echo "$DIRS" | jq -r '.[]' | while read -r dir; do
+            echo "::group::ruff $dir"
+            /tmp/validate_venv/bin/python -m ruff check "$dir"
+            echo "::endgroup::"
+          done
 
-      - name: Run tests
+      - name: Test changed tools
         run: |
-          PYTHONPATH=${{ matrix.script_dir }} /tmp/validate_venv/bin/python -m pytest ${{ matrix.script_dir }}tests/ -v
+          DIRS='${{ needs.detect-changes.outputs.matrix }}'
+          echo "$DIRS" | jq -r '.[]' | while read -r dir; do
+            if [ -d "${dir}tests/" ]; then
+              echo "::group::pytest $dir"
+              PYTHONPATH="$dir" /tmp/validate_venv/bin/python -m pytest "${dir}tests/" -v
+              echo "::endgroup::"
+            fi
+          done

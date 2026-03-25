@@ -9,7 +9,7 @@ Validate any script in the agentomics repo by running ruff and pytest in a fresh
 
 ## Steps (follow exactly — rigid skill)
 
-1. **Identify the script directory.** If the user provided a path, use it. Otherwise, ask which script to validate. The path should be `scripts/<domain>/<tool_name>/`.
+1. **Identify the script directory.** If the user provided a path, use it. Otherwise, ask which script to validate. The path should be `tools/<domain>/<topic>/<tool_name>/`.
 
 2. **Verify the directory structure.** Confirm it contains:
    - `<tool_name>.py`

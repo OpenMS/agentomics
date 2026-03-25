@@ -43,22 +43,22 @@ git commit -m "Add ruff.toml with E/F/W/I rule set, line-length 120"
 ### Task 2: Migrate peptide_mass_calculator to per-script directory
 
 **Files:**
-- Create: `scripts/proteomics/peptide_mass_calculator/peptide_mass_calculator.py`
-- Create: `scripts/proteomics/peptide_mass_calculator/requirements.txt`
-- Create: `scripts/proteomics/peptide_mass_calculator/README.md`
-- Create: `scripts/proteomics/peptide_mass_calculator/tests/conftest.py`
-- Create: `scripts/proteomics/peptide_mass_calculator/tests/test_peptide_mass_calculator.py`
+- Create: `tools/proteomics/peptide_mass_calculator/peptide_mass_calculator.py`
+- Create: `tools/proteomics/peptide_mass_calculator/requirements.txt`
+- Create: `tools/proteomics/peptide_mass_calculator/README.md`
+- Create: `tools/proteomics/peptide_mass_calculator/tests/conftest.py`
+- Create: `tools/proteomics/peptide_mass_calculator/tests/test_peptide_mass_calculator.py`
 
 - [ ] **Step 1: Create directory structure**
 
 ```bash
-mkdir -p scripts/proteomics/peptide_mass_calculator/tests
+mkdir -p tools/proteomics/peptide_mass_calculator/tests
 ```
 
 - [ ] **Step 2: Copy script from feature branch**
 
 ```bash
-git show origin/copilot/add-agentic-scripts-for-proteomics:scripts/proteomics/peptide_mass_calculator.py > scripts/proteomics/peptide_mass_calculator/peptide_mass_calculator.py
+git show origin/copilot/add-agentic-scripts-for-proteomics:tools/proteomics/peptide_mass_calculator.py > tools/proteomics/peptide_mass_calculator/peptide_mass_calculator.py
 ```
 
 - [ ] **Step 3: Create requirements.txt**
@@ -158,18 +158,18 @@ python peptide_mass_calculator.py --sequence ACDEFGHIK --fragments
 
 - [ ] **Step 7: Run ruff**
 
-Run: `ruff check scripts/proteomics/peptide_mass_calculator/`
+Run: `ruff check tools/proteomics/peptide_mass_calculator/`
 Expected: No errors
 
 - [ ] **Step 8: Run tests**
 
-Run: `PYTHONPATH=scripts/proteomics/peptide_mass_calculator python -m pytest scripts/proteomics/peptide_mass_calculator/tests/ -v`
+Run: `PYTHONPATH=tools/proteomics/peptide_mass_calculator python -m pytest tools/proteomics/peptide_mass_calculator/tests/ -v`
 Expected: 5 tests pass (or skip if pyopenms not installed)
 
 - [ ] **Step 9: Commit**
 
 ```bash
-git add scripts/proteomics/peptide_mass_calculator/
+git add tools/proteomics/peptide_mass_calculator/
 git commit -m "Migrate peptide_mass_calculator to per-script directory structure"
 ```
 
@@ -178,17 +178,17 @@ git commit -m "Migrate peptide_mass_calculator to per-script directory structure
 ### Task 3: Migrate protein_digest to per-script directory
 
 **Files:**
-- Create: `scripts/proteomics/protein_digest/protein_digest.py`
-- Create: `scripts/proteomics/protein_digest/requirements.txt`
-- Create: `scripts/proteomics/protein_digest/README.md`
-- Create: `scripts/proteomics/protein_digest/tests/conftest.py`
-- Create: `scripts/proteomics/protein_digest/tests/test_protein_digest.py`
+- Create: `tools/proteomics/protein_digest/protein_digest.py`
+- Create: `tools/proteomics/protein_digest/requirements.txt`
+- Create: `tools/proteomics/protein_digest/README.md`
+- Create: `tools/proteomics/protein_digest/tests/conftest.py`
+- Create: `tools/proteomics/protein_digest/tests/test_protein_digest.py`
 
 - [ ] **Step 1: Create directory and copy script**
 
 ```bash
-mkdir -p scripts/proteomics/protein_digest/tests
-git show origin/copilot/add-agentic-scripts-for-proteomics:scripts/proteomics/protein_digest.py > scripts/proteomics/protein_digest/protein_digest.py
+mkdir -p tools/proteomics/protein_digest/tests
+git show origin/copilot/add-agentic-scripts-for-proteomics:tools/proteomics/protein_digest.py > tools/proteomics/protein_digest/protein_digest.py
 ```
 
 - [ ] **Step 2: Create requirements.txt**
@@ -273,13 +273,13 @@ python protein_digest.py --list-enzymes
 
 - [ ] **Step 6: Run ruff and tests**
 
-Run: `ruff check scripts/proteomics/protein_digest/ && PYTHONPATH=scripts/proteomics/protein_digest python -m pytest scripts/proteomics/protein_digest/tests/ -v`
+Run: `ruff check tools/proteomics/protein_digest/ && PYTHONPATH=tools/proteomics/protein_digest python -m pytest tools/proteomics/protein_digest/tests/ -v`
 Expected: Lint clean, 5 tests pass
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/proteomics/protein_digest/
+git add tools/proteomics/protein_digest/
 git commit -m "Migrate protein_digest to per-script directory structure"
 ```
 
@@ -288,17 +288,17 @@ git commit -m "Migrate protein_digest to per-script directory structure"
 ### Task 4: Migrate spectrum_file_info to per-script directory
 
 **Files:**
-- Create: `scripts/proteomics/spectrum_file_info/spectrum_file_info.py`
-- Create: `scripts/proteomics/spectrum_file_info/requirements.txt`
-- Create: `scripts/proteomics/spectrum_file_info/README.md`
-- Create: `scripts/proteomics/spectrum_file_info/tests/conftest.py`
-- Create: `scripts/proteomics/spectrum_file_info/tests/test_spectrum_file_info.py`
+- Create: `tools/proteomics/spectrum_file_info/spectrum_file_info.py`
+- Create: `tools/proteomics/spectrum_file_info/requirements.txt`
+- Create: `tools/proteomics/spectrum_file_info/README.md`
+- Create: `tools/proteomics/spectrum_file_info/tests/conftest.py`
+- Create: `tools/proteomics/spectrum_file_info/tests/test_spectrum_file_info.py`
 
 - [ ] **Step 1: Create directory and copy script**
 
 ```bash
-mkdir -p scripts/proteomics/spectrum_file_info/tests
-git show origin/copilot/add-agentic-scripts-for-proteomics:scripts/proteomics/spectrum_file_info.py > scripts/proteomics/spectrum_file_info/spectrum_file_info.py
+mkdir -p tools/proteomics/spectrum_file_info/tests
+git show origin/copilot/add-agentic-scripts-for-proteomics:tools/proteomics/spectrum_file_info.py > tools/proteomics/spectrum_file_info/spectrum_file_info.py
 ```
 
 - [ ] **Step 2: Create requirements.txt**
@@ -392,13 +392,13 @@ python spectrum_file_info.py --input sample.mzML --tic
 
 - [ ] **Step 6: Run ruff and tests**
 
-Run: `ruff check scripts/proteomics/spectrum_file_info/ && PYTHONPATH=scripts/proteomics/spectrum_file_info python -m pytest scripts/proteomics/spectrum_file_info/tests/ -v`
+Run: `ruff check tools/proteomics/spectrum_file_info/ && PYTHONPATH=tools/proteomics/spectrum_file_info python -m pytest tools/proteomics/spectrum_file_info/tests/ -v`
 Expected: Lint clean, 4 tests pass
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/proteomics/spectrum_file_info/
+git add tools/proteomics/spectrum_file_info/
 git commit -m "Migrate spectrum_file_info to per-script directory with synthetic test data"
 ```
 
@@ -407,17 +407,17 @@ git commit -m "Migrate spectrum_file_info to per-script directory with synthetic
 ### Task 5: Migrate feature_detection_proteomics to per-script directory
 
 **Files:**
-- Create: `scripts/proteomics/feature_detection_proteomics/feature_detection_proteomics.py`
-- Create: `scripts/proteomics/feature_detection_proteomics/requirements.txt`
-- Create: `scripts/proteomics/feature_detection_proteomics/README.md`
-- Create: `scripts/proteomics/feature_detection_proteomics/tests/conftest.py`
-- Create: `scripts/proteomics/feature_detection_proteomics/tests/test_feature_detection_proteomics.py`
+- Create: `tools/proteomics/feature_detection_proteomics/feature_detection_proteomics.py`
+- Create: `tools/proteomics/feature_detection_proteomics/requirements.txt`
+- Create: `tools/proteomics/feature_detection_proteomics/README.md`
+- Create: `tools/proteomics/feature_detection_proteomics/tests/conftest.py`
+- Create: `tools/proteomics/feature_detection_proteomics/tests/test_feature_detection_proteomics.py`
 
 - [ ] **Step 1: Create directory and copy script**
 
 ```bash
-mkdir -p scripts/proteomics/feature_detection_proteomics/tests
-git show origin/copilot/add-agentic-scripts-for-proteomics:scripts/proteomics/feature_detection_proteomics.py > scripts/proteomics/feature_detection_proteomics/feature_detection_proteomics.py
+mkdir -p tools/proteomics/feature_detection_proteomics/tests
+git show origin/copilot/add-agentic-scripts-for-proteomics:tools/proteomics/feature_detection_proteomics.py > tools/proteomics/feature_detection_proteomics/feature_detection_proteomics.py
 ```
 
 - [ ] **Step 2: Create requirements.txt**
@@ -489,13 +489,13 @@ python feature_detection_proteomics.py --input sample.mzML --output features.fea
 
 - [ ] **Step 6: Run ruff and tests**
 
-Run: `ruff check scripts/proteomics/feature_detection_proteomics/ && PYTHONPATH=scripts/proteomics/feature_detection_proteomics python -m pytest scripts/proteomics/feature_detection_proteomics/tests/ -v`
+Run: `ruff check tools/proteomics/feature_detection_proteomics/ && PYTHONPATH=tools/proteomics/feature_detection_proteomics python -m pytest tools/proteomics/feature_detection_proteomics/tests/ -v`
 Expected: Lint clean, 1 test passes
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/proteomics/feature_detection_proteomics/
+git add tools/proteomics/feature_detection_proteomics/
 git commit -m "Migrate feature_detection_proteomics to per-script directory with synthetic test data"
 ```
 
@@ -504,17 +504,17 @@ git commit -m "Migrate feature_detection_proteomics to per-script directory with
 ### Task 6: Migrate mass_accuracy_calculator to per-script directory
 
 **Files:**
-- Create: `scripts/metabolomics/mass_accuracy_calculator/mass_accuracy_calculator.py`
-- Create: `scripts/metabolomics/mass_accuracy_calculator/requirements.txt`
-- Create: `scripts/metabolomics/mass_accuracy_calculator/README.md`
-- Create: `scripts/metabolomics/mass_accuracy_calculator/tests/conftest.py`
-- Create: `scripts/metabolomics/mass_accuracy_calculator/tests/test_mass_accuracy_calculator.py`
+- Create: `tools/metabolomics/mass_accuracy_calculator/mass_accuracy_calculator.py`
+- Create: `tools/metabolomics/mass_accuracy_calculator/requirements.txt`
+- Create: `tools/metabolomics/mass_accuracy_calculator/README.md`
+- Create: `tools/metabolomics/mass_accuracy_calculator/tests/conftest.py`
+- Create: `tools/metabolomics/mass_accuracy_calculator/tests/test_mass_accuracy_calculator.py`
 
 - [ ] **Step 1: Create directory and copy script**
 
 ```bash
-mkdir -p scripts/metabolomics/mass_accuracy_calculator/tests
-git show origin/copilot/add-agentic-scripts-for-proteomics:scripts/metabolomics/mass_accuracy_calculator.py > scripts/metabolomics/mass_accuracy_calculator/mass_accuracy_calculator.py
+mkdir -p tools/metabolomics/mass_accuracy_calculator/tests
+git show origin/copilot/add-agentic-scripts-for-proteomics:tools/metabolomics/mass_accuracy_calculator.py > tools/metabolomics/mass_accuracy_calculator/mass_accuracy_calculator.py
 ```
 
 - [ ] **Step 2: Create requirements.txt**
@@ -592,13 +592,13 @@ python mass_accuracy_calculator.py --sequence ACDEFGHIK --charge 2 --observed 55
 
 - [ ] **Step 6: Run ruff and tests**
 
-Run: `ruff check scripts/metabolomics/mass_accuracy_calculator/ && PYTHONPATH=scripts/metabolomics/mass_accuracy_calculator python -m pytest scripts/metabolomics/mass_accuracy_calculator/tests/ -v`
+Run: `ruff check tools/metabolomics/mass_accuracy_calculator/ && PYTHONPATH=tools/metabolomics/mass_accuracy_calculator python -m pytest tools/metabolomics/mass_accuracy_calculator/tests/ -v`
 Expected: Lint clean, 6 tests pass
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/metabolomics/mass_accuracy_calculator/
+git add tools/metabolomics/mass_accuracy_calculator/
 git commit -m "Migrate mass_accuracy_calculator to per-script directory structure"
 ```
 
@@ -607,17 +607,17 @@ git commit -m "Migrate mass_accuracy_calculator to per-script directory structur
 ### Task 7: Migrate isotope_pattern_matcher to per-script directory
 
 **Files:**
-- Create: `scripts/metabolomics/isotope_pattern_matcher/isotope_pattern_matcher.py`
-- Create: `scripts/metabolomics/isotope_pattern_matcher/requirements.txt`
-- Create: `scripts/metabolomics/isotope_pattern_matcher/README.md`
-- Create: `scripts/metabolomics/isotope_pattern_matcher/tests/conftest.py`
-- Create: `scripts/metabolomics/isotope_pattern_matcher/tests/test_isotope_pattern_matcher.py`
+- Create: `tools/metabolomics/isotope_pattern_matcher/isotope_pattern_matcher.py`
+- Create: `tools/metabolomics/isotope_pattern_matcher/requirements.txt`
+- Create: `tools/metabolomics/isotope_pattern_matcher/README.md`
+- Create: `tools/metabolomics/isotope_pattern_matcher/tests/conftest.py`
+- Create: `tools/metabolomics/isotope_pattern_matcher/tests/test_isotope_pattern_matcher.py`
 
 - [ ] **Step 1: Create directory and copy script**
 
 ```bash
-mkdir -p scripts/metabolomics/isotope_pattern_matcher/tests
-git show origin/copilot/add-agentic-scripts-for-proteomics:scripts/metabolomics/isotope_pattern_matcher.py > scripts/metabolomics/isotope_pattern_matcher/isotope_pattern_matcher.py
+mkdir -p tools/metabolomics/isotope_pattern_matcher/tests
+git show origin/copilot/add-agentic-scripts-for-proteomics:tools/metabolomics/isotope_pattern_matcher.py > tools/metabolomics/isotope_pattern_matcher/isotope_pattern_matcher.py
 ```
 
 - [ ] **Step 2: Create requirements.txt**
@@ -704,13 +704,13 @@ python isotope_pattern_matcher.py --formula C6H12O6 --peaks 181.0709,100.0 182.0
 
 - [ ] **Step 6: Run ruff and tests**
 
-Run: `ruff check scripts/metabolomics/isotope_pattern_matcher/ && PYTHONPATH=scripts/metabolomics/isotope_pattern_matcher python -m pytest scripts/metabolomics/isotope_pattern_matcher/tests/ -v`
+Run: `ruff check tools/metabolomics/isotope_pattern_matcher/ && PYTHONPATH=tools/metabolomics/isotope_pattern_matcher python -m pytest tools/metabolomics/isotope_pattern_matcher/tests/ -v`
 Expected: Lint clean, 6 tests pass
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/metabolomics/isotope_pattern_matcher/
+git add tools/metabolomics/isotope_pattern_matcher/
 git commit -m "Migrate isotope_pattern_matcher to per-script directory structure"
 ```
 
@@ -719,17 +719,17 @@ git commit -m "Migrate isotope_pattern_matcher to per-script directory structure
 ### Task 8: Migrate metabolite_feature_detection to per-script directory
 
 **Files:**
-- Create: `scripts/metabolomics/metabolite_feature_detection/metabolite_feature_detection.py`
-- Create: `scripts/metabolomics/metabolite_feature_detection/requirements.txt`
-- Create: `scripts/metabolomics/metabolite_feature_detection/README.md`
-- Create: `scripts/metabolomics/metabolite_feature_detection/tests/conftest.py`
-- Create: `scripts/metabolomics/metabolite_feature_detection/tests/test_metabolite_feature_detection.py`
+- Create: `tools/metabolomics/metabolite_feature_detection/metabolite_feature_detection.py`
+- Create: `tools/metabolomics/metabolite_feature_detection/requirements.txt`
+- Create: `tools/metabolomics/metabolite_feature_detection/README.md`
+- Create: `tools/metabolomics/metabolite_feature_detection/tests/conftest.py`
+- Create: `tools/metabolomics/metabolite_feature_detection/tests/test_metabolite_feature_detection.py`
 
 - [ ] **Step 1: Create directory and copy script**
 
 ```bash
-mkdir -p scripts/metabolomics/metabolite_feature_detection/tests
-git show origin/copilot/add-agentic-scripts-for-proteomics:scripts/metabolomics/metabolite_feature_detection.py > scripts/metabolomics/metabolite_feature_detection/metabolite_feature_detection.py
+mkdir -p tools/metabolomics/metabolite_feature_detection/tests
+git show origin/copilot/add-agentic-scripts-for-proteomics:tools/metabolomics/metabolite_feature_detection.py > tools/metabolomics/metabolite_feature_detection/metabolite_feature_detection.py
 ```
 
 - [ ] **Step 2: Create requirements.txt**
@@ -801,13 +801,13 @@ python metabolite_feature_detection.py --input sample.mzML --output features.fea
 
 - [ ] **Step 6: Run ruff and tests**
 
-Run: `ruff check scripts/metabolomics/metabolite_feature_detection/ && PYTHONPATH=scripts/metabolomics/metabolite_feature_detection python -m pytest scripts/metabolomics/metabolite_feature_detection/tests/ -v`
+Run: `ruff check tools/metabolomics/metabolite_feature_detection/ && PYTHONPATH=tools/metabolomics/metabolite_feature_detection python -m pytest tools/metabolomics/metabolite_feature_detection/tests/ -v`
 Expected: Lint clean, 1 test passes
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add scripts/metabolomics/metabolite_feature_detection/
+git add tools/metabolomics/metabolite_feature_detection/
 git commit -m "Migrate metabolite_feature_detection to per-script directory with synthetic test data"
 ```
 
@@ -838,7 +838,7 @@ Validate any script in the agentomics repo by running ruff and pytest in a fresh
 
 ## Steps (follow exactly — rigid skill)
 
-1. **Identify the script directory.** If the user provided a path, use it. Otherwise, ask which script to validate. The path should be `scripts/<domain>/<tool_name>/`.
+1. **Identify the script directory.** If the user provided a path, use it. Otherwise, ask which script to validate. The path should be `tools/<domain>/<tool_name>/`.
 
 2. **Verify the directory structure.** Confirm it contains:
    - `<tool_name>.py`
@@ -918,7 +918,7 @@ git checkout -b add/<tool_name>
 ### 5. Scaffold the directory
 
 ```bash
-mkdir -p scripts/<domain>/<tool_name>/tests
+mkdir -p tools/<domain>/<tool_name>/tests
 ```
 
 Create these files:
@@ -950,7 +950,7 @@ requires_pyopenms = pytest.mark.skipif(not HAS_PYOPENMS, reason="pyopenms not in
 
 ### 6. Write the script
 
-Create `scripts/<domain>/<tool_name>/<tool_name>.py` following these patterns:
+Create `tools/<domain>/<tool_name>/<tool_name>.py` following these patterns:
 
 - Module-level docstring with description, supported features, and CLI usage examples
 - pyopenms import guard:
@@ -967,7 +967,7 @@ Create `scripts/<domain>/<tool_name>/<tool_name>.py` following these patterns:
 
 ### 7. Write tests
 
-Create `scripts/<domain>/<tool_name>/tests/test_<tool_name>.py`:
+Create `tools/<domain>/<tool_name>/tests/test_<tool_name>.py`:
 
 - Import `requires_pyopenms` from conftest
 - Decorate test classes with `@requires_pyopenms`
@@ -977,7 +977,7 @@ Create `scripts/<domain>/<tool_name>/tests/test_<tool_name>.py`:
 
 ### 8. Write README
 
-Create `scripts/<domain>/<tool_name>/README.md` with a brief description and CLI usage examples.
+Create `tools/<domain>/<tool_name>/README.md` with a brief description and CLI usage examples.
 
 ### 9. Validate
 
@@ -986,7 +986,7 @@ Invoke the `validate-script` skill on the new script directory. Both ruff and py
 ### 10. Commit
 
 ```bash
-git add scripts/<domain>/<tool_name>/
+git add tools/<domain>/<tool_name>/
 git commit -m "Add <tool_name>: <brief description>"
 ```
 ```
@@ -1018,10 +1018,10 @@ Agentomics is a collection of standalone CLI tools built with [pyopenms](https:/
 
 ## Contribution Requirements
 
-Every script must be a **self-contained directory** under `scripts/<domain>/<tool_name>/`:
+Every script must be a **self-contained directory** under `tools/<domain>/<tool_name>/`:
 
 ```
-scripts/<domain>/<tool_name>/
+tools/<domain>/<tool_name>/
 ├── <tool_name>.py        # The tool itself
 ├── requirements.txt      # pyopenms + any script-specific deps (no version pins)
 ├── README.md             # Brief description + CLI usage examples
@@ -1089,7 +1089,7 @@ Test files:
 Every script must pass validation in an **isolated venv** before it can be merged. Run these commands from the repo root:
 
 ```bash
-SCRIPT_DIR=scripts/<domain>/<tool_name>
+SCRIPT_DIR=tools/<domain>/<tool_name>
 VENV_DIR=$(mktemp -d)
 python -m venv "$VENV_DIR"
 "$VENV_DIR/bin/python" -m pip install -r "$SCRIPT_DIR/requirements.txt"
@@ -1138,7 +1138,7 @@ name: Validate Scripts
 on:
   pull_request:
     paths:
-      - 'scripts/**'
+      - 'tools/**'
 
 jobs:
   detect-changes:
@@ -1156,8 +1156,8 @@ jobs:
         run: |
           # Note: github.base_ref is only available on pull_request events
           # Find all script directories that changed in this PR
-          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'scripts/' \
-            | grep -oP 'scripts/[^/]+/[^/]+/' \
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'tools/' \
+            | grep -oP 'tools/[^/]+/[^/]+/' \
             | sort -u \
             | jq -R -s -c 'split("\n") | map(select(length > 0))')
 
@@ -1233,16 +1233,16 @@ Agentomics is a collection of standalone CLI tools built with [pyopenms](https:/
 
 ```bash
 # Install dependencies for a specific script
-pip install -r scripts/proteomics/peptide_mass_calculator/requirements.txt
+pip install -r tools/proteomics/peptide_mass_calculator/requirements.txt
 
 # Lint a specific script
-ruff check scripts/proteomics/peptide_mass_calculator/
+ruff check tools/proteomics/peptide_mass_calculator/
 
 # Run tests for a specific script
-PYTHONPATH=scripts/proteomics/peptide_mass_calculator python -m pytest scripts/proteomics/peptide_mass_calculator/tests/ -v
+PYTHONPATH=tools/proteomics/peptide_mass_calculator python -m pytest tools/proteomics/peptide_mass_calculator/tests/ -v
 
 # Lint all scripts
-ruff check scripts/
+ruff check tools/
 
 # Run all tests (requires pyopenms installed)
 find scripts -name 'tests' -type d -exec sh -c 'PYTHONPATH=$(dirname {}) python -m pytest {} -v' \;
@@ -1252,10 +1252,10 @@ find scripts -name 'tests' -type d -exec sh -c 'PYTHONPATH=$(dirname {}) python 
 
 ### Per-Script Directory Structure
 
-Each script is a self-contained directory under `scripts/<domain>/<tool_name>/`:
+Each script is a self-contained directory under `tools/<domain>/<tool_name>/`:
 
 ```
-scripts/<domain>/<tool_name>/
+tools/<domain>/<tool_name>/
 ├── <tool_name>.py        # The tool (importable functions + argparse CLI)
 ├── requirements.txt      # pyopenms + script-specific deps
 ├── README.md             # Usage examples
@@ -1303,18 +1303,18 @@ pip install pyopenms
 
 | Script | Description |
 |--------|-------------|
-| [`peptide_mass_calculator`](scripts/proteomics/peptide_mass_calculator/) | Monoisotopic/average masses and b/y fragment ions for peptide sequences |
-| [`protein_digest`](scripts/proteomics/protein_digest/) | In-silico enzymatic protein digestion |
-| [`spectrum_file_info`](scripts/proteomics/spectrum_file_info/) | Summary statistics for mzML files |
-| [`feature_detection_proteomics`](scripts/proteomics/feature_detection_proteomics/) | Peptide feature detection from LC-MS/MS data |
+| [`peptide_mass_calculator`](tools/proteomics/peptide_mass_calculator/) | Monoisotopic/average masses and b/y fragment ions for peptide sequences |
+| [`protein_digest`](tools/proteomics/protein_digest/) | In-silico enzymatic protein digestion |
+| [`spectrum_file_info`](tools/proteomics/spectrum_file_info/) | Summary statistics for mzML files |
+| [`feature_detection_proteomics`](tools/proteomics/feature_detection_proteomics/) | Peptide feature detection from LC-MS/MS data |
 
 ### Metabolomics
 
 | Script | Description |
 |--------|-------------|
-| [`mass_accuracy_calculator`](scripts/metabolomics/mass_accuracy_calculator/) | m/z mass accuracy (ppm error) for sequences or formulas |
-| [`isotope_pattern_matcher`](scripts/metabolomics/isotope_pattern_matcher/) | Theoretical isotope distributions and cosine similarity scoring |
-| [`metabolite_feature_detection`](scripts/metabolomics/metabolite_feature_detection/) | Metabolite feature detection from LC-MS data |
+| [`mass_accuracy_calculator`](tools/metabolomics/mass_accuracy_calculator/) | m/z mass accuracy (ppm error) for sequences or formulas |
+| [`isotope_pattern_matcher`](tools/metabolomics/isotope_pattern_matcher/) | Theoretical isotope distributions and cosine similarity scoring |
+| [`metabolite_feature_detection`](tools/metabolomics/metabolite_feature_detection/) | Metabolite feature detection from LC-MS data |
 
 ## Validation
 
@@ -1341,7 +1341,7 @@ git commit -m "Update CLAUDE.md and README.md for per-script directory structure
 Run the validation pipeline on each script directory. For each, execute:
 
 ```bash
-SCRIPT_DIR=scripts/<domain>/<tool_name>
+SCRIPT_DIR=tools/<domain>/<tool_name>
 VENV_DIR=$(mktemp -d)
 python -m venv "$VENV_DIR"
 "$VENV_DIR/bin/python" -m pip install -r "$SCRIPT_DIR/requirements.txt"
@@ -1352,13 +1352,13 @@ rm -rf "$VENV_DIR"
 ```
 
 Run for each:
-1. `scripts/proteomics/peptide_mass_calculator`
-2. `scripts/proteomics/protein_digest`
-3. `scripts/proteomics/spectrum_file_info`
-4. `scripts/proteomics/feature_detection_proteomics`
-5. `scripts/metabolomics/mass_accuracy_calculator`
-6. `scripts/metabolomics/isotope_pattern_matcher`
-7. `scripts/metabolomics/metabolite_feature_detection`
+1. `tools/proteomics/peptide_mass_calculator`
+2. `tools/proteomics/protein_digest`
+3. `tools/proteomics/spectrum_file_info`
+4. `tools/proteomics/feature_detection_proteomics`
+5. `tools/metabolomics/mass_accuracy_calculator`
+6. `tools/metabolomics/isotope_pattern_matcher`
+7. `tools/metabolomics/metabolite_feature_detection`
 
 Expected: All 7 pass ruff lint and all tests pass (or skip with `pyopenms not installed`).
 
