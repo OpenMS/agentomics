@@ -1,8 +1,11 @@
 """Tests for charge_state_predictor."""
 
-from conftest import requires_pyopenms
+import pytest
 
 
+def requires_pyopenms(obj):
+    pytest.importorskip("pyopenms")
+    return obj
 @requires_pyopenms
 class TestChargeStatePredictor:
     def test_basic_sites_counting(self):
