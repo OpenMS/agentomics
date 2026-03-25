@@ -5,10 +5,11 @@ import math
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestKovatsRiCalculator:
     def test_build_alkane_table(self):
         from kovats_ri_calculator import build_alkane_table

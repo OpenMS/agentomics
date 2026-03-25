@@ -1,9 +1,10 @@
 """Tests for injection_time_analyzer."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestInjectionTimeAnalyzer:
     def _make_experiment_with_injection_times(self):
         import numpy as np

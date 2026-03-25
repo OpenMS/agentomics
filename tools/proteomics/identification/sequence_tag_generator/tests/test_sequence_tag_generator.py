@@ -1,9 +1,10 @@
 """Tests for sequence_tag_generator."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSequenceTagGenerator:
     def test_get_residue_masses(self):
         from sequence_tag_generator import get_residue_masses

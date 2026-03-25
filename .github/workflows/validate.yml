@@ -45,16 +45,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Create shared venv and install dependencies
+      - name: Create shared venv and install per-tool dependencies
         run: |
           python -m venv /tmp/validate_venv
-          /tmp/validate_venv/bin/python -m pip install pyopenms numpy scipy click pytest ruff
           DIRS='${{ needs.detect-changes.outputs.matrix }}'
           echo "$DIRS" | jq -r '.[]' | while read -r dir; do
             if [ -f "${dir}requirements.txt" ]; then
+              echo "::group::pip install -r ${dir}requirements.txt"
               /tmp/validate_venv/bin/python -m pip install -r "${dir}requirements.txt"
+              echo "::endgroup::"
             fi
           done
+          /tmp/validate_venv/bin/python -m pip install pytest ruff
 
       - name: Lint changed tools
         run: |

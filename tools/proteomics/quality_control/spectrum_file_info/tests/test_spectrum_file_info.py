@@ -1,10 +1,10 @@
 """Tests for spectrum_file_info."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSpectrumFileInfo:
     def _make_experiment(self, n_spectra=5, ms_level=1):
         """Create a synthetic MSExperiment for testing."""

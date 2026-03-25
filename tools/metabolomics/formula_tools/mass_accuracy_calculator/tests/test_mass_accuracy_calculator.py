@@ -1,10 +1,11 @@
 """Tests for mass_accuracy_calculator."""
 
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMassAccuracyCalculator:
     def test_sequence_theoretical(self):
         from mass_accuracy_calculator import theoretical_mz_from_sequence

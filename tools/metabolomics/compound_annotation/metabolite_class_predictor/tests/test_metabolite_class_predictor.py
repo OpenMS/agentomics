@@ -5,10 +5,10 @@ import os
 import tempfile
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMetaboliteClassPredictor:
     def test_get_element_counts(self):
         from metabolite_class_predictor import get_element_counts

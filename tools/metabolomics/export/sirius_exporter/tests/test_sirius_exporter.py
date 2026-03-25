@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _create_test_data(tmp_dir):
@@ -37,7 +39,6 @@ def _create_test_data(tmp_dir):
     return mzml_path, features_path
 
 
-@requires_pyopenms
 def test_load_features_tsv():
     from sirius_exporter import load_features_tsv
 
@@ -53,7 +54,6 @@ def test_load_features_tsv():
         assert features[0]["name"] == "test_compound"
 
 
-@requires_pyopenms
 def test_find_ms2_spectra():
     from sirius_exporter import find_ms2_spectra, load_mzml
 
@@ -68,7 +68,6 @@ def test_find_ms2_spectra():
         assert len(no_match) == 0
 
 
-@requires_pyopenms
 def test_export_to_sirius():
     from sirius_exporter import export_to_sirius
 
@@ -87,7 +86,6 @@ def test_export_to_sirius():
         assert ">ms2" in content
 
 
-@requires_pyopenms
 def test_sirius_ms_format():
     from sirius_exporter import export_to_sirius
 

@@ -3,10 +3,11 @@
 import json
 
 import numpy as np
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSampleComplexityEstimator:
     def _make_experiment(self, n_ms1=5, n_peaks=100):
         """Create a synthetic MSExperiment with MS1 spectra."""

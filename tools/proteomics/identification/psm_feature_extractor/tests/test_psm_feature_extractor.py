@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 PROTON = 1.007276
 
@@ -56,7 +58,6 @@ def _create_test_data(tmp_dir):
     return mzml_path, psms_path
 
 
-@requires_pyopenms
 def test_generate_theoretical_spectrum():
     from psm_feature_extractor import generate_theoretical_spectrum
 
@@ -64,7 +65,6 @@ def test_generate_theoretical_spectrum():
     assert theo.size() > 0
 
 
-@requires_pyopenms
 def test_compute_features_perfect_match():
     from psm_feature_extractor import compute_features, generate_theoretical_spectrum
 
@@ -76,7 +76,6 @@ def test_compute_features_perfect_match():
     assert features["sequence_length"] == 9
 
 
-@requires_pyopenms
 def test_extract_features():
     from psm_feature_extractor import extract_features
 
@@ -94,7 +93,6 @@ def test_extract_features():
         assert len(lines) == 3  # header + 2 PSMs
 
 
-@requires_pyopenms
 def test_extract_features_content():
     import csv
 

@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 PROTON = 1.007276
 
@@ -44,7 +46,6 @@ def _create_test_data(tmp_dir):
     return mzml_path, peptides_path
 
 
-@requires_pyopenms
 def test_load_peptides_tsv():
     from spectral_library_builder import load_peptides_tsv
 
@@ -62,7 +63,6 @@ def test_load_peptides_tsv():
         assert peptides[0]["mz"] > 0
 
 
-@requires_pyopenms
 def test_build_library():
     from spectral_library_builder import build_library
 
@@ -80,7 +80,6 @@ def test_build_library():
         assert "Num peaks:" in content
 
 
-@requires_pyopenms
 def test_no_match():
     import pyopenms as oms
     from spectral_library_builder import build_library

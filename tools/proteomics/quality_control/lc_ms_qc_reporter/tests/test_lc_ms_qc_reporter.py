@@ -1,9 +1,10 @@
 """Tests for lc_ms_qc_reporter."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestLcMsQcReporter:
     def _make_experiment(self):
         """Create a synthetic MSExperiment with MS1 and MS2 spectra."""

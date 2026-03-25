@@ -1,10 +1,10 @@
 """Tests for massql_query_tool."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMassqlQueryTool:
     def _make_experiment(self):
         import numpy as np

@@ -2,10 +2,11 @@
 
 import csv
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_theoretical_fragments():
     from topdown_coverage_calculator import theoretical_fragments
 
@@ -18,7 +19,6 @@ def test_theoretical_fragments():
     assert [f[0] for f in frags["b"]] == list(range(1, 9))
 
 
-@requires_pyopenms
 def test_match_fragments_exact():
     from topdown_coverage_calculator import match_fragments, theoretical_fragments
 
@@ -30,7 +30,6 @@ def test_match_fragments_exact():
     assert len(matches["b"]) >= 3
 
 
-@requires_pyopenms
 def test_bond_coverage():
     from topdown_coverage_calculator import (
         bond_coverage,
@@ -49,7 +48,6 @@ def test_bond_coverage():
     assert all(c["covered"] for c in cov)
 
 
-@requires_pyopenms
 def test_coverage_summary():
     from topdown_coverage_calculator import coverage_summary
 
@@ -63,7 +61,6 @@ def test_coverage_summary():
     assert abs(summary["coverage_fraction"] - 0.6) < 0.01
 
 
-@requires_pyopenms
 def test_cli_roundtrip(tmp_path):
     from click.testing import CliRunner
     from topdown_coverage_calculator import main, theoretical_fragments

@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMassDefectFilter:
     def test_compute_mass_defect(self):
         from mass_defect_filter import compute_mass_defect

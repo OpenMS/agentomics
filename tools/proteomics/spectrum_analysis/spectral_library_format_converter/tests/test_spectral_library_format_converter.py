@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSpectralLibraryFormatConverter:
     def test_parse_msp(self):
         from spectral_library_format_converter import create_synthetic_msp, parse_msp

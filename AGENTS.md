@@ -60,24 +60,14 @@ Every tool must have:
 Every `tests/conftest.py` must contain:
 
 ```python
-import sys
 import os
-
-import pytest
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-try:
-    import pyopenms  # noqa: F401
-    HAS_PYOPENMS = True
-except ImportError:
-    HAS_PYOPENMS = False
-
-requires_pyopenms = pytest.mark.skipif(not HAS_PYOPENMS, reason="pyopenms not installed")
 ```
 
 Test files:
-- Decorate test classes with `@requires_pyopenms` from conftest
+- Add `pytest.importorskip("pyopenms")` at module level (after `import pytest`)
 - Import tool functions inside test methods: `from <tool_name> import <function>`
 - For file-I/O tools: generate synthetic data using pyopenms objects, write to `tempfile.TemporaryDirectory()`
 

@@ -1,9 +1,10 @@
 """Tests for semi_tryptic_peptide_finder."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSemiTrypticPeptideFinder:
     def test_fully_tryptic(self):
         from semi_tryptic_peptide_finder import classify_peptide

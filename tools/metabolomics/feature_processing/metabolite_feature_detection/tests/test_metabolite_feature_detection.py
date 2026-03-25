@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMetaboliteFeatureDetection:
     def test_detect_features_returns_feature_map(self):
         import numpy as np

@@ -2,10 +2,11 @@
 
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPeptideUniquenessChecker:
     def _create_fasta(self, tmpdir):
         """Create a synthetic FASTA file with two proteins."""

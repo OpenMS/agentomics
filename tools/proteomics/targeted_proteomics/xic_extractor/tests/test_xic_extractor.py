@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestXicExtractor:
     def test_extract_xic(self):
         from xic_extractor import create_synthetic_mzml, extract_xic

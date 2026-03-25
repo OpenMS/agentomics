@@ -1,10 +1,10 @@
 """Tests for immunopeptide_filter."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestImmunopeptideFilter:
     def test_filter_by_length_class_i(self):
         from immunopeptide_filter import filter_peptides

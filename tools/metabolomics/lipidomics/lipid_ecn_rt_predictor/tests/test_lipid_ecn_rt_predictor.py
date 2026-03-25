@@ -4,10 +4,11 @@ import csv
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestLipidEcnRtPredictor:
     def test_compute_ecn(self):
         from lipid_ecn_rt_predictor import compute_ecn

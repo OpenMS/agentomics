@@ -3,11 +3,12 @@
 import csv
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
+
 from rna_digest import _calculate_fragment_mass, digest_rna
 
 
-@requires_pyopenms
 class TestRnaDigest:
     def test_rnase_t1_basic(self):
         """RNase T1 cleaves after G."""

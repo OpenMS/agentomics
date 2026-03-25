@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPhosphoEnrichmentQC:
     def test_is_phosphopeptide_true(self):
         from phospho_enrichment_qc import is_phosphopeptide

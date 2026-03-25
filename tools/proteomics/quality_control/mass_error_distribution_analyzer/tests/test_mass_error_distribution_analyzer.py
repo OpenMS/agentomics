@@ -1,9 +1,10 @@
 """Tests for mass_error_distribution_analyzer."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMassErrorDistributionAnalyzer:
     def test_compute_mass_errors(self):
         import pyopenms as oms

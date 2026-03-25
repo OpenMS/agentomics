@@ -1,10 +1,11 @@
 """Tests for ms_data_ml_exporter."""
 
 import numpy as np
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMsDataMlExporter:
     def _make_experiment(self, n_spectra=5):
         """Create a synthetic MSExperiment."""

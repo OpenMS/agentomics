@@ -1,9 +1,10 @@
 """Tests for targeted_feature_extractor."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestTargetedFeatureExtractor:
     def _make_experiment(self, target_mz=181.0707):
         """Create experiment with a peak at target_mz."""

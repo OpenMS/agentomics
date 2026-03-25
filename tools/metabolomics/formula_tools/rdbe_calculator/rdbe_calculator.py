@@ -34,7 +34,10 @@ def get_element_counts(formula: str) -> dict:
     """
     ef = oms.EmpiricalFormula(formula)
     composition = ef.getElementalComposition()
-    return {k.decode() if isinstance(k, (bytes, bytearray)) else str(k): v for k, v in composition.items()}
+    return {
+        (k.decode() if isinstance(k, (bytes, bytearray)) else str(k)): v
+        for k, v in composition.items()
+    }
 
 
 def calculate_rdbe(formula: str) -> float:

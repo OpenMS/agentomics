@@ -1,10 +1,11 @@
 """Tests for irt_calculator."""
 
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestIrtCalculator:
     def test_linear_regression_perfect(self):
         from irt_calculator import linear_regression

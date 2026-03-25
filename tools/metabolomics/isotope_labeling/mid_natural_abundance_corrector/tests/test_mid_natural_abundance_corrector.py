@@ -1,10 +1,10 @@
 """Tests for mid_natural_abundance_corrector."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestGetNumTracerAtoms:
     def test_glucose_carbons(self):
         from mid_natural_abundance_corrector import get_num_tracer_atoms
@@ -23,7 +23,6 @@ class TestGetNumTracerAtoms:
             get_num_tracer_atoms("C6H12O6", "18O")
 
 
-@requires_pyopenms
 class TestBuildCorrectionMatrix:
     def test_matrix_shape(self):
         from mid_natural_abundance_corrector import build_correction_matrix
@@ -48,7 +47,6 @@ class TestBuildCorrectionMatrix:
             assert C[i, i] > 0.5
 
 
-@requires_pyopenms
 class TestCorrectMID:
     def test_unlabeled_sample(self):
         """An unlabeled sample should have ~1.0 at M+0 after correction."""

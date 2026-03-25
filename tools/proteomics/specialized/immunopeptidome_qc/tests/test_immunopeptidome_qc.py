@@ -2,10 +2,11 @@
 
 import csv
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_validate_sequence():
     from immunopeptidome_qc import validate_sequence
 
@@ -13,7 +14,6 @@ def test_validate_sequence():
     assert validate_sequence("") is False
 
 
-@requires_pyopenms
 def test_length_distribution():
     from immunopeptidome_qc import length_distribution
 
@@ -24,7 +24,6 @@ def test_length_distribution():
     assert dist[11] == 1  # one 11-mer
 
 
-@requires_pyopenms
 def test_length_qc_class_i():
     from immunopeptidome_qc import length_qc
 
@@ -37,7 +36,6 @@ def test_length_qc_class_i():
     assert abs(qc["in_range_fraction"] - 0.95) < 0.01
 
 
-@requires_pyopenms
 def test_length_qc_class_ii():
     from immunopeptidome_qc import length_qc
 
@@ -49,7 +47,6 @@ def test_length_qc_class_ii():
     assert qc["out_of_range_count"] == 5
 
 
-@requires_pyopenms
 def test_positional_frequencies():
     from immunopeptidome_qc import positional_frequencies
 
@@ -60,7 +57,6 @@ def test_positional_frequencies():
     assert freqs[0]["A"] == 1.0  # all start with A
 
 
-@requires_pyopenms
 def test_information_content():
     from immunopeptidome_qc import information_content
 
@@ -75,7 +71,6 @@ def test_information_content():
     assert ic_max > 4.0  # log2(20) ~ 4.32
 
 
-@requires_pyopenms
 def test_run_qc():
     from immunopeptidome_qc import run_qc
 
@@ -86,7 +81,6 @@ def test_run_qc():
     assert len(ic_values) > 0
 
 
-@requires_pyopenms
 def test_cli_roundtrip(tmp_path):
     from click.testing import CliRunner
     from immunopeptidome_qc import main

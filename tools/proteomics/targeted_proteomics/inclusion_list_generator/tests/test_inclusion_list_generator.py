@@ -1,11 +1,12 @@
 """Tests for inclusion_list_generator."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
+
 from inclusion_list_generator import calculate_mz, generate_inclusion_list
 
 
-@requires_pyopenms
 class TestInclusionListGenerator:
     def test_calculate_mz(self):
         mz = calculate_mz("PEPTIDEK", 2)

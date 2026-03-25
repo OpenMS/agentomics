@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 SAMPLE_MGF = """\
 BEGIN IONS
@@ -27,7 +29,6 @@ END IONS
 """
 
 
-@requires_pyopenms
 def test_parse_mgf():
     from mgf_to_mzml_converter import parse_mgf
 
@@ -45,7 +46,6 @@ def test_parse_mgf():
         assert len(spectra[1]["peaks"]) == 2
 
 
-@requires_pyopenms
 def test_convert_mgf_to_mzml():
     import pyopenms as oms
     from mgf_to_mzml_converter import convert_mgf_to_mzml
@@ -76,7 +76,6 @@ def test_convert_mgf_to_mzml():
         assert len(mz_arr) == 3
 
 
-@requires_pyopenms
 def test_roundtrip_mgf_mzml_mgf():
     """Test MGF -> mzML -> MGF roundtrip."""
     import sys

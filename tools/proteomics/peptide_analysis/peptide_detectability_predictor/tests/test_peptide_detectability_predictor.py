@@ -2,10 +2,11 @@
 
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPeptideDetectabilityPredictor:
     def test_basic_score(self):
         from peptide_detectability_predictor import calculate_detectability_score

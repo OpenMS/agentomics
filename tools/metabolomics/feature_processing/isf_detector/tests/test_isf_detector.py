@@ -1,10 +1,10 @@
 """Tests for isf_detector."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestNeutralLossMasses:
     def test_h2o_mass(self):
         from isf_detector import get_neutral_loss_masses
@@ -19,7 +19,6 @@ class TestNeutralLossMasses:
         assert masses["CO2"] == pytest.approx(43.9898, abs=0.001)
 
 
-@requires_pyopenms
 class TestPearsonCorrelation:
     def test_perfect_correlation(self):
         from isf_detector import pearson_correlation
@@ -38,7 +37,6 @@ class TestPearsonCorrelation:
         assert pearson_correlation([1], [2]) == 0.0
 
 
-@requires_pyopenms
 class TestDetectISFPairs:
     def test_water_loss_detected(self):
         from isf_detector import detect_isf_pairs, get_neutral_loss_masses
@@ -75,7 +73,6 @@ class TestDetectISFPairs:
         assert len(pairs) == 0
 
 
-@requires_pyopenms
 class TestAnnotateFeatures:
     def test_annotation(self):
         from isf_detector import annotate_features

@@ -1,9 +1,10 @@
 """Tests for modified_peptide_generator."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestModifiedPeptideGenerator:
     def test_no_mods(self):
         from modified_peptide_generator import generate_variants

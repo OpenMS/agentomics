@@ -1,9 +1,10 @@
 """Tests for acquisition_rate_analyzer."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestAcquisitionRateAnalyzer:
     def _make_experiment(self):
         import numpy as np

@@ -1,11 +1,13 @@
 """Tests for peptide_to_protein_mapper."""
 
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
+
 from peptide_to_protein_mapper import _strip_modifications, map_peptides_to_proteins, read_fasta
 
 
-@requires_pyopenms
 class TestPeptideToProteinMapper:
     def _make_fasta_entries(self):
         return [

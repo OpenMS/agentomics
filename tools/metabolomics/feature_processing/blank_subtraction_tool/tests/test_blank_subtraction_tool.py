@@ -1,9 +1,10 @@
 """Tests for blank_subtraction_tool."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestBlankSubtractionTool:
     def test_remove_blank_features(self):
         from blank_subtraction_tool import subtract_blanks

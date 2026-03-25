@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSpectrumEntropyCalculator:
     def test_uniform_entropy(self):
         from spectrum_entropy_calculator import spectral_entropy

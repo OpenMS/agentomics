@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPredictMetabolites:
     def test_phase1_oxidation(self):
         from drug_metabolite_screener import predict_metabolites
@@ -31,7 +32,6 @@ class TestPredictMetabolites:
         assert len(results) > 5  # Should have multiple reactions
 
 
-@requires_pyopenms
 class TestGetReactionTable:
     def test_phase1_only(self):
         from drug_metabolite_screener import get_reaction_table
@@ -48,7 +48,6 @@ class TestGetReactionTable:
         assert "oxidation" not in table
 
 
-@requires_pyopenms
 class TestScreenMzML:
     def test_screen_synthetic_mzml(self):
         import pyopenms as oms

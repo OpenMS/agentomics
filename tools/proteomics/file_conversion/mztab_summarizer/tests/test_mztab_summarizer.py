@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 SAMPLE_MZTAB = """\
 MTD\tmzTab-version\t1.0.0
@@ -23,7 +25,6 @@ PSM\tACDEFGHIK\t3\tP12345
 """
 
 
-@requires_pyopenms
 def test_parse_mztab():
     from mztab_summarizer import parse_mztab
 
@@ -39,7 +40,6 @@ def test_parse_mztab():
         assert "mzTab-version" in data["metadata"]
 
 
-@requires_pyopenms
 def test_summarize_mztab():
     from mztab_summarizer import summarize_mztab
 
@@ -58,7 +58,6 @@ def test_summarize_mztab():
         assert len(summary["search_engines"]) == 1
 
 
-@requires_pyopenms
 def test_write_summary_tsv():
     from mztab_summarizer import summarize_mztab, write_summary_tsv
 

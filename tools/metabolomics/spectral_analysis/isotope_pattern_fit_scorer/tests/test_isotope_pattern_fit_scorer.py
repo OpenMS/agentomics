@@ -5,10 +5,10 @@ import os
 import tempfile
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestIsotopePatternFitScorer:
     def test_get_theoretical_pattern(self):
         from isotope_pattern_fit_scorer import get_theoretical_pattern

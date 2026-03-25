@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_create_synthetic_consensus():
     import pyopenms as oms
     from consensus_map_to_matrix import create_synthetic_consensus
@@ -20,7 +21,6 @@ def test_create_synthetic_consensus():
         assert cmap.size() == 5
 
 
-@requires_pyopenms
 def test_consensus_to_matrix():
     from consensus_map_to_matrix import consensus_to_matrix, create_synthetic_consensus
 
@@ -44,7 +44,6 @@ def test_consensus_to_matrix():
         assert "intensity_2" in header
 
 
-@requires_pyopenms
 def test_consensus_to_matrix_single_map():
     from consensus_map_to_matrix import consensus_to_matrix, create_synthetic_consensus
 

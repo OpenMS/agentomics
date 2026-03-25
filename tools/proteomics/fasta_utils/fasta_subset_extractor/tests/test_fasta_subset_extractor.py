@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_filter_by_accessions():
     import pyopenms as oms
     from fasta_subset_extractor import filter_by_accessions
@@ -24,7 +25,6 @@ def test_filter_by_accessions():
     assert "P12345" in result[0].identifier
 
 
-@requires_pyopenms
 def test_filter_by_keyword():
     import pyopenms as oms
     from fasta_subset_extractor import filter_by_keyword
@@ -43,7 +43,6 @@ def test_filter_by_keyword():
     assert len(result) == 1
 
 
-@requires_pyopenms
 def test_filter_by_length():
     import pyopenms as oms
     from fasta_subset_extractor import filter_by_length
@@ -61,7 +60,6 @@ def test_filter_by_length():
     assert result[0].sequence == "ACDE"
 
 
-@requires_pyopenms
 def test_extract_subset_roundtrip():
     import pyopenms as oms
     from fasta_subset_extractor import extract_subset

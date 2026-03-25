@@ -1,9 +1,10 @@
 """Tests for precursor_isolation_purity."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPrecursorIsolationPurity:
     def _make_experiment(self):
         import numpy as np

@@ -3,10 +3,11 @@
 import json
 
 import numpy as np
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMzmlMetadataExtractor:
     def _make_experiment(self, n_spectra=5):
         """Create a synthetic MSExperiment."""

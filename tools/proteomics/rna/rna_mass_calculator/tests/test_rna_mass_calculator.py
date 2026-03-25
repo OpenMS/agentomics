@@ -2,11 +2,12 @@
 
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
+
 from rna_mass_calculator import _manual_formula, calculate_isotope_pattern, calculate_rna_mass
 
 
-@requires_pyopenms
 class TestRnaMassCalculator:
     def test_basic_mass(self):
         result = calculate_rna_mass("AAUGC", charge=1)

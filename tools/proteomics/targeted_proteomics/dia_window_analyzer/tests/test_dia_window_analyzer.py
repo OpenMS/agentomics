@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestDiaWindowAnalyzer:
     def test_analyze_windows(self):
         from dia_window_analyzer import analyze_dia_windows, create_synthetic_dia_mzml

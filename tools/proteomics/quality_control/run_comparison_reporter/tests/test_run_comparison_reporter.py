@@ -1,9 +1,10 @@
 """Tests for run_comparison_reporter."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestRunComparisonReporter:
     def _make_experiment(self, rt_offset=0.0, prec_mz_base=500.0):
         import numpy as np

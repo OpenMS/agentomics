@@ -1,10 +1,10 @@
 """Tests for kendrick_mass_defect_analyzer."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestComputeKMD:
     def test_ch2_base(self):
         from kendrick_mass_defect_analyzer import compute_kmd_from_formula
@@ -30,7 +30,6 @@ class TestComputeKMD:
         assert "kmd" in result
 
 
-@requires_pyopenms
 class TestGetBaseExactMass:
     def test_ch2_mass(self):
         from kendrick_mass_defect_analyzer import get_base_exact_mass
@@ -45,7 +44,6 @@ class TestGetBaseExactMass:
         assert mass > 49.0
 
 
-@requires_pyopenms
 class TestGroupHomologousSeries:
     def test_grouping(self):
         from kendrick_mass_defect_analyzer import compute_kmd_from_formula, group_homologous_series

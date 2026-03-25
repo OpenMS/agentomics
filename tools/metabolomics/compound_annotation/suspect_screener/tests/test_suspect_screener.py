@@ -4,10 +4,11 @@ import csv
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSuspectScreener:
     def test_exact_mass_from_formula(self):
         from suspect_screener import exact_mass_from_formula

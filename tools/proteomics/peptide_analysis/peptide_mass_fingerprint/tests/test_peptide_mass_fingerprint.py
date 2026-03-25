@@ -1,10 +1,10 @@
 """Tests for peptide_mass_fingerprint."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPeptideMassFingerprint:
     def _write_fasta(self, tmp_path, accession="P12345", sequence="PEPTIDEKAVLIDRACDEFGHIK"):
         """Write a simple FASTA file for testing."""

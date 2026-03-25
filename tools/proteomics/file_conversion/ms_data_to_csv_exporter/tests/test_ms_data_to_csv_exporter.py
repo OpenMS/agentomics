@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _create_test_mzml(path):
@@ -39,7 +41,6 @@ def _create_test_featurexml(path):
     oms.FeatureXMLFile().store(path, fm)
 
 
-@requires_pyopenms
 def test_export_peaks():
     from ms_data_to_csv_exporter import export_mzml_peaks
 
@@ -58,7 +59,6 @@ def test_export_peaks():
         assert len(lines) == 16  # header + 15 peaks
 
 
-@requires_pyopenms
 def test_export_peaks_ms_level_filter():
     from ms_data_to_csv_exporter import export_mzml_peaks
 
@@ -72,7 +72,6 @@ def test_export_peaks_ms_level_filter():
         assert stats["total_peaks"] == 10
 
 
-@requires_pyopenms
 def test_export_spectra_summary():
     from ms_data_to_csv_exporter import export_mzml_spectra_summary
 
@@ -85,7 +84,6 @@ def test_export_spectra_summary():
         assert stats["spectra_exported"] == 3
 
 
-@requires_pyopenms
 def test_export_featurexml():
     from ms_data_to_csv_exporter import export_featurexml
 

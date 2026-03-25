@@ -1,9 +1,10 @@
 """Tests for isotope_pattern_scorer."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestIsotopePatternScorer:
     def test_parse_observed(self):
         from isotope_pattern_scorer import parse_observed

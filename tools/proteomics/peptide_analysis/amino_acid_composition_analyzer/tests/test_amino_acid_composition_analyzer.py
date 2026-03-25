@@ -2,10 +2,11 @@
 
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestAminoAcidCompositionAnalyzer:
     def test_basic_composition(self):
         from amino_acid_composition_analyzer import analyze_composition

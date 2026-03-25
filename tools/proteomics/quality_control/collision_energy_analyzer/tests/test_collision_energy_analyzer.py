@@ -1,10 +1,11 @@
 """Tests for collision_energy_analyzer."""
 
 import numpy as np
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestCollisionEnergyAnalyzer:
     def _make_experiment(self, n_ms2=5, ce_value=30.0):
         """Create a synthetic MSExperiment with MS2 spectra and CE values."""

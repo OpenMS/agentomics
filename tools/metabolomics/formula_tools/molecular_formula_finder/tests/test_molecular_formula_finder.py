@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMolecularFormulaFinder:
     def test_find_glucose(self):
         from molecular_formula_finder import find_formulas

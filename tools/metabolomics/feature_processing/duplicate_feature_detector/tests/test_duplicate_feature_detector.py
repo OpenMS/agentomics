@@ -1,9 +1,10 @@
 """Tests for duplicate_feature_detector."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestDuplicateFeatureDetector:
     def test_detect_duplicates(self):
         from duplicate_feature_detector import detect_duplicates

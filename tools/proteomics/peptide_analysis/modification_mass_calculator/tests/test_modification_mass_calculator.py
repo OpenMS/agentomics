@@ -3,6 +3,8 @@
 import pytest
 
 pytest.importorskip("pyopenms")
+
+
 class TestModificationMassCalculator:
     def test_search_oxidation(self):
         from modification_mass_calculator import search_modification

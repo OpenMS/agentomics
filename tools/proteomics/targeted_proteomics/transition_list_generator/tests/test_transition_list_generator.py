@@ -1,9 +1,10 @@
 """Tests for transition_list_generator."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestTransitionListGenerator:
     def test_basic_transitions(self):
         from transition_list_generator import generate_transitions

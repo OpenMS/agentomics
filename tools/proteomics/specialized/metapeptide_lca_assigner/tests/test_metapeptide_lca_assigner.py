@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMetapeptideLcaAssigner:
     def _create_fasta(self, tmpdir, proteins):
         """Helper to create a FASTA file."""

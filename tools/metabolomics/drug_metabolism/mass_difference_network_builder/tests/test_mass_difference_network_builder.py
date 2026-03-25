@@ -1,9 +1,10 @@
 """Tests for mass_difference_network_builder."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMassDifferenceNetworkBuilder:
     def test_oxidation_edge(self):
         from mass_difference_network_builder import build_network

@@ -4,10 +4,11 @@ import csv
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestLipidSpeciesResolver:
     def test_parse_sum_composition(self):
         from lipid_species_resolver import parse_sum_composition

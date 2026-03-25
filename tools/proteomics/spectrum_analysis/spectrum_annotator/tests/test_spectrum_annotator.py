@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSpectrumAnnotator:
     def test_annotate_with_matching_peaks(self):
         import pyopenms as oms

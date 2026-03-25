@@ -4,10 +4,11 @@ import csv
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPhosphositeClassFilter:
     def test_classify_class1(self):
         from phosphosite_class_filter import classify_phosphosite

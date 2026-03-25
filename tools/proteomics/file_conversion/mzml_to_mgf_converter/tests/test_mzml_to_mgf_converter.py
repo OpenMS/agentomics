@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_create_synthetic_mzml():
     import pyopenms as oms
     from mzml_to_mgf_converter import create_synthetic_mzml
@@ -20,7 +21,6 @@ def test_create_synthetic_mzml():
         assert exp.size() == 4  # 1 MS1 + 3 MS2
 
 
-@requires_pyopenms
 def test_convert_mzml_to_mgf():
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml
 
@@ -42,7 +42,6 @@ def test_convert_mzml_to_mgf():
         assert "CHARGE=" in content
 
 
-@requires_pyopenms
 def test_mgf_content_format():
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml
 
@@ -61,7 +60,6 @@ def test_mgf_content_format():
         assert any(line.startswith("PEPMASS=") for line in lines)
 
 
-@requires_pyopenms
 def test_min_peaks_filter():
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml
 
@@ -75,7 +73,6 @@ def test_min_peaks_filter():
         assert stats["filtered_out"] == 3
 
 
-@requires_pyopenms
 def test_charge_filter():
     """Synthetic spectra alternate charge 2, 3. Filter for charge 2 only."""
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml
@@ -96,7 +93,6 @@ def test_charge_filter():
         assert "CHARGE=3+" not in content
 
 
-@requires_pyopenms
 def test_charge_filter_multiple():
     """Filter for both charge 2 and 3 — should keep all."""
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml
@@ -111,7 +107,6 @@ def test_charge_filter_multiple():
         assert stats["filtered_out"] == 0
 
 
-@requires_pyopenms
 def test_rt_range_filter():
     """Synthetic spectra at RT 10.0, 10.5, 11.0, 11.5, 12.0. Filter RT 10.5-11.5."""
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml
@@ -129,7 +124,6 @@ def test_rt_range_filter():
         assert stats["filtered_out"] == 2
 
 
-@requires_pyopenms
 def test_mz_range_filter():
     """Synthetic precursor m/z: 500, 550, 600, 650, 700. Filter 550-650."""
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml
@@ -147,7 +141,6 @@ def test_mz_range_filter():
         assert stats["filtered_out"] == 2
 
 
-@requires_pyopenms
 def test_min_intensity_filter():
     """All synthetic spectra have base peak intensity 10000. Filter > 10000 removes all."""
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml
@@ -164,7 +157,6 @@ def test_min_intensity_filter():
         assert stats["converted"] == 3
 
 
-@requires_pyopenms
 def test_combined_filters():
     """Apply charge + RT + m/z filters together."""
     from mzml_to_mgf_converter import convert_mzml_to_mgf, create_synthetic_mzml

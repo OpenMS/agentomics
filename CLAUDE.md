@@ -41,7 +41,7 @@ tools/<domain>/<topic>/<tool_name>/
 ├── requirements.txt      # pyopenms + script-specific deps
 ├── README.md             # Usage examples
 └── tests/
-    ├── conftest.py       # requires_pyopenms marker + sys.path setup
+    ├── conftest.py       # sys.path setup for tool imports
     └── test_<tool_name>.py
 ```
 
@@ -56,7 +56,7 @@ Metabolomics topics: `formula_tools/`, `feature_processing/`, `spectral_analysis
 - pyopenms import wrapped in try/except with user-friendly error message
 - Mass-to-charge: `(mass + charge * PROTON) / charge` with `PROTON = 1.007276`
 - Every script has dual interface: importable functions + click CLI + `__main__` guard
-- Tests use `@requires_pyopenms` skip marker from conftest.py
+- Tests use `pytest.importorskip("pyopenms")` at module level to skip when pyopenms is unavailable
 - File-I/O scripts use synthetic test data generated with pyopenms objects
 
 ## Contributing

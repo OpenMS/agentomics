@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 MGF_TEMPLATE = """BEGIN IONS
 TITLE={title}
@@ -21,7 +23,6 @@ def _write_mgf(path, spectra):
             f.write(MGF_TEMPLATE.format(title=s["title"], pepmass=s["pepmass"], charge=s["charge"], peaks=peaks))
 
 
-@requires_pyopenms
 class TestSpectrumSimilarityScorer:
     def test_parse_mgf(self):
         from spectrum_similarity_scorer import parse_mgf

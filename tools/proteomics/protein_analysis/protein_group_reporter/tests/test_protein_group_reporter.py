@@ -1,9 +1,10 @@
 """Tests for protein_group_reporter."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestProteinGroupReporter:
     def test_map_peptides_to_proteins(self):
         from protein_group_reporter import map_peptides_to_proteins

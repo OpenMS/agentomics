@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _create_fasta(path, entries_data):
@@ -19,7 +21,6 @@ def _create_fasta(path, entries_data):
     oms.FASTAFile().store(path, entries)
 
 
-@requires_pyopenms
 def test_merge_basic():
     from fasta_merger import merge_fasta_files
 
@@ -35,7 +36,6 @@ def test_merge_basic():
         assert stats["total_output"] == 2
 
 
-@requires_pyopenms
 def test_merge_dedup_identifier():
     from fasta_merger import merge_fasta_files
 
@@ -51,7 +51,6 @@ def test_merge_dedup_identifier():
         assert stats["total_output"] == 2
 
 
-@requires_pyopenms
 def test_merge_dedup_sequence():
     from fasta_merger import merge_fasta_files
 

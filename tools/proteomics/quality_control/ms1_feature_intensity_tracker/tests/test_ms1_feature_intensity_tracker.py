@@ -1,10 +1,11 @@
 """Tests for ms1_feature_intensity_tracker."""
 
 import numpy as np
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMs1FeatureIntensityTracker:
     def _make_experiment(self, target_mz=500.0, target_rt=60.0, intensity=10000.0):
         """Create a synthetic MSExperiment with a known peak."""

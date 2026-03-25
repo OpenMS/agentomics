@@ -1,10 +1,10 @@
 """Tests for glycopeptide_mass_calculator."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestGlycopeptideMassCalculator:
     def test_basic_glycopeptide(self):
         from glycopeptide_mass_calculator import glycopeptide_mass

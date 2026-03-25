@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestHdxBackExchangeEstimator:
     def test_count_exchangeable_amides(self):
         from hdx_back_exchange_estimator import count_exchangeable_amides

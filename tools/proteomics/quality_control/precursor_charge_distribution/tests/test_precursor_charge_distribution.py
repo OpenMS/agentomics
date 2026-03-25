@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPrecursorChargeDistribution:
     def test_charge_distribution(self):
         from precursor_charge_distribution import analyze_charge_distribution, create_synthetic_mzml

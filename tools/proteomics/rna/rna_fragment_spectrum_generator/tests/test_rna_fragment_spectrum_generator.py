@@ -1,7 +1,9 @@
 """Tests for rna_fragment_spectrum_generator."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
+
 from rna_fragment_spectrum_generator import (
     generate_a_minus_b_ions,
     generate_all_fragments,
@@ -11,7 +13,6 @@ from rna_fragment_spectrum_generator import (
 )
 
 
-@requires_pyopenms
 class TestRnaFragmentSpectrumGenerator:
     def test_c_ions_count(self):
         ions = generate_c_ions("AAUGC", charge=1)

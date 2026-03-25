@@ -1,10 +1,10 @@
 """Tests for isotope_pattern_matcher."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestIsotopePatternMatcher:
     def test_glucose_pattern(self):
         from isotope_pattern_matcher import get_isotope_distribution

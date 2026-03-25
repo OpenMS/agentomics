@@ -1,10 +1,11 @@
 """Tests for precursor_recurrence_analyzer."""
 
 import numpy as np
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPrecursorRecurrenceAnalyzer:
     def _make_experiment(self, precursor_mzs_rts):
         """Create MSExperiment with MS2 spectra at given (mz, rt) pairs."""

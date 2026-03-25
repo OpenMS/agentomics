@@ -1,10 +1,10 @@
 """Tests for isotope_label_detector."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestGetElementCount:
     def test_glucose_carbons(self):
         from isotope_label_detector import get_element_count
@@ -17,7 +17,6 @@ class TestGetElementCount:
         assert get_element_count("C3H7NO2", "N") == 1
 
 
-@requires_pyopenms
 class TestComputeExpectedMassShift:
     def test_glucose_13c(self):
         from isotope_label_detector import compute_expected_mass_shift
@@ -33,7 +32,6 @@ class TestComputeExpectedMassShift:
             compute_expected_mass_shift("C6H12O6", "18O")
 
 
-@requires_pyopenms
 class TestFindLabeledPairs:
     def test_match_13c_glucose(self):
         from isotope_label_detector import find_labeled_pairs

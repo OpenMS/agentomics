@@ -1,9 +1,10 @@
 """Tests for peptide_spectral_match_validator."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPeptideSpectralMatchValidator:
     def test_generate_theoretical_spectrum(self):
         from peptide_spectral_match_validator import generate_theoretical_spectrum

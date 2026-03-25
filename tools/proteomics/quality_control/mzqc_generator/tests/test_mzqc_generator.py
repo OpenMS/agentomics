@@ -1,9 +1,10 @@
 """Tests for mzqc_generator."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMzqcGenerator:
     def _make_experiment(self):
         import numpy as np

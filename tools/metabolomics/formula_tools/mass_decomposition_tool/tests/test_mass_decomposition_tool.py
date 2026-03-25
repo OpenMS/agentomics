@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMassDecompositionTool:
     def test_glucose_mass(self):
         from mass_decomposition_tool import decompose_mass

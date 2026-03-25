@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _make_entry(identifier, sequence):
@@ -16,7 +18,6 @@ def _make_entry(identifier, sequence):
     return e
 
 
-@requires_pyopenms
 def test_remove_duplicates():
     from fasta_cleaner import remove_duplicates
 
@@ -25,7 +26,6 @@ def test_remove_duplicates():
     assert len(result) == 2
 
 
-@requires_pyopenms
 def test_remove_stop_codons():
     from fasta_cleaner import remove_stop_codons
 
@@ -35,7 +35,6 @@ def test_remove_stop_codons():
     assert result[1].sequence == "MNPQRST"
 
 
-@requires_pyopenms
 def test_fix_headers():
     from fasta_cleaner import fix_headers
 
@@ -44,7 +43,6 @@ def test_fix_headers():
     assert result[0].identifier == "P1 extra spaces"
 
 
-@requires_pyopenms
 def test_filter_by_length():
     from fasta_cleaner import filter_by_length
 
@@ -54,7 +52,6 @@ def test_filter_by_length():
     assert result[0].identifier == "P2"
 
 
-@requires_pyopenms
 def test_clean_fasta_roundtrip():
     import pyopenms as oms
     from fasta_cleaner import clean_fasta

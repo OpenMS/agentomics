@@ -2,10 +2,11 @@
 
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestIsoelectricPointCalculator:
     def test_basic_pi(self):
         from isoelectric_point_calculator import calculate_pi

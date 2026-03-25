@@ -1,10 +1,11 @@
 """Tests for protein_digest."""
 
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestProteinDigest:
     PROTEIN = "MKVLWAALLVTFLAGCQAKVEQAVETEPEPELRQQTEWQSGQRWELAL"
 

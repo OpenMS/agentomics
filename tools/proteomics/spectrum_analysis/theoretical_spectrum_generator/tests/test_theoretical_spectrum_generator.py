@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestTheoreticalSpectrumGenerator:
     def test_generate_by_ions(self):
         from theoretical_spectrum_generator import generate_theoretical_spectrum

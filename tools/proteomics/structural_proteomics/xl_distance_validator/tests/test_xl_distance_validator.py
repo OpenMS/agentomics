@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestXlDistanceValidator:
     def _create_pdb(self, tmpdir):
         """Create a minimal PDB file with CA atoms."""

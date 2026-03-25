@@ -2,10 +2,11 @@
 
 import csv
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_read_library_peptides(tmp_path):
     from library_coverage_estimator import read_library_peptides
 
@@ -23,7 +24,6 @@ def test_read_library_peptides(tmp_path):
     assert len(peps) == 2  # deduplicated
 
 
-@requires_pyopenms
 def test_digest_fasta(tmp_path):
     import pyopenms as oms
     from library_coverage_estimator import digest_fasta
@@ -39,7 +39,6 @@ def test_digest_fasta(tmp_path):
     assert len(all_peps) > 0
 
 
-@requires_pyopenms
 def test_compute_coverage():
     from library_coverage_estimator import compute_coverage
 
@@ -57,7 +56,6 @@ def test_compute_coverage():
     assert result["total_proteins"] == 2
 
 
-@requires_pyopenms
 def test_cli_roundtrip(tmp_path):
     import pyopenms as oms
     from click.testing import CliRunner

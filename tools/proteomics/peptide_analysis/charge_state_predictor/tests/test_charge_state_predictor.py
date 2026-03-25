@@ -2,11 +2,9 @@
 
 import pytest
 
+pytest.importorskip("pyopenms")
 
-def requires_pyopenms(obj):
-    pytest.importorskip("pyopenms")
-    return obj
-@requires_pyopenms
+
 class TestChargeStatePredictor:
     def test_basic_sites_counting(self):
         from charge_state_predictor import count_basic_sites

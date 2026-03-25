@@ -5,10 +5,10 @@ import os
 import tempfile
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestComputeRatios:
     def test_glucose(self):
         from van_krevelen_data_generator import compute_ratios
@@ -34,7 +34,6 @@ class TestComputeRatios:
             compute_ratios("H2O")
 
 
-@requires_pyopenms
 class TestClassifyCompound:
     def test_lipid_region(self):
         from van_krevelen_data_generator import classify_compound
@@ -62,7 +61,6 @@ class TestClassifyCompound:
         assert classify_compound(0.5, 0.1) == "unclassified"
 
 
-@requires_pyopenms
 class TestProcessFormulas:
     def test_with_classification(self):
         from van_krevelen_data_generator import process_formulas
@@ -80,7 +78,6 @@ class TestProcessFormulas:
         assert "class" not in results[0]
 
 
-@requires_pyopenms
 class TestCLIRoundTrip:
     def test_roundtrip(self):
         from van_krevelen_data_generator import process_formulas

@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _create_fasta(path, entries_data):
@@ -19,7 +21,6 @@ def _create_fasta(path, entries_data):
     oms.FASTAFile().store(path, entries)
 
 
-@requires_pyopenms
 def test_no_decoys():
     from fasta_decoy_validator import validate_decoys
 
@@ -33,7 +34,6 @@ def test_no_decoys():
         assert result["decoy_count"] == 0
 
 
-@requires_pyopenms
 def test_with_decoys():
     from fasta_decoy_validator import validate_decoys
 
@@ -52,7 +52,6 @@ def test_with_decoys():
         assert result["decoy_ratio"] == 1.0
 
 
-@requires_pyopenms
 def test_mixed_prefixes():
     from fasta_decoy_validator import validate_decoys
 
@@ -70,7 +69,6 @@ def test_mixed_prefixes():
         assert "REV_" in result["alternative_prefixes"]
 
 
-@requires_pyopenms
 def test_reversed_match():
     from fasta_decoy_validator import validate_decoys
 

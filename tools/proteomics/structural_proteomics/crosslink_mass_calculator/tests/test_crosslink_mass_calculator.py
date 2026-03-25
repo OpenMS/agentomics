@@ -1,10 +1,10 @@
 """Tests for crosslink_mass_calculator."""
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestCrosslinkMassCalculator:
     def test_dss_crosslink(self):
         from crosslink_mass_calculator import crosslinked_mass

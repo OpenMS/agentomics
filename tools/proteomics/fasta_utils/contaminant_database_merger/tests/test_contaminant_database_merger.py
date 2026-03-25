@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _create_test_fasta(path, entries_data):
@@ -20,7 +22,6 @@ def _create_test_fasta(path, entries_data):
     fasta_file.store(path, entries)
 
 
-@requires_pyopenms
 def test_get_builtin_contaminants():
     from contaminant_database_merger import get_builtin_contaminants
 
@@ -30,7 +31,6 @@ def test_get_builtin_contaminants():
         assert c.identifier.startswith("CONT_")
 
 
-@requires_pyopenms
 def test_merge_with_crap():
     from contaminant_database_merger import merge_contaminants
 
@@ -46,7 +46,6 @@ def test_merge_with_crap():
         assert stats["deduplicated_count"] == 22
 
 
-@requires_pyopenms
 def test_deduplication():
     import pyopenms as oms
     from contaminant_database_merger import deduplicate
@@ -63,7 +62,6 @@ def test_deduplication():
     assert len(result) == 2
 
 
-@requires_pyopenms
 def test_merge_custom_contaminants():
     from contaminant_database_merger import merge_contaminants
 

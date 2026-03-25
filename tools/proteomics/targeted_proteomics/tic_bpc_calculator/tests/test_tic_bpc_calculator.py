@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestTicBpcCalculator:
     def test_compute_tic_bpc(self):
         from tic_bpc_calculator import compute_tic_bpc, create_synthetic_mzml

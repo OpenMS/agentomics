@@ -1,9 +1,10 @@
 """Tests for metabolite_formula_annotator."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMetaboliteFormulaAnnotator:
     def test_enumerate_formulas_glucose(self):
         from metabolite_formula_annotator import enumerate_formulas

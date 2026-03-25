@@ -1,9 +1,10 @@
 """Tests for adduct_group_analyzer."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestAdductGroupAnalyzer:
     def test_group_mh_mna(self):
         from adduct_group_analyzer import PROTON, find_adduct_groups

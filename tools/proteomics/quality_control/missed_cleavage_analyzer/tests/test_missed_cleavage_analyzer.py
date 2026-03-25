@@ -1,9 +1,10 @@
 """Tests for missed_cleavage_analyzer."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestMissedCleavageAnalyzer:
     def test_no_missed_cleavages(self):
         from missed_cleavage_analyzer import count_missed_cleavages

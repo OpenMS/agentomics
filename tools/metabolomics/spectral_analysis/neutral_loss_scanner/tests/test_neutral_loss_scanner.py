@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestNeutralLossScanner:
     def test_scan_with_known_losses(self):
         from neutral_loss_scanner import create_synthetic_mzml, scan_neutral_losses

@@ -1,9 +1,10 @@
 """Tests for ptm_site_localization_scorer."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPtmSiteLocalizationScorer:
     def test_generate_theoretical_spectrum(self):
         from ptm_site_localization_scorer import generate_theoretical_spectrum

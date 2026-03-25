@@ -1,9 +1,10 @@
 """Tests for rt_prediction_additive."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestRtPredictionAdditive:
     def test_predict_basic(self):
         from rt_prediction_additive import predict_rt

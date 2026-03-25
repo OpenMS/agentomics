@@ -1,9 +1,10 @@
 """Tests for identification_qc_reporter."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestIdentificationQcReporter:
     def _make_rows(self):
         return [

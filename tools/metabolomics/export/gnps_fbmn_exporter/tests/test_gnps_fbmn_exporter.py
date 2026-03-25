@@ -4,10 +4,11 @@ import csv
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestGnpsFbmnExporter:
     def _create_test_mzml(self, path: str) -> None:
         """Create a minimal mzML file with MS1 and MS2 spectra."""

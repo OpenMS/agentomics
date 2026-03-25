@@ -4,7 +4,9 @@ import json
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _create_test_fasta(path):
@@ -25,7 +27,6 @@ def _create_test_fasta(path):
     fasta_file.store(path, entries)
 
 
-@requires_pyopenms
 def test_compute_statistics_basic():
     from fasta_statistics_reporter import compute_statistics
 
@@ -40,7 +41,6 @@ def test_compute_statistics_basic():
         assert len(stats["duplicate_accessions"]) == 1
 
 
-@requires_pyopenms
 def test_compute_statistics_with_enzyme():
     from fasta_statistics_reporter import compute_statistics
 
@@ -53,7 +53,6 @@ def test_compute_statistics_with_enzyme():
         assert stats["tryptic_peptide_count"] > 0
 
 
-@requires_pyopenms
 def test_aa_frequency():
     import pyopenms as oms
     from fasta_statistics_reporter import compute_aa_frequency
@@ -68,7 +67,6 @@ def test_aa_frequency():
     assert freq["C"] == 3
 
 
-@requires_pyopenms
 def test_output_json():
     from fasta_statistics_reporter import compute_statistics
 

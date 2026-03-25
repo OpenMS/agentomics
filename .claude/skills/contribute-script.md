@@ -54,21 +54,10 @@ Add any additional dependencies the script needs (one per line, no version pins)
 
 **`tests/conftest.py`:**
 ```python
-import sys
 import os
-
-import pytest
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-try:
-    import pyopenms  # noqa: F401
-
-    HAS_PYOPENMS = True
-except ImportError:
-    HAS_PYOPENMS = False
-
-requires_pyopenms = pytest.mark.skipif(not HAS_PYOPENMS, reason="pyopenms not installed")
 ```
 
 ### 7. Write the script
@@ -92,8 +81,7 @@ Create `tools/<domain>/<topic>/<tool_name>/<tool_name>.py` following these patte
 
 Create `tools/<domain>/<topic>/<tool_name>/tests/test_<tool_name>.py`:
 
-- Import `requires_pyopenms` from conftest
-- Decorate test classes with `@requires_pyopenms`
+- Add `pytest.importorskip("pyopenms")` at module level (after `import pytest`)
 - Use `from <tool_name> import <function>` inside test methods
 - For file-I/O scripts: generate synthetic data using pyopenms objects in test fixtures, write to `tempfile.TemporaryDirectory()`
 - Cover: basic functionality, edge cases, key parameters

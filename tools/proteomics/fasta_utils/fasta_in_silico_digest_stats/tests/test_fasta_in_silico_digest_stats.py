@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _create_fasta(path, entries_data):
@@ -19,7 +21,6 @@ def _create_fasta(path, entries_data):
     oms.FASTAFile().store(path, entries)
 
 
-@requires_pyopenms
 def test_digest_basic():
     from fasta_in_silico_digest_stats import digest_fasta
 
@@ -34,7 +35,6 @@ def test_digest_basic():
         assert stats["unique_peptides"] > 0
 
 
-@requires_pyopenms
 def test_digest_with_missed_cleavages():
     from fasta_in_silico_digest_stats import digest_fasta
 
@@ -47,7 +47,6 @@ def test_digest_with_missed_cleavages():
         assert stats_2["total_peptides"] >= stats_0["total_peptides"]
 
 
-@requires_pyopenms
 def test_write_tsv():
     from fasta_in_silico_digest_stats import digest_fasta, write_tsv
 
@@ -65,7 +64,6 @@ def test_write_tsv():
         assert len(lines) > 1
 
 
-@requires_pyopenms
 def test_mass_stats():
     from fasta_in_silico_digest_stats import digest_fasta
 

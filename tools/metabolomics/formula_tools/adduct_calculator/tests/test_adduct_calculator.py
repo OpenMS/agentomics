@@ -1,9 +1,10 @@
 """Tests for adduct_calculator."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestAdductCalculator:
     def test_formula_to_mass(self):
         from adduct_calculator import formula_to_mass

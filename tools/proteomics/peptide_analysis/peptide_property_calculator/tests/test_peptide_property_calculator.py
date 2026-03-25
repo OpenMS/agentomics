@@ -1,9 +1,10 @@
 """Tests for peptide_property_calculator."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPeptidePropertyCalculator:
     def test_calculate_properties_basic(self):
         from peptide_property_calculator import calculate_properties

@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_create_synthetic_featurexml():
     import pyopenms as oms
     from featurexml_merger import create_synthetic_featurexml
@@ -20,7 +21,6 @@ def test_create_synthetic_featurexml():
         assert fm.size() == 3
 
 
-@requires_pyopenms
 def test_merge_two_files():
     from featurexml_merger import create_synthetic_featurexml, merge_feature_maps
 
@@ -38,7 +38,6 @@ def test_merge_two_files():
         assert stats["file_counts"][f2] == 4
 
 
-@requires_pyopenms
 def test_merged_sorted_by_rt():
     import pyopenms as oms
     from featurexml_merger import create_synthetic_featurexml, merge_feature_maps

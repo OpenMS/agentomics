@@ -1,9 +1,10 @@
 """Tests for peptide_modification_analyzer."""
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestPeptideModificationAnalyzer:
     def test_unmodified_peptide(self):
         from peptide_modification_analyzer import analyze_modification

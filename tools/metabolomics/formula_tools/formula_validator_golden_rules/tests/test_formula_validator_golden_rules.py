@@ -1,10 +1,11 @@
 """Tests for formula_validator_golden_rules."""
 
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestGetElementCounts:
     def test_glucose(self):
         from formula_validator_golden_rules import get_element_counts
@@ -21,7 +22,6 @@ class TestGetElementCounts:
         assert counts["N"] == 1
 
 
-@requires_pyopenms
 class TestComputeRDBE:
     def test_benzene(self):
         from formula_validator_golden_rules import compute_rdbe
@@ -42,7 +42,6 @@ class TestComputeRDBE:
         assert compute_rdbe({"C": 6, "H": 12, "O": 6}) == 1.0
 
 
-@requires_pyopenms
 class TestIndividualRules:
     def test_rdbe_nonneg_pass(self):
         from formula_validator_golden_rules import check_rdbe_nonnegative
@@ -86,7 +85,6 @@ class TestIndividualRules:
         assert check_pc_ratio({"C": 10, "P": 1}) is True
 
 
-@requires_pyopenms
 class TestValidateFormula:
     def test_glucose_valid(self):
         from formula_validator_golden_rules import validate_formula
@@ -109,7 +107,6 @@ class TestValidateFormula:
         assert "rule_nc" not in result
 
 
-@requires_pyopenms
 class TestValidateFormulas:
     def test_batch(self):
         from formula_validator_golden_rules import validate_formulas

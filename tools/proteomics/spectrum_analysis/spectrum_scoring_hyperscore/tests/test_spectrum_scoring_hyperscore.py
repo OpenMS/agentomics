@@ -4,10 +4,11 @@ import json
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestSpectrumScoringHyperscore:
     def _get_theoretical_peaks(self, sequence="PEPTIDEK", charge=1):
         """Helper to get theoretical peaks for testing."""

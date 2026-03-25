@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_create_synthetic_idxml():
     from idxml_to_tsv_exporter import create_synthetic_idxml
 
@@ -20,7 +21,6 @@ def test_create_synthetic_idxml():
         assert len(peptide_ids) == 3
 
 
-@requires_pyopenms
 def test_export_idxml():
     from idxml_to_tsv_exporter import create_synthetic_idxml, export_idxml
 
@@ -41,7 +41,6 @@ def test_export_idxml():
         assert len(lines) == 4  # header + 3 PSMs
 
 
-@requires_pyopenms
 def test_export_content():
     from idxml_to_tsv_exporter import create_synthetic_idxml, export_idxml
 

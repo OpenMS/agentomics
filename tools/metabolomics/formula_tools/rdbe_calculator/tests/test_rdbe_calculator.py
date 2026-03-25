@@ -1,10 +1,11 @@
 """Tests for rdbe_calculator."""
 
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestCalculateRDBE:
     def test_benzene(self):
         """C6H6: RDBE = (12 + 2 - 6) / 2 = 4"""
@@ -49,7 +50,6 @@ class TestCalculateRDBE:
         assert calculate_rdbe("C2H6O") == 0.0
 
 
-@requires_pyopenms
 class TestGetElementCounts:
     def test_glucose(self):
         from rdbe_calculator import get_element_counts
@@ -60,7 +60,6 @@ class TestGetElementCounts:
         assert counts["O"] == 6
 
 
-@requires_pyopenms
 class TestCalculateRDBEBatch:
     def test_batch(self):
         from rdbe_calculator import calculate_rdbe_batch

@@ -3,7 +3,9 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
 def _create_fasta(path, entries_data):
@@ -20,7 +22,6 @@ def _create_fasta(path, entries_data):
     oms.FASTAFile().store(path, entries)
 
 
-@requires_pyopenms
 def test_split_by_taxonomy():
     from fasta_taxonomy_splitter import split_by_taxonomy
 
@@ -41,7 +42,6 @@ def test_split_by_taxonomy():
         assert stats["files"]["Homo sapiens"]["count"] == 2
 
 
-@requires_pyopenms
 def test_unmatched_entries():
     from fasta_taxonomy_splitter import split_by_taxonomy
 
@@ -58,7 +58,6 @@ def test_unmatched_entries():
         assert stats["unmatched_count"] == 1
 
 
-@requires_pyopenms
 def test_sanitize_filename():
     from fasta_taxonomy_splitter import sanitize_filename
 

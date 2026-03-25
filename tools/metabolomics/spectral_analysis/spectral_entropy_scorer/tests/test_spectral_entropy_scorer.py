@@ -5,10 +5,10 @@ import os
 import tempfile
 
 import pytest
-from conftest import requires_pyopenms
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestNormalizeIntensities:
     def test_basic(self):
         from spectral_entropy_scorer import normalize_intensities
@@ -24,7 +24,6 @@ class TestNormalizeIntensities:
         assert result == [0.0, 0.0, 0.0]
 
 
-@requires_pyopenms
 class TestSpectralEntropy:
     def test_single_peak(self):
         """Single peak spectrum has entropy 0."""
@@ -49,7 +48,6 @@ class TestSpectralEntropy:
         assert e4 > e2
 
 
-@requires_pyopenms
 class TestMatchPeaks:
     def test_perfect_match(self):
         from spectral_entropy_scorer import match_peaks
@@ -87,7 +85,6 @@ class TestMatchPeaks:
         assert b[1] == 0.0
 
 
-@requires_pyopenms
 class TestEntropySimilarity:
     def test_identical_spectra(self):
         from spectral_entropy_scorer import entropy_similarity
@@ -125,7 +122,6 @@ class TestEntropySimilarity:
         assert 0.0 <= score <= 1.0
 
 
-@requires_pyopenms
 class TestReadPeaksFile:
     def test_roundtrip(self):
         import csv

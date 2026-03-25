@@ -3,10 +3,11 @@
 import os
 import tempfile
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 class TestHdxDeuteriumUptake:
     def test_count_exchangeable_amides(self):
         from hdx_deuterium_uptake import count_exchangeable_amides

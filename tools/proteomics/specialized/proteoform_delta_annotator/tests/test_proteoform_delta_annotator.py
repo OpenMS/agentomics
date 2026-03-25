@@ -2,10 +2,11 @@
 
 import csv
 
-from conftest import requires_pyopenms
+import pytest
+
+pytest.importorskip("pyopenms")
 
 
-@requires_pyopenms
 def test_build_ptm_mass_table():
     from proteoform_delta_annotator import build_ptm_mass_table
 
@@ -14,7 +15,6 @@ def test_build_ptm_mass_table():
     assert all("name" in entry and "mass_shift" in entry for entry in table)
 
 
-@requires_pyopenms
 def test_annotate_delta_phospho():
     from proteoform_delta_annotator import annotate_delta, build_ptm_mass_table
 
@@ -27,7 +27,6 @@ def test_annotate_delta_phospho():
     assert any("Phospho" in n for n in names), f"Expected Phospho in {names}"
 
 
-@requires_pyopenms
 def test_annotate_delta_no_match():
     from proteoform_delta_annotator import annotate_delta, build_ptm_mass_table
 
@@ -36,7 +35,6 @@ def test_annotate_delta_no_match():
     assert len(matches) == 0
 
 
-@requires_pyopenms
 def test_annotate_proteoform_deltas():
     from proteoform_delta_annotator import annotate_proteoform_deltas
 
@@ -51,7 +49,6 @@ def test_annotate_proteoform_deltas():
     assert "Phospho" in results[1]["annotations"]
 
 
-@requires_pyopenms
 def test_cli_roundtrip(tmp_path):
     from click.testing import CliRunner
     from proteoform_delta_annotator import main
