@@ -6,10 +6,10 @@ Define the skills, contributor docs, and CI pipeline that enable AI agents to co
 
 ## Per-Script Directory Structure
 
-Every script is a self-contained package under `scripts/<domain>/<tool_name>/`:
+Every script is a self-contained package under `tools/<domain>/<tool_name>/`:
 
 ```
-scripts/proteomics/peptide_mass_calculator/
+tools/proteomics/peptide_mass_calculator/
 ├── peptide_mass_calculator.py
 ├── requirements.txt
 ├── README.md
@@ -84,7 +84,7 @@ Guides an AI agent through creating a new script end-to-end. Rigid — follow ex
 
 1. **Ask what the tool does** — what pyopenms functionality does it wrap, what gap does it fill
 2. **Determine domain** — proteomics or metabolomics (or prompt if a new domain is needed)
-3. **Scaffold directory** — create `scripts/<domain>/<tool_name>/` with `requirements.txt`, empty `README.md`, empty test file
+3. **Scaffold directory** — create `tools/<domain>/<tool_name>/` with `requirements.txt`, empty `README.md`, empty test file
 4. **Write the script** — following established patterns:
    - pyopenms try/except import with user-friendly error message
    - `PROTON = 1.007276` constant where mass-to-charge calculations are needed
@@ -117,7 +117,7 @@ Platform-agnostic contributor guide at repo root for any AI agent (Copilot, Curs
 
 1. **Project purpose** — agentic-only pyopenms tools for proteomics/metabolomics that don't yet exist in OpenMS
 2. **Contribution requirements:**
-   - Self-contained directory under `scripts/<domain>/<tool_name>/`
+   - Self-contained directory under `tools/<domain>/<tool_name>/`
    - Must include: script `.py`, `requirements.txt`, `README.md`, `tests/` with pytest tests
    - Must use latest pyopenms (no version pinning)
    - Must pass ruff + pytest in an isolated venv
@@ -136,7 +136,7 @@ Platform-agnostic contributor guide at repo root for any AI agent (Copilot, Curs
 
 `.github/workflows/validate.yml`:
 
-- **Trigger:** Pull requests that touch anything under `scripts/`
+- **Trigger:** Pull requests that touch anything under `tools/`
 - **Detection job:** Diffs against base branch to identify changed script directories, outputs them as a JSON matrix. Outputs a `has_changes` flag — the validation matrix is conditional on this flag so PRs that only touch non-script files don't produce an empty matrix error.
 - **Validation matrix:** For each changed script directory, a parallel job that:
   1. Checks out the repo
@@ -154,10 +154,10 @@ Platform-agnostic contributor guide at repo root for any AI agent (Copilot, Curs
 After implementation, `CLAUDE.md` must reflect:
 
 - New per-script directory structure and how to navigate it
-- Per-script test commands: `PYTHONPATH=scripts/<domain>/<tool> python -m pytest scripts/<domain>/<tool>/tests/ -v`
+- Per-script test commands: `PYTHONPATH=tools/<domain>/<tool> python -m pytest tools/<domain>/<tool>/tests/ -v`
 - Reference to the two Claude Code skills (`contribute-script`, `validate-script`)
 - Reference to `AGENTS.md` for the full contributor guide
-- Ruff lint command: `ruff check scripts/`
+- Ruff lint command: `ruff check tools/`
 
 ## Deliverables
 

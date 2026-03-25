@@ -8,10 +8,10 @@ Agentomics is a collection of standalone CLI tools built with [pyopenms](https:/
 
 ## Contribution Requirements
 
-Every tool must be a **self-contained directory** under `scripts/<domain>/<topic>/<tool_name>/`:
+Every tool must be a **self-contained directory** under `tools/<domain>/<topic>/<tool_name>/`:
 
 ```
-scripts/<domain>/<topic>/<tool_name>/
+tools/<domain>/<topic>/<tool_name>/
 ├── <tool_name>.py        # The tool itself
 ├── requirements.txt      # pyopenms + any tool-specific deps (no version pins)
 ├── README.md             # Brief description + CLI usage examples
@@ -51,7 +51,7 @@ Every tool must have:
        sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
    ```
 3. **Importable functions** as the primary interface (with type hints and numpy-style docstrings)
-4. **`main()` function** with argparse CLI
+4. **`main()` function** with click CLI
 5. **`if __name__ == "__main__": main()`** guard
 6. **`PROTON = 1.007276`** constant where mass-to-charge calculations are needed
 
@@ -86,7 +86,7 @@ Test files:
 Every tool must pass validation in an **isolated venv** before it can be merged. Run these commands from the repo root:
 
 ```bash
-TOOL_DIR=scripts/<domain>/<topic>/<tool_name>
+TOOL_DIR=tools/<domain>/<topic>/<tool_name>
 VENV_DIR=$(mktemp -d)
 python -m venv "$VENV_DIR"
 "$VENV_DIR/bin/python" -m pip install -r "$TOOL_DIR/requirements.txt"

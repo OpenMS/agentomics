@@ -10,34 +10,34 @@ Agentomics is a collection of standalone CLI tools built with [pyopenms](https:/
 
 ```bash
 # Install dependencies for a specific tool
-pip install -r scripts/proteomics/peptide_analysis/peptide_mass_calculator/requirements.txt
+pip install -r tools/proteomics/peptide_analysis/peptide_mass_calculator/requirements.txt
 
 # Lint a specific tool
-ruff check scripts/proteomics/peptide_analysis/peptide_mass_calculator/
+ruff check tools/proteomics/peptide_analysis/peptide_mass_calculator/
 
 # Run tests for a specific tool
-PYTHONPATH=scripts/proteomics/peptide_analysis/peptide_mass_calculator python -m pytest scripts/proteomics/peptide_analysis/peptide_mass_calculator/tests/ -v
+PYTHONPATH=tools/proteomics/peptide_analysis/peptide_mass_calculator python -m pytest tools/proteomics/peptide_analysis/peptide_mass_calculator/tests/ -v
 
 # Lint all tools
-ruff check scripts/
+ruff check tools/
 
 # Run all tests across all tools
-for d in scripts/*/*/*/; do PYTHONPATH="$d" python -m pytest "$d/tests/" -v; done
+for d in tools/*/*/*/; do PYTHONPATH="$d" python -m pytest "$d/tests/" -v; done
 
 # Run a script directly
-python scripts/proteomics/peptide_analysis/peptide_mass_calculator/peptide_mass_calculator.py --sequence PEPTIDEK --charge 2
-python scripts/metabolomics/formula_tools/isotope_pattern_matcher/isotope_pattern_matcher.py --formula C6H12O6
+python tools/proteomics/peptide_analysis/peptide_mass_calculator/peptide_mass_calculator.py --sequence PEPTIDEK --charge 2
+python tools/metabolomics/formula_tools/isotope_pattern_matcher/isotope_pattern_matcher.py --formula C6H12O6
 ```
 
 ## Architecture
 
 ### Per-Tool Directory Structure
 
-Each tool is a self-contained directory under `scripts/<domain>/<topic>/<tool_name>/`:
+Each tool is a self-contained directory under `tools/<domain>/<topic>/<tool_name>/`:
 
 ```
-scripts/<domain>/<topic>/<tool_name>/
-├── <tool_name>.py        # The tool (importable functions + argparse CLI)
+tools/<domain>/<topic>/<tool_name>/
+├── <tool_name>.py        # The tool (importable functions + click CLI)
 ├── requirements.txt      # pyopenms + script-specific deps
 ├── README.md             # Usage examples
 └── tests/
@@ -55,7 +55,7 @@ Metabolomics topics: `formula_tools/`, `feature_processing/`, `spectral_analysis
 
 - pyopenms import wrapped in try/except with user-friendly error message
 - Mass-to-charge: `(mass + charge * PROTON) / charge` with `PROTON = 1.007276`
-- Every script has dual interface: importable functions + argparse CLI + `__main__` guard
+- Every script has dual interface: importable functions + click CLI + `__main__` guard
 - Tests use `@requires_pyopenms` skip marker from conftest.py
 - File-I/O scripts use synthetic test data generated with pyopenms objects
 

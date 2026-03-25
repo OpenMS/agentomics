@@ -36,7 +36,7 @@ git checkout -b add/<tool_name>
 ### 5. Scaffold the directory
 
 ```bash
-mkdir -p scripts/<domain>/<tool_name>/tests
+mkdir -p tools/<domain>/<tool_name>/tests
 ```
 
 Create these files:
@@ -68,7 +68,7 @@ requires_pyopenms = pytest.mark.skipif(not HAS_PYOPENMS, reason="pyopenms not in
 
 ### 6. Write the script
 
-Create `scripts/<domain>/<tool_name>/<tool_name>.py` following these patterns:
+Create `tools/<domain>/<tool_name>/<tool_name>.py` following these patterns:
 
 - Module-level docstring with description, supported features, and CLI usage examples
 - pyopenms import guard:
@@ -80,12 +80,12 @@ Create `scripts/<domain>/<tool_name>/<tool_name>.py` following these patterns:
   ```
 - `PROTON = 1.007276` constant where mass-to-charge calculations are needed
 - Importable functions as the primary interface (with type hints and numpy-style docstrings)
-- `main()` function with argparse CLI
+- `main()` function with click CLI
 - `if __name__ == "__main__": main()` guard
 
 ### 7. Write tests
 
-Create `scripts/<domain>/<tool_name>/tests/test_<tool_name>.py`:
+Create `tools/<domain>/<tool_name>/tests/test_<tool_name>.py`:
 
 - Import `requires_pyopenms` from conftest
 - Decorate test classes with `@requires_pyopenms`
@@ -95,7 +95,7 @@ Create `scripts/<domain>/<tool_name>/tests/test_<tool_name>.py`:
 
 ### 8. Write README
 
-Create `scripts/<domain>/<tool_name>/README.md` with a brief description and CLI usage examples.
+Create `tools/<domain>/<tool_name>/README.md` with a brief description and CLI usage examples.
 
 ### 9. Validate
 
@@ -104,6 +104,6 @@ Invoke the `validate-script` skill on the new script directory. Both ruff and py
 ### 10. Commit
 
 ```bash
-git add scripts/<domain>/<tool_name>/
+git add tools/<domain>/<tool_name>/
 git commit -m "Add <tool_name>: <brief description>"
 ```
