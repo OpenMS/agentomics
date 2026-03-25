@@ -9,9 +9,10 @@ Usage
     python ms_data_to_csv_exporter.py --input features.featureXML --type features --output features.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -109,26 +110,23 @@ def export_featurexml(input_path: str, output_path: str) -> dict:
     return {"features_exported": feature_map.size()}
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Export mzML or featureXML data to flat TSV.")
-    parser.add_argument("--input", required=True, help="Input file (mzML or featureXML)")
-    parser.add_argument(
-        "--type", required=True,
-        choices=["peaks", "spectra", "features"],
-        help="Export type: peaks (mzML), spectra (mzML summary), features (featureXML)"
-    )
-    parser.add_argument("--ms-level", type=int, default=0, help="MS level filter for peaks (0=all)")
-    parser.add_argument("--output", required=True, help="Output TSV file")
-    args = parser.parse_args()
-
-    if args.type == "peaks":
-        stats = export_mzml_peaks(args.input, args.output, args.ms_level)
+@click.command(help="Export mzML or featureXML data to flat TSV.")
+@click.option("--input", "input", required=True, help="Input file (mzML or featureXML)")
+@click.option(
+    "--type", "type", required=True, type=click.Choice(["peaks", "spectra", "features"]),
+    help="Export type: peaks (mzML), spectra (mzML summary), features (featureXML)",
+)
+@click.option("--ms-level", type=int, default=0, help="MS level filter for peaks (0=all)")
+@click.option("--output", required=True, help="Output TSV file")
+def main(input, type, ms_level, output) -> None:
+    if type == "peaks":
+        stats = export_mzml_peaks(input, output, ms_level)
         print(f"Exported {stats['total_peaks']} peaks from {stats['spectra_exported']} spectra")
-    elif args.type == "spectra":
-        stats = export_mzml_spectra_summary(args.input, args.output)
+    elif type == "spectra":
+        stats = export_mzml_spectra_summary(input, output)
         print(f"Exported {stats['spectra_exported']} spectra summaries")
-    elif args.type == "features":
-        stats = export_featurexml(args.input, args.output)
+    elif type == "features":
+        stats = export_featurexml(input, output)
         print(f"Exported {stats['features_exported']} features")
 
 

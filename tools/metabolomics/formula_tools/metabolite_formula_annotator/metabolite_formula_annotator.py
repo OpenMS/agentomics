@@ -12,10 +12,11 @@ Usage
     python metabolite_formula_annotator.py --input features.tsv --ppm 5 --elements C,H,N,O --output annotated.tsv
 """
 
-import argparse
 import csv
 import itertools
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -166,28 +167,24 @@ def annotate_features(
     return results
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Annotate features with candidate molecular formulas."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Features TSV (must have mz column)")
-    parser.add_argument("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5)")
-    parser.add_argument("--elements", default="C,H,N,O", help="Comma-separated elements (default: C,H,N,O)")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output annotated TSV")
-    args = parser.parse_args()
-
-    elements = args.elements.split(",")
+@click.command()
+@click.option("--input", "input_file", required=True, help="Features TSV (must have mz column)")
+@click.option("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5)")
+@click.option("--elements", default="C,H,N,O", help="Comma-separated elements (default: C,H,N,O)")
+@click.option("--output", required=True, help="Output annotated TSV")
+def main(input_file, ppm, elements, output):
+    elements = elements.split(",")
     element_ranges = {e.strip(): DEFAULT_ELEMENT_RANGES.get(e.strip(), (0, 10)) for e in elements}
 
     features = []
-    with open(args.input) as fh:
+    with open(input_file) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             features.append(row)
 
-    annotated = annotate_features(features, ppm=args.ppm, element_ranges=element_ranges)
+    annotated = annotate_features(features, ppm=ppm, element_ranges=element_ranges)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.writer(fh, delimiter="\t")
         writer.writerow(["mz", "rt", "intensity", "candidate_formula", "candidate_mass", "error_ppm"])
         for feat in annotated:
@@ -210,7 +207,7 @@ def main():
                     "", "", "",
                 ])
 
-    print(f"Annotated {len(annotated)} features, written to {args.output}")
+    print(f"Annotated {len(annotated)} features, written to {output}")
 
 
 if __name__ == "__main__":

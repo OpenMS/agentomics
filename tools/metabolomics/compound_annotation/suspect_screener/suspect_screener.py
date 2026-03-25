@@ -10,9 +10,10 @@ Usage
     python suspect_screener.py --input features.tsv --suspects suspect_list.csv --ppm 5 --output matches.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -192,23 +193,19 @@ def write_matches(matches: list[dict], path: str) -> None:
         writer.writerows(matches)
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="Feature table (TSV) with mz column")
+@click.option("--suspects", required=True, help="Suspect list (CSV) with name, formula, exact_mass")
+@click.option("--ppm", type=float, default=5.0, help="PPM tolerance (default: 5)")
+@click.option("--output", required=True, help="Output matches (TSV)")
+@click.option("--mz-column", default="mz", help="Name of m/z column in features (default: mz)")
+def main(input_file, suspects, ppm, output, mz_column) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Match features against a suspect screening list by exact mass."
-    )
-    parser.add_argument("--input", required=True, help="Feature table (TSV) with mz column")
-    parser.add_argument("--suspects", required=True, help="Suspect list (CSV) with name, formula, exact_mass")
-    parser.add_argument("--ppm", type=float, default=5.0, help="PPM tolerance (default: 5)")
-    parser.add_argument("--output", required=True, help="Output matches (TSV)")
-    parser.add_argument("--mz-column", default="mz", help="Name of m/z column in features (default: mz)")
-    args = parser.parse_args()
-
-    features = load_features(args.input)
-    suspects = load_suspects(args.suspects)
-    matches = screen_suspects(features, suspects, ppm_tolerance=args.ppm, mz_column=args.mz_column)
-    write_matches(matches, args.output)
-    print(f"Found {len(matches)} matches, written to {args.output}")
+    features = load_features(input_file)
+    suspects_data = load_suspects(suspects)
+    matches = screen_suspects(features, suspects_data, ppm_tolerance=ppm, mz_column=mz_column)
+    write_matches(matches, output)
+    print(f"Found {len(matches)} matches, written to {output}")
 
 
 if __name__ == "__main__":

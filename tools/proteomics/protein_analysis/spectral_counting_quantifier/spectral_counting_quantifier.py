@@ -16,10 +16,11 @@ Usage
     python spectral_counting_quantifier.py --input counts.tsv --fasta db.fasta --method empai --output out.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -185,35 +186,33 @@ def load_peptide_counts(input_path: str) -> dict:
     return protein_data
 
 
-def main():
+@click.command(help="Calculate protein abundances from spectral counts.")
+@click.option("--input", "input", required=True, help="TSV with protein, peptide, spectral_count columns.")
+@click.option("--fasta", required=True, help="Protein FASTA database.")
+@click.option("--method", type=click.Choice(["empai", "nsaf"]), default="nsaf", help="Quantification method.")
+@click.option("--enzyme", default="Trypsin", help="Enzyme for emPAI (default: Trypsin).")
+@click.option("--output", default=None, help="Output file (.tsv or .json).")
+def main(input, fasta, method, enzyme, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Calculate protein abundances from spectral counts.")
-    parser.add_argument("--input", required=True, help="TSV with protein, peptide, spectral_count columns.")
-    parser.add_argument("--fasta", required=True, help="Protein FASTA database.")
-    parser.add_argument("--method", choices=["empai", "nsaf"], default="nsaf", help="Quantification method.")
-    parser.add_argument("--enzyme", default="Trypsin", help="Enzyme for emPAI (default: Trypsin).")
-    parser.add_argument("--output", help="Output file (.tsv or .json).")
-    args = parser.parse_args()
+    proteins = load_fasta_proteins(fasta)
+    protein_data = load_peptide_counts(input)
 
-    proteins = load_fasta_proteins(args.fasta)
-    protein_data = load_peptide_counts(args.input)
-
-    if args.method == "empai":
-        results = calculate_empai(protein_data, proteins, args.enzyme)
+    if method == "empai":
+        results = calculate_empai(protein_data, proteins, enzyme)
     else:
         results = calculate_nsaf(protein_data, proteins)
 
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump(results, fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 fieldnames = list(results[0].keys()) if results else []
                 writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
                 writer.writeheader()
                 writer.writerows(results)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         for r in results:
             print(json.dumps(r))

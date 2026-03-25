@@ -13,10 +13,11 @@ Usage
     python phosphosite_class_filter.py --input phosphosites.tsv --class1-threshold 0.75 --output classified.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -208,21 +209,17 @@ def write_output(output_path: str, classified_rows: List[Dict[str, str]], summar
         f.write(f"enrichment_efficiency\t{enrichment:.4f}\n")
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Classify phosphosites into Class I/II/III by localization probability."
-    )
-    parser.add_argument("--input", required=True, help="Input phosphosites TSV file")
-    parser.add_argument(
-        "--class1-threshold", type=float, default=CLASS1_DEFAULT_THRESHOLD,
-        help=f"Minimum localization probability for Class I (default: {CLASS1_DEFAULT_THRESHOLD})"
-    )
-    parser.add_argument("--output", required=True, help="Output classified TSV file")
-    args = parser.parse_args()
-
-    rows = read_input(args.input)
-    classified, summary = classify_phosphosites(rows, args.class1_threshold)
-    write_output(args.output, classified, summary)
+@click.command(help="Classify phosphosites into Class I/II/III by localization probability.")
+@click.option("--input", "input", required=True, help="Input phosphosites TSV file")
+@click.option(
+    "--class1-threshold", type=float, default=CLASS1_DEFAULT_THRESHOLD,
+    help=f"Minimum localization probability for Class I (default: {CLASS1_DEFAULT_THRESHOLD})",
+)
+@click.option("--output", required=True, help="Output classified TSV file")
+def main(input, class1_threshold, output):
+    rows = read_input(input)
+    classified, summary = classify_phosphosites(rows, class1_threshold)
+    write_output(output, classified, summary)
 
     enrichment = compute_enrichment_efficiency(summary)
     print(f"Total phosphosites: {summary['total']}")

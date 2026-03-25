@@ -16,9 +16,10 @@ Usage
     python rna_fragment_spectrum_generator.py --sequence AAUGC --charge 1 --output fragments.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -197,25 +198,23 @@ def generate_all_fragments(sequence: str, charge: int = 1) -> list:
     return results
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate theoretical RNA fragment spectra.")
-    parser.add_argument("--sequence", required=True, help="RNA sequence (e.g. AAUGC)")
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1)")
-    parser.add_argument("--output", help="Output TSV file (optional)")
-    args = parser.parse_args()
+@click.command(help="Generate theoretical RNA fragment spectra.")
+@click.option("--sequence", required=True, help="RNA sequence (e.g. AAUGC)")
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1)")
+@click.option("--output", default=None, help="Output TSV file (optional)")
+def main(sequence, charge, output):
+    fragments = generate_all_fragments(sequence, charge)
 
-    fragments = generate_all_fragments(args.sequence, args.charge)
-
-    if args.output:
-        with open(args.output, "w", newline="") as fh:
+    if output:
+        with open(output, "w", newline="") as fh:
             writer = csv.DictWriter(fh, fieldnames=["ion_type", "ion_label", "mz", "charge"],
                                     delimiter="\t")
             writer.writeheader()
             writer.writerows(fragments)
-        print(f"Wrote {len(fragments)} fragment ions to {args.output}")
+        print(f"Wrote {len(fragments)} fragment ions to {output}")
     else:
-        print(f"Sequence: {args.sequence.upper()}")
-        print(f"Charge: {args.charge}+")
+        print(f"Sequence: {sequence.upper()}")
+        print(f"Charge: {charge}+")
         print(f"\n{'Ion':<10} {'Type':<6} {'m/z':>14}")
         print("-" * 32)
         for f in fragments:

@@ -13,9 +13,10 @@ Usage
         --fold-change 3 --output cleaned.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -77,55 +78,45 @@ def subtract_blanks(
     return cleaned
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Subtract blank features from sample features."
-    )
-    parser.add_argument("--sample", required=True, metavar="FILE", help="Sample features TSV")
-    parser.add_argument("--blank", required=True, metavar="FILE", help="Blank features TSV")
-    parser.add_argument(
-        "--fold-change", type=float, default=3.0,
-        help="Minimum sample/blank fold-change to keep (default: 3)"
-    )
-    parser.add_argument(
-        "--mz-tolerance", type=float, default=10.0,
-        help="m/z tolerance in ppm (default: 10)"
-    )
-    parser.add_argument(
-        "--rt-tolerance", type=float, default=10.0,
-        help="RT tolerance in seconds (default: 10)"
-    )
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output cleaned TSV")
-    args = parser.parse_args()
-
-    sample = []
-    with open(args.sample) as fh:
+@click.command()
+@click.option("--sample", required=True, help="Sample features TSV")
+@click.option("--blank", required=True, help="Blank features TSV")
+@click.option("--fold-change", type=float, default=3.0,
+              help="Minimum sample/blank fold-change to keep (default: 3)")
+@click.option("--mz-tolerance", type=float, default=10.0,
+              help="m/z tolerance in ppm (default: 10)")
+@click.option("--rt-tolerance", type=float, default=10.0,
+              help="RT tolerance in seconds (default: 10)")
+@click.option("--output", required=True, help="Output cleaned TSV")
+def main(sample, blank, fold_change, mz_tolerance, rt_tolerance, output):
+    sample_data = []
+    with open(sample) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
-            sample.append(row)
+            sample_data.append(row)
 
-    blank = []
-    with open(args.blank) as fh:
+    blank_data = []
+    with open(blank) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
-            blank.append(row)
+            blank_data.append(row)
 
     cleaned = subtract_blanks(
-        sample, blank,
-        fold_change=args.fold_change,
-        mz_tolerance_ppm=args.mz_tolerance,
-        rt_tolerance=args.rt_tolerance,
+        sample_data, blank_data,
+        fold_change=fold_change,
+        mz_tolerance_ppm=mz_tolerance,
+        rt_tolerance=rt_tolerance,
     )
 
     fieldnames = list(cleaned[0].keys()) if cleaned else ["mz", "rt", "intensity", "blank_subtracted"]
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(cleaned)
 
-    removed = len(sample) - len(cleaned)
-    print(f"Blank subtraction: {len(sample)} input, {removed} removed, {len(cleaned)} kept")
-    print(f"Output written to {args.output}")
+    removed = len(sample_data) - len(cleaned)
+    print(f"Blank subtraction: {len(sample_data)} input, {removed} removed, {len(cleaned)} kept")
+    print(f"Output written to {output}")
 
 
 if __name__ == "__main__":

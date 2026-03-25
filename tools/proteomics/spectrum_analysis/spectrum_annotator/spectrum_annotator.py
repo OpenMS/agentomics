@@ -17,9 +17,10 @@ Usage
         --sequence PEPTIDEK --charge 1 --tolerance 0.05 --output annotation.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -122,26 +123,22 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Annotate observed MS2 spectrum peaks with theoretical fragment ion matches."
-    )
-    parser.add_argument("--mz-list", required=True, help="Comma-separated observed m/z values")
-    parser.add_argument("--intensities", required=True, help="Comma-separated observed intensities")
-    parser.add_argument("--sequence", required=True, help="Peptide amino acid sequence")
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1)")
-    parser.add_argument("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
-    parser.add_argument("--output", default=None, help="Output TSV file path (default: print to stdout)")
-    args = parser.parse_args()
+@click.command(help="Annotate observed MS2 spectrum peaks with theoretical fragment ion matches.")
+@click.option("--mz-list", required=True, help="Comma-separated observed m/z values")
+@click.option("--intensities", required=True, help="Comma-separated observed intensities")
+@click.option("--sequence", required=True, help="Peptide amino acid sequence")
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1)")
+@click.option("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
+@click.option("--output", default=None, help="Output TSV file path (default: print to stdout)")
+def main(mz_list, intensities, sequence, charge, tolerance, output):
+    mz_values = [float(x.strip()) for x in mz_list.split(",")]
+    intensities_list = [float(x.strip()) for x in intensities.split(",")]
 
-    mz_values = [float(x.strip()) for x in args.mz_list.split(",")]
-    intensities = [float(x.strip()) for x in args.intensities.split(",")]
+    results = annotate_spectrum(mz_values, intensities_list, sequence, charge, tolerance)
 
-    results = annotate_spectrum(mz_values, intensities, args.sequence, args.charge, args.tolerance)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} annotations to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} annotations to {output}")
     else:
         print("observed_mz\tintensity\tmatched_ion\ttheoretical_mz\terror_da")
         for r in results:

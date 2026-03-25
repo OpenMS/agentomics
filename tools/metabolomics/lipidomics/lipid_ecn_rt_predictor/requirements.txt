@@ -1,3 +1,4 @@
 pyopenms
+click
 numpy
 scipy

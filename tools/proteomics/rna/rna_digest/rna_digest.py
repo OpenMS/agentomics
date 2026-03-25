@@ -15,9 +15,10 @@ Usage
     python rna_digest.py --sequence AAUGCAAUGG --enzyme RNase_A --missed-cleavages 1 --output fragments.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -103,31 +104,29 @@ def _calculate_fragment_mass(fragment: str) -> float:
     return sum(NUCLEOTIDE_RESIDUE_MASSES[nt] for nt in fragment) + WATER_MASS
 
 
-def main():
-    parser = argparse.ArgumentParser(description="In silico RNA digestion with RNases.")
-    parser.add_argument("--sequence", required=True, help="RNA sequence (e.g. AAUGCAAUGG)")
-    parser.add_argument(
-        "--enzyme", required=True,
-        choices=list(ENZYME_RULES.keys()),
-        help="RNase enzyme name"
-    )
-    parser.add_argument("--missed-cleavages", type=int, default=0, help="Max missed cleavages (default: 0)")
-    parser.add_argument("--output", help="Output TSV file (optional)")
-    args = parser.parse_args()
+@click.command(help="In silico RNA digestion with RNases.")
+@click.option("--sequence", required=True, help="RNA sequence (e.g. AAUGCAAUGG)")
+@click.option(
+    "--enzyme", required=True,
+    type=click.Choice(["RNase_T1", "RNase_A", "RNase_T2", "Cusativin"]),
+    help="RNase enzyme name",
+)
+@click.option("--missed-cleavages", type=int, default=0, help="Max missed cleavages (default: 0)")
+@click.option("--output", default=None, help="Output TSV file (optional)")
+def main(sequence, enzyme, missed_cleavages, output):
+    fragments = digest_rna(sequence, enzyme, missed_cleavages)
 
-    fragments = digest_rna(args.sequence, args.enzyme, args.missed_cleavages)
-
-    if args.output:
-        with open(args.output, "w", newline="") as fh:
+    if output:
+        with open(output, "w", newline="") as fh:
             writer = csv.DictWriter(fh, fieldnames=["fragment", "start", "end", "missed_cleavages", "mass"],
                                     delimiter="\t")
             writer.writeheader()
             writer.writerows(fragments)
-        print(f"Wrote {len(fragments)} fragments to {args.output}")
+        print(f"Wrote {len(fragments)} fragments to {output}")
     else:
-        print(f"Enzyme: {args.enzyme}")
-        print(f"Sequence: {args.sequence}")
-        print(f"Missed cleavages: {args.missed_cleavages}")
+        print(f"Enzyme: {enzyme}")
+        print(f"Sequence: {sequence}")
+        print(f"Missed cleavages: {missed_cleavages}")
         print(f"\n{'Fragment':<20} {'Start':>5} {'End':>5} {'MC':>3} {'Mass':>12}")
         print("-" * 50)
         for f in fragments:

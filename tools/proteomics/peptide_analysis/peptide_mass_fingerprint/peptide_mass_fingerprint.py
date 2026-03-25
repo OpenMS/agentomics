@@ -10,10 +10,11 @@ Usage
     python peptide_mass_fingerprint.py --fasta db.fasta --accession P12345 --enzyme Trypsin --output fingerprint.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -159,30 +160,26 @@ def write_tsv(records: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate/match peptide mass fingerprints from FASTA."
-    )
-    parser.add_argument("--fasta", required=True, help="FASTA database file")
-    parser.add_argument("--accession", required=True, help="Protein accession to fingerprint")
-    parser.add_argument("--enzyme", default="Trypsin", help="Enzyme name (default: Trypsin)")
-    parser.add_argument("--missed-cleavages", type=int, default=1, help="Missed cleavages (default: 1)")
-    parser.add_argument("--min-mass", type=float, default=500.0, help="Min peptide mass (default: 500)")
-    parser.add_argument("--max-mass", type=float, default=4000.0, help="Max peptide mass (default: 4000)")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Generate/match peptide mass fingerprints from FASTA.")
+@click.option("--fasta", required=True, help="FASTA database file")
+@click.option("--accession", required=True, help="Protein accession to fingerprint")
+@click.option("--enzyme", default="Trypsin", help="Enzyme name (default: Trypsin)")
+@click.option("--missed-cleavages", type=int, default=1, help="Missed cleavages (default: 1)")
+@click.option("--min-mass", type=float, default=500.0, help="Min peptide mass (default: 500)")
+@click.option("--max-mass", type=float, default=4000.0, help="Max peptide mass (default: 4000)")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(fasta, accession, enzyme, missed_cleavages, min_mass, max_mass, output):
+    proteins = load_fasta(fasta)
+    if accession not in proteins:
+        sys.exit(f"Accession '{accession}' not found in FASTA file.")
 
-    proteins = load_fasta(args.fasta)
-    if args.accession not in proteins:
-        sys.exit(f"Accession '{args.accession}' not found in FASTA file.")
-
-    protein_seq = proteins[args.accession]
-    print(f"Protein {args.accession}: {len(protein_seq)} amino acids")
+    protein_seq = proteins[accession]
+    print(f"Protein {accession}: {len(protein_seq)} amino acids")
 
     fingerprint = generate_fingerprint(
-        protein_seq, enzyme=args.enzyme,
-        missed_cleavages=args.missed_cleavages,
-        min_mass=args.min_mass, max_mass=args.max_mass,
+        protein_seq, enzyme=enzyme,
+        missed_cleavages=missed_cleavages,
+        min_mass=min_mass, max_mass=max_mass,
     )
     print(f"Generated {len(fingerprint)} peptide masses")
 
@@ -191,9 +188,9 @@ def main():
     if len(fingerprint) > 10:
         print(f"  ... and {len(fingerprint) - 10} more")
 
-    if args.output:
-        write_tsv(fingerprint, args.output)
-        print(f"\nFingerprint written to {args.output}")
+    if output:
+        write_tsv(fingerprint, output)
+        print(f"\nFingerprint written to {output}")
 
 
 if __name__ == "__main__":

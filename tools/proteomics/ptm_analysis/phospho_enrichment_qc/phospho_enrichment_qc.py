@@ -12,11 +12,12 @@ Usage
     python phospho_enrichment_qc.py --input search_results.tsv --output enrichment.tsv
 """
 
-import argparse
 import csv
 import re
 import sys
 from typing import Dict, List, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -176,17 +177,13 @@ def write_output(output_path: str, counts: Dict[str, int], ratios: Dict[str, flo
         f.write(f"pTyr_ratio\t{ratios['pTyr_ratio']:.4f}\n")
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compute phospho-enrichment efficiency and pSer/pThr/pTyr ratios."
-    )
-    parser.add_argument("--input", required=True, help="Input search results TSV file")
-    parser.add_argument("--output", required=True, help="Output enrichment report TSV file")
-    args = parser.parse_args()
-
-    rows = read_input(args.input)
+@click.command(help="Compute phospho-enrichment efficiency and pSer/pThr/pTyr ratios.")
+@click.option("--input", "input", required=True, help="Input search results TSV file")
+@click.option("--output", required=True, help="Output enrichment report TSV file")
+def main(input, output):
+    rows = read_input(input)
     counts, ratios = compute_enrichment_stats(rows)
-    write_output(args.output, counts, ratios)
+    write_output(output, counts, ratios)
 
     print(f"Total peptides:       {counts['total']}")
     print(f"Phospho peptides:     {counts['phospho']}")

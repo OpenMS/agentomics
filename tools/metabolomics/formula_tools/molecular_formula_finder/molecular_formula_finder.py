@@ -17,9 +17,10 @@ Usage
     python molecular_formula_finder.py --mass 180.0634 --ppm 5 --output formulas.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -263,24 +264,20 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Enumerate valid molecular formulas for an accurate mass."
-    )
-    parser.add_argument("--mass", type=float, required=True, help="Target mass in Da")
-    parser.add_argument("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5)")
-    parser.add_argument("--elements", default="C:0-12,H:0-30,N:0-5,O:0-10",
-                        help="Element constraints (default: C:0-12,H:0-30,N:0-5,O:0-10)")
-    parser.add_argument("--no-rules", action="store_true", help="Disable Seven Golden Rules filtering")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command()
+@click.option("--mass", type=float, required=True, help="Target mass in Da")
+@click.option("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5)")
+@click.option("--elements", default="C:0-12,H:0-30,N:0-5,O:0-10",
+              help="Element constraints (default: C:0-12,H:0-30,N:0-5,O:0-10)")
+@click.option("--no-rules", is_flag=True, help="Disable Seven Golden Rules filtering")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(mass, ppm, elements, no_rules, output):
+    constraints = parse_element_constraints(elements)
+    results = find_formulas(mass, ppm, constraints, apply_rules=not no_rules)
 
-    constraints = parse_element_constraints(args.elements)
-    results = find_formulas(args.mass, args.ppm, constraints, apply_rules=not args.no_rules)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} formulas to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} formulas to {output}")
     else:
         if results:
             print("formula\tmass\terror_ppm\tpasses_senior\tpasses_hc_ratio\tpasses_nitrogen_rule")

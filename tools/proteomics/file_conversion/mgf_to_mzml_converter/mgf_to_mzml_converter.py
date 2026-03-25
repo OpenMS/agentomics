@@ -8,9 +8,10 @@ Usage
     python mgf_to_mzml_converter.py --input spectra.mgf --output spectra.mzML
 """
 
-import argparse
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -97,14 +98,12 @@ def convert_mgf_to_mzml(input_path: str, output_path: str) -> dict:
     return {"spectra_converted": len(mgf_spectra)}
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Convert MGF to mzML format.")
-    parser.add_argument("--input", required=True, help="Input MGF file")
-    parser.add_argument("--output", required=True, help="Output mzML file")
-    args = parser.parse_args()
-
-    stats = convert_mgf_to_mzml(args.input, args.output)
-    print(f"Converted {stats['spectra_converted']} spectra to {args.output}")
+@click.command(help="Convert MGF to mzML format.")
+@click.option("--input", "input", required=True, help="Input MGF file")
+@click.option("--output", required=True, help="Output mzML file")
+def main(input, output) -> None:
+    stats = convert_mgf_to_mzml(input, output)
+    print(f"Converted {stats['spectra_converted']} spectra to {output}")
 
 
 if __name__ == "__main__":

@@ -9,9 +9,10 @@ Usage
     python van_krevelen_data_generator.py --input formulas.tsv --classify --output van_krevelen.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -107,34 +108,30 @@ def process_formulas(formulas: list, classify: bool = False) -> list:
     return results
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="TSV file with a 'formula' column.")
+@click.option("--classify", is_flag=True, help="Add biochemical class assignment.")
+@click.option("--output", required=True, help="Output TSV file with ratios.")
+def main(input_file, classify, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Compute H:C and O:C ratios from molecular formulas for Van Krevelen diagrams."
-    )
-    parser.add_argument("--input", required=True, help="TSV file with a 'formula' column.")
-    parser.add_argument("--classify", action="store_true", help="Add biochemical class assignment.")
-    parser.add_argument("--output", required=True, help="Output TSV file with ratios.")
-    args = parser.parse_args()
-
     formulas = []
-    with open(args.input, newline="") as fh:
+    with open(input_file, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             formulas.append(row["formula"])
 
-    results = process_formulas(formulas, classify=args.classify)
+    results = process_formulas(formulas, classify=classify)
 
     fieldnames = ["formula", "C", "H", "O", "hc_ratio", "oc_ratio"]
-    if args.classify:
+    if classify:
         fieldnames.append("class")
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"Wrote {len(results)} entries to {args.output}")
+    print(f"Wrote {len(results)} entries to {output}")
 
 
 if __name__ == "__main__":

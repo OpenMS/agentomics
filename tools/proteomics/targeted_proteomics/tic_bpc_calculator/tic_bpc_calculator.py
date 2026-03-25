@@ -15,9 +15,10 @@ Usage
     python tic_bpc_calculator.py --input run.mzML --ms-level 1 --output chromatograms.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -121,20 +122,16 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compute TIC and BPC chromatograms from mzML."
-    )
-    parser.add_argument("--input", required=True, help="Path to input mzML file")
-    parser.add_argument("--ms-level", type=int, default=1, help="MS level (default: 1)")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Compute TIC and BPC chromatograms from mzML.")
+@click.option("--input", "input", required=True, help="Path to input mzML file")
+@click.option("--ms-level", type=int, default=1, help="MS level (default: 1)")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(input, ms_level, output):
+    results = compute_tic_bpc(input, ms_level)
 
-    results = compute_tic_bpc(args.input, args.ms_level)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} chromatogram data points to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} chromatogram data points to {output}")
     else:
         print("scan_index\trt\ttic\tbpc\tbpc_mz")
         for r in results:

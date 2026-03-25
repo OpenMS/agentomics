@@ -13,10 +13,11 @@ Usage
         --fragments observed.tsv --tolerance 10 --output coverage.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -158,25 +159,15 @@ def coverage_summary(bond_cov: List[Dict[str, object]]) -> Dict[str, object]:
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Compute per-residue bond cleavage coverage from fragment ions."
-    )
-    parser.add_argument("--sequence", required=True, help="Protein amino acid sequence")
-    parser.add_argument(
-        "--fragments", required=True,
-        help="TSV with 'mass' column of observed fragment ion masses",
-    )
-    parser.add_argument(
-        "--tolerance", type=float, default=10.0,
-        help="Tolerance in ppm (default: 10)",
-    )
-    parser.add_argument("--output", required=True, help="Output coverage TSV")
-    args = parser.parse_args()
-
+@click.command(help="Compute per-residue bond cleavage coverage from fragment ions.")
+@click.option("--sequence", required=True, help="Protein amino acid sequence")
+@click.option("--fragments", required=True, help="TSV with 'mass' column of observed fragment ion masses")
+@click.option("--tolerance", type=float, default=10.0, help="Tolerance in ppm (default: 10)")
+@click.option("--output", required=True, help="Output coverage TSV")
+def main(sequence, fragments, tolerance, output) -> None:
     # Read observed masses
     observed: List[float] = []
-    with open(args.fragments, newline="") as fh:
+    with open(fragments, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             mass_str = row.get("mass", "").strip()
@@ -186,12 +177,12 @@ def main() -> None:
     if not observed:
         sys.exit("No observed masses found in fragments file.")
 
-    theo = theoretical_fragments(args.sequence)
-    matches = match_fragments(theo, observed, args.tolerance)
-    cov = bond_coverage(args.sequence, matches)
+    theo = theoretical_fragments(sequence)
+    matches = match_fragments(theo, observed, tolerance)
+    cov = bond_coverage(sequence, matches)
     summary = coverage_summary(cov)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.writer(fh, delimiter="\t")
         writer.writerow(["bond_index", "left_residue", "right_residue", "covered", "ion_types"])
         for entry in cov:
@@ -206,7 +197,7 @@ def main() -> None:
         writer.writerow(["coverage_fraction", f"{summary['coverage_fraction']:.4f}"])
 
     print(f"Coverage: {summary['covered_bonds']}/{summary['total_bonds']} "
-          f"({summary['coverage_fraction']:.1%}) -> {args.output}")
+          f"({summary['coverage_fraction']:.1%}) -> {output}")
 
 
 if __name__ == "__main__":

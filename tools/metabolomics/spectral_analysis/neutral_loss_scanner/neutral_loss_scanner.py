@@ -16,9 +16,10 @@ Usage
     python neutral_loss_scanner.py --input file.mzML --losses 97.977 --tolerance 0.05 --output matches.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -145,22 +146,18 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Scan MS2 spectra for characteristic neutral losses."
-    )
-    parser.add_argument("--input", required=True, help="Path to input mzML file")
-    parser.add_argument("--losses", required=True, help="Comma-separated neutral loss masses in Da")
-    parser.add_argument("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
-    parser.add_argument("--output", default=None, help="Output TSV file path (default: print to stdout)")
-    args = parser.parse_args()
+@click.command()
+@click.option("--input", "input_file", required=True, help="Path to input mzML file")
+@click.option("--losses", required=True, help="Comma-separated neutral loss masses in Da")
+@click.option("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
+@click.option("--output", default=None, help="Output TSV file path (default: print to stdout)")
+def main(input_file, losses, tolerance, output):
+    losses_list = [float(x.strip()) for x in losses.split(",")]
+    results = scan_neutral_losses(input_file, losses_list, tolerance)
 
-    losses = [float(x.strip()) for x in args.losses.split(",")]
-    results = scan_neutral_losses(args.input, losses, args.tolerance)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} neutral loss matches to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} neutral loss matches to {output}")
     else:
         print("scan_index\trt\tprecursor_mz\tneutral_loss\tfragment_mz\tintensity\tdelta_da")
         for r in results:

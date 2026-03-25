@@ -10,9 +10,10 @@ Usage
         --labeled features_13c.tsv --tracer 13C --ppm 5 --output pairs.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -142,38 +143,34 @@ def find_labeled_pairs(
     return pairs
 
 
-def main() -> None:
+@click.command()
+@click.option("--unlabeled", required=True, help="TSV with unlabeled features (id, mz, rt).")
+@click.option("--labeled", required=True, help="TSV with labeled features (id, mz, rt).")
+@click.option("--tracer", default="13C", help="Tracer type: 13C, 15N, 2H (default: 13C).")
+@click.option("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5).")
+@click.option("--rt-tolerance", type=float, default=10.0,
+              help="RT tolerance in seconds (default: 10).")
+@click.option("--output", required=True, help="Output TSV with paired features.")
+def main(unlabeled, labeled, tracer, ppm, rt_tolerance, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Detect isotope-labeled metabolites by pairing unlabeled and labeled features."
-    )
-    parser.add_argument("--unlabeled", required=True, help="TSV with unlabeled features (id, mz, rt).")
-    parser.add_argument("--labeled", required=True, help="TSV with labeled features (id, mz, rt).")
-    parser.add_argument("--tracer", default="13C", help="Tracer type: 13C, 15N, 2H (default: 13C).")
-    parser.add_argument("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5).")
-    parser.add_argument("--rt-tolerance", type=float, default=10.0,
-                        help="RT tolerance in seconds (default: 10).")
-    parser.add_argument("--output", required=True, help="Output TSV with paired features.")
-    args = parser.parse_args()
-
     def read_features(path):
         with open(path, newline="") as fh:
             return list(csv.DictReader(fh, delimiter="\t"))
 
-    unlabeled = read_features(args.unlabeled)
-    labeled = read_features(args.labeled)
+    unlabeled_data = read_features(unlabeled)
+    labeled_data = read_features(labeled)
 
-    pairs = find_labeled_pairs(unlabeled, labeled, tracer=args.tracer,
-                               ppm=args.ppm, rt_tolerance=args.rt_tolerance)
+    pairs = find_labeled_pairs(unlabeled_data, labeled_data, tracer=tracer,
+                               ppm=ppm, rt_tolerance=rt_tolerance)
 
     fieldnames = ["unlabeled_id", "unlabeled_mz", "labeled_id", "labeled_mz",
                   "mass_diff", "n_labels", "rt_diff", "ppm_error"]
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(pairs)
 
-    print(f"Found {len(pairs)} labeled pairs, wrote to {args.output}")
+    print(f"Found {len(pairs)} labeled pairs, wrote to {output}")
 
 
 if __name__ == "__main__":

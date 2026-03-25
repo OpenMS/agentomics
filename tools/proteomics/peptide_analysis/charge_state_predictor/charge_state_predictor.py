@@ -15,9 +15,10 @@ Usage
     python charge_state_predictor.py --sequence PEPTIDEK --ph 2.0 --output charges.json
 """
 
-import argparse
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -134,21 +135,19 @@ def predict_charge_states(sequence: str, ph: float = 2.0, max_charge: int = 0) -
     }
 
 
-def main():
+@click.command(help="Predict peptide charge state distribution.")
+@click.option("--sequence", required=True, help="Peptide sequence.")
+@click.option("--ph", type=float, default=2.0, help="Solution pH (default: 2.0 for ESI).")
+@click.option("--max-charge", type=int, default=0, help="Max charge state (0 = auto).")
+@click.option("--output", type=str, default=None, help="Output file (.json).")
+def main(sequence, ph, max_charge, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Predict peptide charge state distribution.")
-    parser.add_argument("--sequence", required=True, help="Peptide sequence.")
-    parser.add_argument("--ph", type=float, default=2.0, help="Solution pH (default: 2.0 for ESI).")
-    parser.add_argument("--max-charge", type=int, default=0, help="Max charge state (0 = auto).")
-    parser.add_argument("--output", type=str, help="Output file (.json).")
-    args = parser.parse_args()
+    result = predict_charge_states(sequence, ph, max_charge)
 
-    result = predict_charge_states(args.sequence, args.ph, args.max_charge)
-
-    if args.output:
-        with open(args.output, "w") as fh:
+    if output:
+        with open(output, "w") as fh:
             json.dump(result, fh, indent=2)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         print(json.dumps(result, indent=2))
 

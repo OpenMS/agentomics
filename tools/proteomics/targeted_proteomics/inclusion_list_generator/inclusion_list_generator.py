@@ -11,9 +11,10 @@ Usage
     python inclusion_list_generator.py --input peptides.tsv --format thermo --charge 2,3 --output inclusion.csv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -116,34 +117,34 @@ def generate_inclusion_list(
     return entries
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate instrument inclusion lists from peptide data.")
-    parser.add_argument("--input", required=True, help="Input peptide TSV")
-    parser.add_argument("--format", default="thermo", choices=["thermo", "generic"],
-                        help="Output format (default: thermo)")
-    parser.add_argument("--charge", default="2,3", help="Comma-separated charge states (default: 2,3)")
-    parser.add_argument("--output", required=True, help="Output CSV file")
-    args = parser.parse_args()
-
-    charges = [int(c.strip()) for c in args.charge.split(",")]
-    peptides = read_peptides(args.input)
-    entries = generate_inclusion_list(peptides, charges, output_format=args.format)
+@click.command(help="Generate instrument inclusion lists from peptide data.")
+@click.option("--input", "input", required=True, help="Input peptide TSV")
+@click.option(
+    "--format", "format", default="thermo",
+    type=click.Choice(["thermo", "generic"]), help="Output format (default: thermo)",
+)
+@click.option("--charge", default="2,3", help="Comma-separated charge states (default: 2,3)")
+@click.option("--output", required=True, help="Output CSV file")
+def main(input, format, charge, output):
+    charges = [int(c.strip()) for c in charge.split(",")]
+    peptides = read_peptides(input)
+    entries = generate_inclusion_list(peptides, charges, output_format=format)
 
     if not entries:
         print("No entries generated.")
         return
 
     fieldnames = list(entries[0].keys())
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(entries)
 
-    print(f"Format: {args.format}")
+    print(f"Format: {format}")
     print(f"Charge states: {charges}")
     print(f"Peptides: {len(peptides)}")
     print(f"Entries: {len(entries)}")
-    print(f"Output written to {args.output}")
+    print(f"Output written to {output}")
 
 
 if __name__ == "__main__":

@@ -14,10 +14,11 @@ Usage
         --fasta proteome.fasta --enzyme Trypsin --output coverage.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List, Set, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -154,25 +155,18 @@ def compute_coverage(
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Estimate proteome coverage from a spectral library and FASTA."
-    )
-    parser.add_argument("--library", required=True, help="Spectral library TSV")
-    parser.add_argument("--fasta", required=True, help="Proteome FASTA file")
-    parser.add_argument("--enzyme", default="Trypsin", help="Enzyme name (default: Trypsin)")
-    parser.add_argument(
-        "--missed-cleavages", type=int, default=1,
-        help="Missed cleavages (default: 1)",
-    )
-    parser.add_argument("--output", required=True, help="Output coverage TSV")
-    args = parser.parse_args()
-
-    library_peps = read_library_peptides(args.library)
-    protein_peps, all_peps = digest_fasta(args.fasta, args.enzyme, args.missed_cleavages)
+@click.command(help="Estimate proteome coverage from a spectral library and FASTA.")
+@click.option("--library", required=True, help="Spectral library TSV")
+@click.option("--fasta", required=True, help="Proteome FASTA file")
+@click.option("--enzyme", default="Trypsin", help="Enzyme name (default: Trypsin)")
+@click.option("--missed-cleavages", type=int, default=1, help="Missed cleavages (default: 1)")
+@click.option("--output", required=True, help="Output coverage TSV")
+def main(library, fasta, enzyme, missed_cleavages, output) -> None:
+    library_peps = read_library_peptides(library)
+    protein_peps, all_peps = digest_fasta(fasta, enzyme, missed_cleavages)
     result = compute_coverage(library_peps, protein_peps, all_peps)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.writer(fh, delimiter="\t")
         # Summary
         writer.writerow(["metric", "value"])

@@ -8,9 +8,10 @@ Usage
     python featurexml_merger.py --inputs f1.featureXML f2.featureXML --output merged.featureXML
 """
 
-import argparse
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -70,14 +71,12 @@ def create_synthetic_featurexml(output_path: str, n_features: int = 5, rt_offset
     save_featurexml(fm, output_path)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Merge multiple featureXML files.")
-    parser.add_argument("--inputs", nargs="+", required=True, help="Input featureXML files")
-    parser.add_argument("--output", required=True, help="Output merged featureXML file")
-    args = parser.parse_args()
-
-    stats = merge_feature_maps(args.inputs, args.output)
-    print(f"Merged {stats['total_features']} features from {len(stats['file_counts'])} files to {args.output}")
+@click.command(help="Merge multiple featureXML files.")
+@click.option("--inputs", multiple=True, required=True, help="Input featureXML files")
+@click.option("--output", required=True, help="Output merged featureXML file")
+def main(inputs, output) -> None:
+    stats = merge_feature_maps(list(inputs), output)
+    print(f"Merged {stats['total_features']} features from {len(stats['file_counts'])} files to {output}")
 
 
 if __name__ == "__main__":

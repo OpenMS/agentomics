@@ -13,9 +13,10 @@ Usage
     python rna_mass_calculator.py --sequence AAUGCAAUGG --charge 3 --output mass.json
 """
 
-import argparse
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -133,26 +134,22 @@ def calculate_isotope_pattern(sequence: str, n_peaks: int = 5) -> list:
     return pattern
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate mass/formula/isotopes for RNA sequences."
-    )
-    parser.add_argument("--sequence", required=True, help="RNA sequence (e.g. AAUGCAAUGG)")
-    parser.add_argument("--charge", type=int, default=1, help="Charge state for m/z (default: 1)")
-    parser.add_argument("--isotopes", type=int, default=0, help="Number of isotope peaks to show (default: 0 = off)")
-    parser.add_argument("--output", help="Output JSON file (optional)")
-    args = parser.parse_args()
+@click.command(help="Calculate mass/formula/isotopes for RNA sequences.")
+@click.option("--sequence", required=True, help="RNA sequence (e.g. AAUGCAAUGG)")
+@click.option("--charge", type=int, default=1, help="Charge state for m/z (default: 1)")
+@click.option("--isotopes", type=int, default=0, help="Number of isotope peaks to show (default: 0 = off)")
+@click.option("--output", default=None, help="Output JSON file (optional)")
+def main(sequence, charge, isotopes, output):
+    result = calculate_rna_mass(sequence, charge)
 
-    result = calculate_rna_mass(args.sequence, args.charge)
-
-    if args.isotopes > 0:
-        pattern = calculate_isotope_pattern(args.sequence, args.isotopes)
+    if isotopes > 0:
+        pattern = calculate_isotope_pattern(sequence, isotopes)
         result["isotope_pattern"] = [{"mass": m, "intensity": i} for m, i in pattern]
 
-    if args.output:
-        with open(args.output, "w") as fh:
+    if output:
+        with open(output, "w") as fh:
             json.dump(result, fh, indent=2)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         print(f"Sequence          : {result['sequence']}")
         print(f"Charge            : {result['charge']}+")

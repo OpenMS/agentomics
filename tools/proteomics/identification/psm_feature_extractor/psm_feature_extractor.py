@@ -9,10 +9,11 @@ Usage
     python psm_feature_extractor.py --mzml run.mzML --peptides psms.tsv --output features.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import List, Optional
+
+import click
 
 try:
     import pyopenms as oms
@@ -216,20 +217,18 @@ def extract_features(
     return {"total_psms": len(psms), "matched": matched}
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Extract rescoring features from PSMs.")
-    parser.add_argument("--mzml", required=True, help="Input mzML file")
-    parser.add_argument("--peptides", required=True, help="Input PSMs TSV file")
-    parser.add_argument("--output", required=True, help="Output features TSV file")
-    parser.add_argument("--tolerance", type=float, default=0.02, help="Fragment tolerance in Da (default: 0.02)")
-    parser.add_argument("--mz-tolerance", type=float, default=0.02, help="Precursor m/z tolerance (default: 0.02)")
-    parser.add_argument("--rt-tolerance", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
-    args = parser.parse_args()
-
+@click.command(help="Extract rescoring features from PSMs.")
+@click.option("--mzml", required=True, help="Input mzML file")
+@click.option("--peptides", required=True, help="Input PSMs TSV file")
+@click.option("--output", required=True, help="Output features TSV file")
+@click.option("--tolerance", type=float, default=0.02, help="Fragment tolerance in Da (default: 0.02)")
+@click.option("--mz-tolerance", type=float, default=0.02, help="Precursor m/z tolerance (default: 0.02)")
+@click.option("--rt-tolerance", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
+def main(mzml, peptides, output, tolerance, mz_tolerance, rt_tolerance) -> None:
     stats = extract_features(
-        args.mzml, args.peptides, args.output, args.tolerance, args.mz_tolerance, args.rt_tolerance
+        mzml, peptides, output, tolerance, mz_tolerance, rt_tolerance
     )
-    print(f"Extracted features for {stats['matched']} / {stats['total_psms']} PSMs to {args.output}")
+    print(f"Extracted features for {stats['matched']} / {stats['total_psms']} PSMs to {output}")
 
 
 if __name__ == "__main__":

@@ -10,10 +10,11 @@ Usage
         --tolerance 0.02 --output scores.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -220,22 +221,18 @@ def read_peaks_file(path: str) -> list:
     return list(spectra.values())
 
 
-def main() -> None:
+@click.command()
+@click.option("--query", required=True,
+              help="TSV with query peaks (spectrum_id, mz, intensity).")
+@click.option("--library", required=True,
+              help="TSV with library peaks (spectrum_id, mz, intensity).")
+@click.option("--tolerance", type=float, default=0.02,
+              help="m/z tolerance in Da (default: 0.02).")
+@click.option("--output", required=True, help="Output TSV with similarity scores.")
+def main(query, library, tolerance, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Compute spectral entropy similarity between query and library spectra."
-    )
-    parser.add_argument("--query", required=True,
-                        help="TSV with query peaks (spectrum_id, mz, intensity).")
-    parser.add_argument("--library", required=True,
-                        help="TSV with library peaks (spectrum_id, mz, intensity).")
-    parser.add_argument("--tolerance", type=float, default=0.02,
-                        help="m/z tolerance in Da (default: 0.02).")
-    parser.add_argument("--output", required=True, help="Output TSV with similarity scores.")
-    args = parser.parse_args()
-
-    query_spectra = read_peaks_file(args.query)
-    library_spectra = read_peaks_file(args.library)
+    query_spectra = read_peaks_file(query)
+    library_spectra = read_peaks_file(library)
 
     results = []
     for qs in query_spectra:
@@ -244,7 +241,7 @@ def main() -> None:
             score = entropy_similarity(
                 qs["mzs"], qs["intensities"],
                 ls["mzs"], ls["intensities"],
-                tolerance=args.tolerance,
+                tolerance=tolerance,
             )
             results.append({
                 "query_id": qs["spectrum_id"],
@@ -254,12 +251,12 @@ def main() -> None:
             })
 
     fieldnames = ["query_id", "library_id", "query_entropy", "entropy_similarity"]
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"Computed {len(results)} pairwise scores, wrote to {args.output}")
+    print(f"Computed {len(results)} pairwise scores, wrote to {output}")
 
 
 if __name__ == "__main__":

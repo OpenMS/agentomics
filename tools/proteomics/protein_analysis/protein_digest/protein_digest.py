@@ -14,8 +14,9 @@ Usage
     python protein_digest.py --sequence MKVLWAALLVTFLAGC --enzyme Lys-C --missed-cleavages 2
 """
 
-import argparse
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -85,69 +86,35 @@ def digest_protein(
     return results
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="In-silico protein digestion using pyopenms."
-    )
-    parser.add_argument(
-        "--sequence",
-        help="Single-letter amino acid sequence of the protein",
-    )
-    parser.add_argument(
-        "--enzyme",
-        default="Trypsin",
-        help="Digestion enzyme name (default: Trypsin)",
-    )
-    parser.add_argument(
-        "--missed-cleavages",
-        type=int,
-        default=0,
-        dest="missed_cleavages",
-        help="Maximum missed cleavages (default: 0)",
-    )
-    parser.add_argument(
-        "--min-length",
-        type=int,
-        default=6,
-        dest="min_length",
-        help="Minimum peptide length (default: 6)",
-    )
-    parser.add_argument(
-        "--max-length",
-        type=int,
-        default=40,
-        dest="max_length",
-        help="Maximum peptide length (default: 40)",
-    )
-    parser.add_argument(
-        "--list-enzymes",
-        action="store_true",
-        dest="list_enzymes",
-        help="List all available enzyme names and exit",
-    )
-    args = parser.parse_args()
-
-    if args.list_enzymes:
-        enzymes = list_enzymes()
+@click.command(help="In-silico protein digestion using pyopenms.")
+@click.option("--sequence", default=None, help="Single-letter amino acid sequence of the protein")
+@click.option("--enzyme", default="Trypsin", help="Digestion enzyme name (default: Trypsin)")
+@click.option("--missed-cleavages", type=int, default=0, help="Maximum missed cleavages (default: 0)")
+@click.option("--min-length", type=int, default=6, help="Minimum peptide length (default: 6)")
+@click.option("--max-length", type=int, default=40, help="Maximum peptide length (default: 40)")
+@click.option("--list-enzymes", "show_enzymes", is_flag=True, help="List all available enzyme names and exit")
+def main(sequence, enzyme, missed_cleavages, min_length, max_length, show_enzymes):
+    if show_enzymes:
+        enzymes_list = list_enzymes()
         print("Available enzymes:")
-        for name in enzymes:
+        for name in enzymes_list:
             print(f"  {name}")
         return
 
-    if not args.sequence:
-        parser.error("--sequence is required unless --list-enzymes is used.")
+    if not sequence:
+        raise click.UsageError("--sequence is required unless --list-enzymes is used.")
 
     peptides = digest_protein(
-        args.sequence,
-        enzyme=args.enzyme,
-        missed_cleavages=args.missed_cleavages,
-        min_length=args.min_length,
-        max_length=args.max_length,
+        sequence,
+        enzyme=enzyme,
+        missed_cleavages=missed_cleavages,
+        min_length=min_length,
+        max_length=max_length,
     )
 
     print(
-        f"Enzyme: {args.enzyme}  |  Missed cleavages ≤ {args.missed_cleavages}  "
-        f"|  Length {args.min_length}–{args.max_length}"
+        f"Enzyme: {enzyme}  |  Missed cleavages \u2264 {missed_cleavages}  "
+        f"|  Length {min_length}\u2013{max_length}"
     )
     print(f"Total peptides: {len(peptides)}\n")
     print(f"{'#':>4}  {'Sequence':<40}  {'Length':>6}  {'Mono Mass (Da)':>14}")

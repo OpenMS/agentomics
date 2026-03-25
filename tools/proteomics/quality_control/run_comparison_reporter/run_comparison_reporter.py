@@ -9,10 +9,11 @@ Usage
     python run_comparison_reporter.py --inputs run1.mzML run2.mzML --output comparison.json
 """
 
-import argparse
 import json
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -110,28 +111,22 @@ def compare_runs(exp1: oms.MSExperiment, exp2: oms.MSExperiment) -> dict:
     }
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compare mzML runs: TIC correlation, shared precursors, RT shift."
-    )
-    parser.add_argument(
-        "--inputs", nargs=2, required=True, metavar="FILE", help="Two mzML files to compare"
-    )
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output JSON report")
-    args = parser.parse_args()
-
+@click.command(help="Compare mzML runs: TIC correlation, shared precursors, RT shift.")
+@click.option("--inputs", multiple=True, required=True, help="Two mzML files to compare")
+@click.option("--output", required=True, help="Output JSON report")
+def main(inputs, output):
     exp1 = oms.MSExperiment()
-    oms.MzMLFile().load(args.inputs[0], exp1)
+    oms.MzMLFile().load(inputs[0], exp1)
 
     exp2 = oms.MSExperiment()
-    oms.MzMLFile().load(args.inputs[1], exp2)
+    oms.MzMLFile().load(inputs[1], exp2)
 
     result = compare_runs(exp1, exp2)
 
-    with open(args.output, "w") as fh:
+    with open(output, "w") as fh:
         json.dump(result, fh, indent=2)
 
-    print(f"Comparison report written to {args.output}")
+    print(f"Comparison report written to {output}")
     print(f"  TIC correlation  : {result['tic_correlation']}")
     print(f"  Shared precursors: {result['shared_precursors']}")
 

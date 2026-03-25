@@ -11,10 +11,11 @@ Usage
     python lc_ms_qc_reporter.py --input run.mzML --output qc_report.json
 """
 
-import argparse
 import json
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -81,23 +82,19 @@ def compute_qc_metrics(exp: oms.MSExperiment) -> dict:
     }
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate comprehensive QC report from an mzML file."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Path to mzML file")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output JSON report path")
-    args = parser.parse_args()
-
+@click.command(help="Generate comprehensive QC report from an mzML file.")
+@click.option("--input", "input", required=True, help="Path to mzML file")
+@click.option("--output", required=True, help="Output JSON report path")
+def main(input, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
     metrics = compute_qc_metrics(exp)
 
-    with open(args.output, "w") as fh:
+    with open(output, "w") as fh:
         json.dump(metrics, fh, indent=2)
 
-    print(f"QC report written to {args.output}")
+    print(f"QC report written to {output}")
     print(f"  MS1 spectra : {metrics['ms1_count']}")
     print(f"  MS2 spectra : {metrics['ms2_count']}")
     print(f"  TIC CV%     : {metrics['tic_cv_percent']:.2f}")

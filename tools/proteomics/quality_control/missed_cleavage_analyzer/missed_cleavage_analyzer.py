@@ -14,10 +14,11 @@ Usage
     python missed_cleavage_analyzer.py --input peptides.tsv --enzyme Trypsin --output mc_report.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -89,34 +90,32 @@ def analyze_missed_cleavages(peptides: list, enzyme: str = "Trypsin") -> dict:
     }
 
 
-def main():
+@click.command(help="Analyze missed cleavage distribution.")
+@click.option("--input", "input", required=True, help="TSV file with 'sequence' column.")
+@click.option("--enzyme", type=str, default="Trypsin", help="Enzyme name (default: Trypsin).")
+@click.option("--output", type=str, default=None, help="Output file (.tsv or .json).")
+def main(input, enzyme, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Analyze missed cleavage distribution.")
-    parser.add_argument("--input", required=True, help="TSV file with 'sequence' column.")
-    parser.add_argument("--enzyme", type=str, default="Trypsin", help="Enzyme name (default: Trypsin).")
-    parser.add_argument("--output", type=str, help="Output file (.tsv or .json).")
-    args = parser.parse_args()
-
     peptide_list = []
-    with open(args.input) as fh:
+    with open(input) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             seq = row.get("sequence", "").strip()
             if seq:
                 peptide_list.append(seq)
 
-    analysis = analyze_missed_cleavages(peptide_list, args.enzyme)
+    analysis = analyze_missed_cleavages(peptide_list, enzyme)
 
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump(analysis, fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 writer = csv.DictWriter(fh, fieldnames=["peptide", "missed_cleavages"], delimiter="\t")
                 writer.writeheader()
                 writer.writerows(analysis["peptide_results"])
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         print(f"Enzyme: {analysis['enzyme']}")
         print(f"Total peptides: {analysis['total_peptides']}")

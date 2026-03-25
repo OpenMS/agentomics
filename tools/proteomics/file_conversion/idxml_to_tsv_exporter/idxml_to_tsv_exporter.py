@@ -8,10 +8,11 @@ Usage
     python idxml_to_tsv_exporter.py --input results.idXML --output results.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -117,14 +118,12 @@ def create_synthetic_idxml(output_path: str) -> None:
     oms.IdXMLFile().store(output_path, [protein_id], peptide_ids)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Export idXML to flat TSV format.")
-    parser.add_argument("--input", required=True, help="Input idXML file")
-    parser.add_argument("--output", required=True, help="Output TSV file")
-    args = parser.parse_args()
-
-    stats = export_idxml(args.input, args.output)
-    print(f"Exported {stats['total_psms']} PSMs from {stats['peptide_ids']} spectra to {args.output}")
+@click.command(help="Export idXML to flat TSV format.")
+@click.option("--input", "input", required=True, help="Input idXML file")
+@click.option("--output", required=True, help="Output TSV file")
+def main(input, output) -> None:
+    stats = export_idxml(input, output)
+    print(f"Exported {stats['total_psms']} PSMs from {stats['peptide_ids']} spectra to {output}")
 
 
 if __name__ == "__main__":

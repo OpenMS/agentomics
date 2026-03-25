@@ -9,10 +9,11 @@ Usage
     python xl_link_classifier.py --crosslinks links.tsv --fasta proteome.fasta --output classified.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List, Set
+
+import click
 
 try:
     import pyopenms as oms
@@ -221,19 +222,15 @@ def write_output(output_path: str, results: List[Dict[str, object]]) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Classify crosslinks as intra/inter-protein or monolink."
-    )
-    parser.add_argument("--crosslinks", required=True, help="Crosslinks TSV file")
-    parser.add_argument("--fasta", required=True, help="Proteome FASTA file")
-    parser.add_argument("--output", required=True, help="Output classified TSV file")
-    args = parser.parse_args()
-
-    proteins = load_fasta(args.fasta)
-    crosslinks = read_crosslinks(args.crosslinks)
-    results = classify_crosslinks(crosslinks, proteins)
-    write_output(args.output, results)
+@click.command(help="Classify crosslinks as intra/inter-protein or monolink.")
+@click.option("--crosslinks", required=True, help="Crosslinks TSV file")
+@click.option("--fasta", required=True, help="Proteome FASTA file")
+@click.option("--output", required=True, help="Output classified TSV file")
+def main(crosslinks, fasta, output):
+    proteins = load_fasta(fasta)
+    crosslinks_data = read_crosslinks(crosslinks)
+    results = classify_crosslinks(crosslinks_data, proteins)
+    write_output(output, results)
 
     summary = compute_summary(results)
     print(f"Total crosslinks: {len(results)}")

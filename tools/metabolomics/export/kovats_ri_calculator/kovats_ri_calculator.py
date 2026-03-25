@@ -14,10 +14,11 @@ Usage
     python kovats_ri_calculator.py --input features.tsv --standards alkane_rts.tsv --output ri_values.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -168,23 +169,19 @@ def write_results(results: list[dict], path: str) -> None:
         writer.writerows(results)
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="Feature table (TSV) with rt column")
+@click.option("--standards", required=True, help="Alkane standards (TSV) with carbon_number, rt")
+@click.option("--output", required=True, help="Output RI values (TSV)")
+@click.option("--rt-column", default="rt", help="Name of RT column (default: rt)")
+def main(input_file, standards, output, rt_column) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Calculate Kovats retention indices from alkane standards for GC-MS."
-    )
-    parser.add_argument("--input", required=True, help="Feature table (TSV) with rt column")
-    parser.add_argument("--standards", required=True, help="Alkane standards (TSV) with carbon_number, rt")
-    parser.add_argument("--output", required=True, help="Output RI values (TSV)")
-    parser.add_argument("--rt-column", default="rt", help="Name of RT column (default: rt)")
-    args = parser.parse_args()
-
-    features = load_tsv(args.input)
-    standards = load_tsv(args.standards)
-    alkane_table = build_alkane_table(standards)
-    results = calculate_ri_batch(features, alkane_table, rt_column=args.rt_column)
-    write_results(results, args.output)
-    print(f"Calculated RI for {len(results)} features, written to {args.output}")
+    features = load_tsv(input_file)
+    standards_data = load_tsv(standards)
+    alkane_table = build_alkane_table(standards_data)
+    results = calculate_ri_batch(features, alkane_table, rt_column=rt_column)
+    write_results(results, output)
+    print(f"Calculated RI for {len(results)} features, written to {output}")
 
 
 if __name__ == "__main__":

@@ -8,10 +8,11 @@ Usage
     python spectral_library_builder.py --input run.mzML --peptides identified.tsv --output library.msp
 """
 
-import argparse
 import csv
 import sys
 from typing import List, Optional
+
+import click
 
 try:
     import pyopenms as oms
@@ -136,16 +137,14 @@ def build_library(
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Build spectral library from mzML + peptide list.")
-    parser.add_argument("--input", required=True, help="Input mzML file")
-    parser.add_argument("--peptides", required=True, help="Input peptide identifications TSV")
-    parser.add_argument("--output", required=True, help="Output MSP library file")
-    parser.add_argument("--mz-tolerance", type=float, default=0.01, help="m/z tolerance in Da (default: 0.01)")
-    parser.add_argument("--rt-tolerance", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
-    args = parser.parse_args()
-
-    stats = build_library(args.input, args.peptides, args.output, args.mz_tolerance, args.rt_tolerance)
+@click.command(help="Build spectral library from mzML + peptide list.")
+@click.option("--input", "input", required=True, help="Input mzML file")
+@click.option("--peptides", required=True, help="Input peptide identifications TSV")
+@click.option("--output", required=True, help="Output MSP library file")
+@click.option("--mz-tolerance", type=float, default=0.01, help="m/z tolerance in Da (default: 0.01)")
+@click.option("--rt-tolerance", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
+def main(input, peptides, output, mz_tolerance, rt_tolerance) -> None:
+    stats = build_library(input, peptides, output, mz_tolerance, rt_tolerance)
     print(f"Built library: {stats['matched_spectra']} / {stats['total_peptides']} peptides matched to spectra")
 
 

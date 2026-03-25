@@ -12,11 +12,12 @@ Usage
         --taxonomy lineage.tsv --output taxonomy.tsv
 """
 
-import argparse
 import csv
 import re
 import sys
 from typing import Dict, List, Set
+
+import click
 
 try:
     import pyopenms as oms
@@ -233,21 +234,17 @@ def write_output(output_path: str, results: List[Dict[str, object]]) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compute lowest common ancestor taxonomy from peptide-protein mappings."
-    )
-    parser.add_argument("--peptides", required=True, help="Peptides TSV file (peptide column)")
-    parser.add_argument("--fasta", required=True, help="Meta-proteomics database FASTA file")
-    parser.add_argument("--taxonomy", required=True, help="Taxonomy lineage TSV (protein, lineage)")
-    parser.add_argument("--output", required=True, help="Output taxonomy TSV file")
-    args = parser.parse_args()
-
-    proteins = load_fasta(args.fasta)
-    taxonomy = load_taxonomy(args.taxonomy)
-    peptides = read_peptides(args.peptides)
-    results = assign_lca_batch(peptides, proteins, taxonomy)
-    write_output(args.output, results)
+@click.command(help="Compute lowest common ancestor taxonomy from peptide-protein mappings.")
+@click.option("--peptides", required=True, help="Peptides TSV file (peptide column)")
+@click.option("--fasta", required=True, help="Meta-proteomics database FASTA file")
+@click.option("--taxonomy", required=True, help="Taxonomy lineage TSV (protein, lineage)")
+@click.option("--output", required=True, help="Output taxonomy TSV file")
+def main(peptides, fasta, taxonomy, output):
+    proteins = load_fasta(fasta)
+    taxonomy_data = load_taxonomy(taxonomy)
+    peptides_list = read_peptides(peptides)
+    results = assign_lca_batch(peptides_list, proteins, taxonomy_data)
+    write_output(output, results)
 
     n_assigned = sum(1 for r in results if r["lca"] != "unassigned")
     print(f"Total peptides: {len(results)}")

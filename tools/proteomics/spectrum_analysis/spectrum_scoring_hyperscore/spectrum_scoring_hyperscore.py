@@ -18,10 +18,11 @@ Usage
         --sequence PEPTIDEK --charge 1 --output score.json
 """
 
-import argparse
 import json
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -136,28 +137,24 @@ def compute_hyperscore(
     }
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Score experimental spectrum against theoretical using HyperScore."
-    )
-    parser.add_argument("--mz-list", required=True, help="Comma-separated experimental m/z values")
-    parser.add_argument("--intensities", required=True, help="Comma-separated experimental intensities")
-    parser.add_argument("--sequence", required=True, help="Peptide amino acid sequence")
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1)")
-    parser.add_argument("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
-    parser.add_argument("--output", default=None, help="Output JSON file path (default: print to stdout)")
-    args = parser.parse_args()
+@click.command(help="Score experimental spectrum against theoretical using HyperScore.")
+@click.option("--mz-list", required=True, help="Comma-separated experimental m/z values")
+@click.option("--intensities", required=True, help="Comma-separated experimental intensities")
+@click.option("--sequence", required=True, help="Peptide amino acid sequence")
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1)")
+@click.option("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
+@click.option("--output", default=None, help="Output JSON file path (default: print to stdout)")
+def main(mz_list, intensities, sequence, charge, tolerance, output):
+    mz_values = [float(x.strip()) for x in mz_list.split(",")]
+    intensities_list = [float(x.strip()) for x in intensities.split(",")]
 
-    mz_values = [float(x.strip()) for x in args.mz_list.split(",")]
-    intensities_list = [float(x.strip()) for x in args.intensities.split(",")]
-
-    result = compute_hyperscore(mz_values, intensities_list, args.sequence, args.charge, args.tolerance)
+    result = compute_hyperscore(mz_values, intensities_list, sequence, charge, tolerance)
 
     output_json = json.dumps(result, indent=2)
-    if args.output:
-        with open(args.output, "w") as f:
+    if output:
+        with open(output, "w") as f:
             f.write(output_json)
-        print(f"Wrote score to {args.output}")
+        print(f"Wrote score to {output}")
     else:
         print(output_json)
 

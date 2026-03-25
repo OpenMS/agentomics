@@ -11,8 +11,9 @@ Usage
     python spectrum_file_info.py --input sample.mzML --tic
 """
 
-import argparse
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -87,32 +88,19 @@ def load_file(path: str) -> oms.MSExperiment:
     return exp
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Summarise an mzML file using pyopenms."
-    )
-    parser.add_argument(
-        "--input",
-        required=True,
-        metavar="FILE",
-        help="Path to an mzML file",
-    )
-    parser.add_argument(
-        "--tic",
-        action="store_true",
-        help="Print per-spectrum TIC values",
-    )
-    args = parser.parse_args()
-
-    print(f"Loading {args.input} …")
-    exp = load_file(args.input)
+@click.command(help="Summarise an mzML file using pyopenms.")
+@click.option("--input", "input", required=True, help="Path to an mzML file")
+@click.option("--tic", is_flag=True, help="Print per-spectrum TIC values")
+def main(input, tic):
+    print(f"Loading {input} ...")
+    exp = load_file(input)
     summary = summarise_experiment(exp)
 
     if summary["n_spectra"] == 0:
         print("No spectra found in file.")
         return
 
-    print(f"\n{'File':<22}: {args.input}")
+    print(f"\n{'File':<22}: {input}")
     print(f"{'Total spectra':<22}: {summary['n_spectra']}")
     for level, count in sorted(summary["ms_levels"].items()):
         print(f"  {'MS' + str(level) + ' spectra':<20}: {count}")
@@ -126,7 +114,7 @@ def main():
     print(f"{'Total TIC':<22}: {summary['tic_total']:.3e}")
     print(f"{'Max spectrum TIC':<22}: {summary['tic_max']:.3e}")
 
-    if args.tic:
+    if tic:
         print("\n--- Per-spectrum TIC ---")
         for i, tic in enumerate(summary["tic_per_spectrum"], 1):
             print(f"  Spectrum {i:>5}: {tic:.3e}")

@@ -12,9 +12,10 @@ Usage
     python adduct_group_analyzer.py --input features.tsv --rt-tolerance 5 --output groups.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -112,33 +113,25 @@ def find_adduct_groups(
     return results
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Group features by adduct relationships using m/z+RT proximity."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Features TSV (mz, rt columns)")
-    parser.add_argument(
-        "--rt-tolerance", type=float, default=5.0,
-        help="RT tolerance in seconds for co-elution (default: 5)"
-    )
-    parser.add_argument(
-        "--mz-tolerance", type=float, default=0.01,
-        help="m/z tolerance in Da for adduct matching (default: 0.01)"
-    )
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output grouped TSV")
-    args = parser.parse_args()
-
+@click.command()
+@click.option("--input", "input_file", required=True, help="Features TSV (mz, rt columns)")
+@click.option("--rt-tolerance", type=float, default=5.0,
+              help="RT tolerance in seconds for co-elution (default: 5)")
+@click.option("--mz-tolerance", type=float, default=0.01,
+              help="m/z tolerance in Da for adduct matching (default: 0.01)")
+@click.option("--output", required=True, help="Output grouped TSV")
+def main(input_file, rt_tolerance, mz_tolerance, output):
     features = []
-    with open(args.input) as fh:
+    with open(input_file) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             features.append(row)
 
     groups = find_adduct_groups(
-        features, rt_tolerance=args.rt_tolerance, mz_tolerance_da=args.mz_tolerance
+        features, rt_tolerance=rt_tolerance, mz_tolerance_da=mz_tolerance
     )
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(
             fh,
             fieldnames=["feature_id", "mz", "rt", "group_id", "adduct_annotation"],
@@ -148,7 +141,7 @@ def main():
         writer.writerows(groups)
 
     n_groups = len(set(g["group_id"] for g in groups))
-    print(f"Grouped {len(features)} features into {n_groups} groups, written to {args.output}")
+    print(f"Grouped {len(features)} features into {n_groups} groups, written to {output}")
 
 
 if __name__ == "__main__":

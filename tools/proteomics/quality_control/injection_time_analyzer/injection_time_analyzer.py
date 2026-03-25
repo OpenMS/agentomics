@@ -11,10 +11,11 @@ Usage
     python injection_time_analyzer.py --input run.mzML --output injection_times.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -100,20 +101,16 @@ def summarize_injection_times(records: list[dict]) -> dict:
     return summary
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Extract injection time values from mzML metadata."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Path to mzML file")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output TSV file")
-    args = parser.parse_args()
-
+@click.command(help="Extract injection time values from mzML metadata.")
+@click.option("--input", "input", required=True, help="Path to mzML file")
+@click.option("--output", required=True, help="Output TSV file")
+def main(input, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
     records = extract_injection_times(exp)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(
             fh,
             fieldnames=["scan_index", "rt", "ms_level", "injection_time_ms"],
@@ -123,7 +120,7 @@ def main():
         writer.writerows(records)
 
     n_with_time = sum(1 for r in records if r["injection_time_ms"] is not None)
-    print(f"Wrote {len(records)} scans to {args.output} ({n_with_time} with injection times)")
+    print(f"Wrote {len(records)} scans to {output} ({n_with_time} with injection times)")
 
     summary = summarize_injection_times(records)
     for level, stats in summary.items():

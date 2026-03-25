@@ -11,8 +11,9 @@ Usage
     python feature_detection_proteomics.py --input sample.mzML --output features.featureXML
 """
 
-import argparse
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -73,25 +74,12 @@ def print_feature_summary(feature_map: oms.FeatureMap) -> None:
         )
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Detect peptide features in an mzML file using pyopenms."
-    )
-    parser.add_argument(
-        "--input",
-        required=True,
-        metavar="FILE",
-        help="Centroided mzML input file",
-    )
-    parser.add_argument(
-        "--output",
-        metavar="FILE",
-        help="Output featureXML file (default: <input>.featureXML)",
-    )
-    args = parser.parse_args()
-
-    output_path = args.output or args.input.replace(".mzML", ".featureXML")
-    feature_map = detect_features(args.input, output_path)
+@click.command(help="Detect peptide features in an mzML file using pyopenms.")
+@click.option("--input", "input", required=True, help="Centroided mzML input file")
+@click.option("--output", default=None, help="Output featureXML file (default: <input>.featureXML)")
+def main(input, output):
+    output_path = output or input.replace(".mzML", ".featureXML")
+    feature_map = detect_features(input, output_path)
     print_feature_summary(feature_map)
 
 

@@ -15,10 +15,11 @@ Usage
     python peptide_detectability_predictor.py --sequence PEPTIDEK
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -145,39 +146,37 @@ def predict_from_fasta(fasta_path: str, enzyme: str = "Trypsin",
     return results
 
 
-def main():
+@click.command(help="Predict peptide detectability from physicochemical heuristics.")
+@click.option("--input", "input", type=str, default=None, help="Protein FASTA file.")
+@click.option("--sequence", type=str, default=None, help="Single peptide sequence.")
+@click.option("--enzyme", type=str, default="Trypsin", help="Enzyme (default: Trypsin).")
+@click.option("--missed-cleavages", type=int, default=1, help="Missed cleavages (default: 1).")
+@click.option("--output", type=str, default=None, help="Output file (.tsv or .json).")
+def main(input, sequence, enzyme, missed_cleavages, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Predict peptide detectability from physicochemical heuristics.")
-    parser.add_argument("--input", type=str, help="Protein FASTA file.")
-    parser.add_argument("--sequence", type=str, help="Single peptide sequence.")
-    parser.add_argument("--enzyme", type=str, default="Trypsin", help="Enzyme (default: Trypsin).")
-    parser.add_argument("--missed-cleavages", type=int, default=1, help="Missed cleavages (default: 1).")
-    parser.add_argument("--output", type=str, help="Output file (.tsv or .json).")
-    args = parser.parse_args()
-
-    if args.sequence:
-        result = calculate_detectability_score(args.sequence)
-        if args.output:
-            with open(args.output, "w") as fh:
+    if sequence:
+        result = calculate_detectability_score(sequence)
+        if output:
+            with open(output, "w") as fh:
                 json.dump(result, fh, indent=2)
         else:
             print(json.dumps(result, indent=2))
-    elif args.input:
-        results = predict_from_fasta(args.input, args.enzyme, args.missed_cleavages)
-        if args.output:
-            with open(args.output, "w", newline="") as fh:
+    elif input:
+        results = predict_from_fasta(input, enzyme, missed_cleavages)
+        if output:
+            with open(output, "w", newline="") as fh:
                 fieldnames = ["sequence", "protein", "length", "monoisotopic_mass", "detectability_score",
                               "length_score", "hydrophobicity_score", "mass_score",
                               "problem_residue_score", "basic_residue_score", "gravy"]
                 writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t", extrasaction="ignore")
                 writer.writeheader()
                 writer.writerows(results)
-            print(f"Results written to {args.output}")
+            print(f"Results written to {output}")
         else:
             for r in results[:20]:
                 print(f"{r['sequence']}\t{r['detectability_score']}\t{r['protein']}")
     else:
-        parser.error("Provide --sequence or --input.")
+        raise click.UsageError("Provide --sequence or --input.")
 
 
 if __name__ == "__main__":

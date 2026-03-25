@@ -12,9 +12,10 @@ Usage
     python isotope_pattern_scorer.py --observed "180.063:100,181.067:6.5" --formula C6H12O6 --output fit.json
 """
 
-import argparse
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -130,27 +131,21 @@ def score_pattern(
     }
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Score observed vs theoretical isotope pattern for a formula."
-    )
-    parser.add_argument(
-        "--observed", required=True,
-        help='Observed pattern as "mz:int,mz:int,..." (e.g. "180.063:100,181.067:6.5")'
-    )
-    parser.add_argument("--formula", required=True, help="Molecular formula (e.g. C6H12O6)")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output JSON file")
-    args = parser.parse_args()
+@click.command()
+@click.option("--observed", required=True,
+              help='Observed pattern as "mz:int,mz:int,..." (e.g. "180.063:100,181.067:6.5")')
+@click.option("--formula", required=True, help="Molecular formula (e.g. C6H12O6)")
+@click.option("--output", required=True, help="Output JSON file")
+def main(observed, formula, output):
+    observed_peaks = parse_observed(observed)
+    theoretical = get_theoretical_pattern(formula, n_peaks=len(observed_peaks))
+    result = score_pattern(observed_peaks, theoretical)
+    result["formula"] = formula
 
-    observed = parse_observed(args.observed)
-    theoretical = get_theoretical_pattern(args.formula, n_peaks=len(observed))
-    result = score_pattern(observed, theoretical)
-    result["formula"] = args.formula
-
-    with open(args.output, "w") as fh:
+    with open(output, "w") as fh:
         json.dump(result, fh, indent=2)
 
-    print(f"Isotope fit written to {args.output}")
+    print(f"Isotope fit written to {output}")
     print(f"  Cosine score: {result['cosine_score']:.6f}")
     print(f"  Peaks compared: {result['n_peaks_compared']}")
 

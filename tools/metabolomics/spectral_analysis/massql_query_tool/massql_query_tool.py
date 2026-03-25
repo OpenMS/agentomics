@@ -15,10 +15,11 @@ Usage
     python massql_query_tool.py --input data.mzML --query "MS2PROD=226.18" --output results.tsv
 """
 
-import argparse
 import csv
 import re
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -127,36 +128,28 @@ def execute_query(
     return results
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Query mzML using MassQL-like syntax."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="mzML file")
-    parser.add_argument(
-        "--query", required=True,
-        help='MassQL query (e.g. "MS2PROD=226.18", "MS1MZ=180.06", "PRECMZ=500.0")'
-    )
-    parser.add_argument(
-        "--tolerance", type=float, default=0.5,
-        help="m/z tolerance in Da (default: 0.5)"
-    )
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output results TSV")
-    args = parser.parse_args()
-
-    parsed = parse_query(args.query)
+@click.command()
+@click.option("--input", "input_file", required=True, help="mzML file")
+@click.option("--query", required=True,
+              help='MassQL query (e.g. "MS2PROD=226.18", "MS1MZ=180.06", "PRECMZ=500.0")')
+@click.option("--tolerance", type=float, default=0.5,
+              help="m/z tolerance in Da (default: 0.5)")
+@click.option("--output", required=True, help="Output results TSV")
+def main(input_file, query, tolerance, output):
+    parsed = parse_query(query)
 
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input_file, exp)
 
-    results = execute_query(exp, parsed, tolerance_da=args.tolerance)
+    results = execute_query(exp, parsed, tolerance_da=tolerance)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         fieldnames = ["scan_index", "rt", "ms_level", "precursor_mz", "matched_mz", "matched_intensity"]
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"Query '{args.query}': {len(results)} matches, written to {args.output}")
+    print(f"Query '{query}': {len(results)} matches, written to {output}")
 
 
 if __name__ == "__main__":

@@ -15,9 +15,10 @@ Usage
     python xic_extractor.py --input run.mzML --mz 524.265 --ppm 10 --output xic.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -130,22 +131,18 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Extract ion chromatograms for target m/z values from mzML."
-    )
-    parser.add_argument("--input", required=True, help="Path to input mzML file")
-    parser.add_argument("--mz", type=float, required=True, help="Target m/z value")
-    parser.add_argument("--ppm", type=float, default=10.0, help="Mass tolerance in ppm (default: 10)")
-    parser.add_argument("--ms-level", type=int, default=1, help="MS level (default: 1)")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Extract ion chromatograms for target m/z values from mzML.")
+@click.option("--input", "input", required=True, help="Path to input mzML file")
+@click.option("--mz", type=float, required=True, help="Target m/z value")
+@click.option("--ppm", type=float, default=10.0, help="Mass tolerance in ppm (default: 10)")
+@click.option("--ms-level", type=int, default=1, help="MS level (default: 1)")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(input, mz, ppm, ms_level, output):
+    results = extract_xic(input, mz, ppm, ms_level)
 
-    results = extract_xic(args.input, args.mz, args.ppm, args.ms_level)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} XIC data points to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} XIC data points to {output}")
     else:
         print("rt\tintensity\tmz")
         for r in results:

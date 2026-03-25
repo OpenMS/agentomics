@@ -13,8 +13,9 @@ Usage
     python mzml_spectrum_subsetter.py --input run.mzML --scans 0,1,5 --output subset.mzML
 """
 
-import argparse
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -90,18 +91,14 @@ def create_synthetic_mzml(output_path: str, n_scans: int = 10) -> None:
     oms.MzMLFile().store(output_path, exp)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Extract specific spectra from mzML by scan number list."
-    )
-    parser.add_argument("--input", required=True, help="Path to input mzML file")
-    parser.add_argument("--scans", required=True, help="Comma-separated scan indices (0-based)")
-    parser.add_argument("--output", required=True, help="Path to output mzML file")
-    args = parser.parse_args()
-
-    scan_indices = [int(x.strip()) for x in args.scans.split(",")]
-    count = subset_spectra(args.input, scan_indices, args.output)
-    print(f"Extracted {count} spectra to {args.output}")
+@click.command(help="Extract specific spectra from mzML by scan number list.")
+@click.option("--input", "input", required=True, help="Path to input mzML file")
+@click.option("--scans", required=True, help="Comma-separated scan indices (0-based)")
+@click.option("--output", required=True, help="Path to output mzML file")
+def main(input, scans, output):
+    scan_indices = [int(x.strip()) for x in scans.split(",")]
+    count = subset_spectra(input, scan_indices, output)
+    print(f"Extracted {count} spectra to {output}")
 
 
 if __name__ == "__main__":

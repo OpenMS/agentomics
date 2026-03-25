@@ -11,10 +11,11 @@ Usage
         --formula C6H12O6 --output fit.json
 """
 
-import argparse
 import json
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -229,34 +230,28 @@ def score_pattern(
     }
 
 
-def main() -> None:
+@click.command()
+@click.option("--observed", required=True,
+              help="Observed peaks as 'mz1:int1,mz2:int2,...'")
+@click.option("--formula", required=True, help="Molecular formula (e.g. C6H12O6)")
+@click.option("--max-isotopes", type=int, default=6, help="Max isotope peaks (default: 6)")
+@click.option("--mz-tolerance", type=float, default=0.05, help="m/z tolerance (default: 0.05)")
+@click.option("--output", required=True, help="Output JSON file")
+def main(observed, formula, max_isotopes, mz_tolerance, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Score observed vs theoretical isotope patterns and detect halogenation."
-    )
-    parser.add_argument(
-        "--observed", required=True,
-        help="Observed peaks as 'mz1:int1,mz2:int2,...'"
-    )
-    parser.add_argument("--formula", required=True, help="Molecular formula (e.g. C6H12O6)")
-    parser.add_argument("--max-isotopes", type=int, default=6, help="Max isotope peaks (default: 6)")
-    parser.add_argument("--mz-tolerance", type=float, default=0.05, help="m/z tolerance (default: 0.05)")
-    parser.add_argument("--output", required=True, help="Output JSON file")
-    args = parser.parse_args()
-
     result = score_pattern(
-        args.observed, args.formula,
-        max_isotopes=args.max_isotopes, mz_tolerance=args.mz_tolerance,
+        observed, formula,
+        max_isotopes=max_isotopes, mz_tolerance=mz_tolerance,
     )
 
-    with open(args.output, "w") as fh:
+    with open(output, "w") as fh:
         json.dump(result, fh, indent=2)
 
     print(f"Cosine similarity: {result['cosine_similarity']:.4f}")
     halogen = result["halogen_detection"]
     if halogen["halogen_flag"]:
         print(f"Halogen detected: {halogen['possible_halogen']} (M+2 excess: {halogen['m2_excess']}%)")
-    print(f"Results written to {args.output}")
+    print(f"Results written to {output}")
 
 
 if __name__ == "__main__":

@@ -15,10 +15,11 @@ Usage
     python spectrum_similarity_scorer.py --query query.mgf --library ref.mgf --tolerance 0.02 --output scores.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -206,21 +207,17 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compute cosine similarity between MS2 spectra from MGF files."
-    )
-    parser.add_argument("--query", required=True, help="Path to query MGF file")
-    parser.add_argument("--library", required=True, help="Path to library/reference MGF file")
-    parser.add_argument("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
-    parser.add_argument("--output", default=None, help="Output TSV file path (default: print to stdout)")
-    args = parser.parse_args()
+@click.command(help="Compute cosine similarity between MS2 spectra from MGF files.")
+@click.option("--query", required=True, help="Path to query MGF file")
+@click.option("--library", required=True, help="Path to library/reference MGF file")
+@click.option("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
+@click.option("--output", default=None, help="Output TSV file path (default: print to stdout)")
+def main(query, library, tolerance, output):
+    results = score_spectra(query, library, tolerance)
 
-    results = score_spectra(args.query, args.library, args.tolerance)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} scores to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} scores to {output}")
     else:
         print("query_id\tlibrary_id\tscore\tmatched_peaks")
         for r in results:

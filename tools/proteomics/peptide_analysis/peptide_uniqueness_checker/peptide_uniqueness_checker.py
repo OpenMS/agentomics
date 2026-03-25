@@ -14,9 +14,10 @@ Usage
     python peptide_uniqueness_checker.py --peptides peptides.tsv --fasta db.fasta --output uniqueness.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -78,35 +79,33 @@ def check_uniqueness(peptides: list, fasta_path: str) -> list:
     return results
 
 
-def main():
+@click.command(help="Check peptide uniqueness in a FASTA database.")
+@click.option("--peptides", required=True, help="TSV file with 'sequence' column, or comma-separated list.")
+@click.option("--fasta", required=True, help="FASTA database file.")
+@click.option("--output", default=None, help="Output TSV file.")
+def main(peptides, fasta, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Check peptide uniqueness in a FASTA database.")
-    parser.add_argument("--peptides", required=True, help="TSV file with 'sequence' column, or comma-separated list.")
-    parser.add_argument("--fasta", required=True, help="FASTA database file.")
-    parser.add_argument("--output", help="Output TSV file.")
-    args = parser.parse_args()
-
     # Load peptides
     peptide_list = []
     try:
-        with open(args.peptides) as fh:
+        with open(peptides) as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             for row in reader:
                 seq = row.get("sequence", "").strip()
                 if seq:
                     peptide_list.append(seq)
     except (FileNotFoundError, KeyError):
-        peptide_list = [p.strip() for p in args.peptides.split(",") if p.strip()]
+        peptide_list = [p.strip() for p in peptides.split(",") if p.strip()]
 
-    results = check_uniqueness(peptide_list, args.fasta)
+    results = check_uniqueness(peptide_list, fasta)
 
-    if args.output:
-        with open(args.output, "w", newline="") as fh:
+    if output:
+        with open(output, "w", newline="") as fh:
             writer = csv.DictWriter(fh, fieldnames=["peptide", "proteins", "protein_count", "is_proteotypic"],
                                     delimiter="\t")
             writer.writeheader()
             writer.writerows(results)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         for r in results:
             status = "proteotypic" if r["is_proteotypic"] else "shared"

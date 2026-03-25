@@ -16,10 +16,11 @@ Usage
     python peptide_modification_analyzer.py --sequence "PEPTM(Oxidation)IDE" --output breakdown.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -83,28 +84,26 @@ def analyze_modification(sequence: str, charge: int = 1) -> dict:
     }
 
 
-def main():
+@click.command(help="Analyze modified peptide residue-by-residue mass breakdown.")
+@click.option("--sequence", required=True, help="Modified peptide sequence.")
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1).")
+@click.option("--output", type=str, default=None, help="Output file (.tsv or .json).")
+def main(sequence, charge, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Analyze modified peptide residue-by-residue mass breakdown.")
-    parser.add_argument("--sequence", required=True, help="Modified peptide sequence.")
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1).")
-    parser.add_argument("--output", type=str, help="Output file (.tsv or .json).")
-    args = parser.parse_args()
+    result = analyze_modification(sequence, charge)
 
-    result = analyze_modification(args.sequence, args.charge)
-
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump(result, fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 fieldnames = ["position", "residue", "monoisotopic_mass", "modification",
                               "modification_delta_mass"]
                 writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
                 writer.writeheader()
                 writer.writerows(result["residue_breakdown"])
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         print(f"Sequence: {result['sequence']}")
         print(f"Total mass: {result['total_monoisotopic_mass']}")

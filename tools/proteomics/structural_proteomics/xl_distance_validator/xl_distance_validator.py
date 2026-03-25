@@ -11,11 +11,12 @@ Usage
     python xl_distance_validator.py --crosslinks links.tsv --pdb structure.pdb --max-distance 30 --output distances.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
 from typing import Dict, List, Optional, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -218,29 +219,25 @@ def write_output(output_path: str, results: List[Dict[str, object]]) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Validate crosslinks against PDB structure distances."
-    )
-    parser.add_argument("--crosslinks", required=True, help="Crosslinks TSV file")
-    parser.add_argument("--pdb", required=True, help="PDB structure file")
-    parser.add_argument(
-        "--max-distance", type=float, default=30.0,
-        help="Maximum allowed CA-CA distance in Angstroms (default: 30)"
-    )
-    parser.add_argument("--output", required=True, help="Output distances TSV file")
-    args = parser.parse_args()
-
-    ca_atoms = parse_pdb_ca_atoms(args.pdb)
-    crosslinks = read_crosslinks(args.crosslinks)
-    results = validate_crosslinks(crosslinks, ca_atoms, args.max_distance)
-    write_output(args.output, results)
+@click.command(help="Validate crosslinks against PDB structure distances.")
+@click.option("--crosslinks", required=True, help="Crosslinks TSV file")
+@click.option("--pdb", required=True, help="PDB structure file")
+@click.option(
+    "--max-distance", type=float, default=30.0,
+    help="Maximum allowed CA-CA distance in Angstroms (default: 30)",
+)
+@click.option("--output", required=True, help="Output distances TSV file")
+def main(crosslinks, pdb, max_distance, output):
+    ca_atoms = parse_pdb_ca_atoms(pdb)
+    crosslinks_data = read_crosslinks(crosslinks)
+    results = validate_crosslinks(crosslinks_data, ca_atoms, max_distance)
+    write_output(output, results)
 
     n_satisfied = sum(1 for r in results if r["satisfied"] == "YES")
     n_violated = sum(1 for r in results if r["satisfied"] == "NO")
     n_unknown = sum(1 for r in results if r["satisfied"] == "UNKNOWN")
     print(f"Total crosslinks: {len(results)}")
-    print(f"  Satisfied (dist <= {args.max_distance} A): {n_satisfied}")
+    print(f"  Satisfied (dist <= {max_distance} A): {n_satisfied}")
     print(f"  Violated:  {n_violated}")
     print(f"  Unknown:   {n_unknown}")
 

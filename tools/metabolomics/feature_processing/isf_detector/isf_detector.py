@@ -9,10 +9,11 @@ Usage
     python isf_detector.py --input features.tsv --rt-tolerance 3 --output isf_annotated.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -175,37 +176,33 @@ def annotate_features(features: list, isf_pairs: list) -> list:
     return annotated
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="TSV with columns: id, mz, rt, intensity.")
+@click.option("--rt-tolerance", type=float, default=3.0,
+              help="RT tolerance in seconds (default: 3).")
+@click.option("--mass-tolerance", type=float, default=0.01,
+              help="Mass tolerance in Da for neutral loss matching (default: 0.01).")
+@click.option("--output", required=True, help="Output TSV with ISF annotations.")
+def main(input_file, rt_tolerance, mass_tolerance, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Detect in-source fragmentation by coelution and common neutral losses."
-    )
-    parser.add_argument("--input", required=True, help="TSV with columns: id, mz, rt, intensity.")
-    parser.add_argument("--rt-tolerance", type=float, default=3.0,
-                        help="RT tolerance in seconds (default: 3).")
-    parser.add_argument("--mass-tolerance", type=float, default=0.01,
-                        help="Mass tolerance in Da for neutral loss matching (default: 0.01).")
-    parser.add_argument("--output", required=True, help="Output TSV with ISF annotations.")
-    args = parser.parse_args()
-
     features = []
-    with open(args.input, newline="") as fh:
+    with open(input_file, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             features.append(row)
 
-    isf_pairs = detect_isf_pairs(features, rt_tolerance=args.rt_tolerance,
-                                 mass_tolerance_da=args.mass_tolerance)
+    isf_pairs = detect_isf_pairs(features, rt_tolerance=rt_tolerance,
+                                 mass_tolerance_da=mass_tolerance)
     annotated = annotate_features(features, isf_pairs)
 
     fieldnames = list(annotated[0].keys()) if annotated else []
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(annotated)
 
     n_isf = sum(1 for a in annotated if a["isf_flag"])
-    print(f"Wrote {len(annotated)} features ({n_isf} ISF-flagged) to {args.output}")
+    print(f"Wrote {len(annotated)} features ({n_isf} ISF-flagged) to {output}")
 
 
 if __name__ == "__main__":

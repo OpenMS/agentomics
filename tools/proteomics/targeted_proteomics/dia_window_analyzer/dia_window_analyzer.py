@@ -16,9 +16,10 @@ Usage
     python dia_window_analyzer.py --input dia.mzML --output windows.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -134,19 +135,15 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Report DIA isolation window scheme from mzML metadata."
-    )
-    parser.add_argument("--input", required=True, help="Path to input mzML file")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Report DIA isolation window scheme from mzML metadata.")
+@click.option("--input", "input", required=True, help="Path to input mzML file")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(input, output):
+    results = analyze_dia_windows(input)
 
-    results = analyze_dia_windows(args.input)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} DIA windows to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} DIA windows to {output}")
     else:
         print("window_center\twindow_lower\twindow_upper\twindow_width\tscan_count")
         for r in results:

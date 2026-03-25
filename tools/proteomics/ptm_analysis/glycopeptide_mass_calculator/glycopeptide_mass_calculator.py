@@ -15,10 +15,11 @@ Usage
     python glycopeptide_mass_calculator.py --sequence PEPTIDEK --glycan "HexNAc(2)Hex(3)" --output masses.tsv
 """
 
-import argparse
 import csv
 import re
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -144,20 +145,13 @@ def write_tsv(results: list, output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate glycopeptide masses with glycan compositions."
-    )
-    parser.add_argument("--sequence", required=True, help="Peptide amino acid sequence")
-    parser.add_argument(
-        "--glycan", required=True,
-        help='Glycan composition, e.g. "HexNAc(2)Hex(5)Fuc(1)"'
-    )
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1)")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
-
-    result = glycopeptide_mass(args.sequence, args.glycan, charge=args.charge)
+@click.command(help="Calculate glycopeptide masses with glycan compositions.")
+@click.option("--sequence", required=True, help="Peptide amino acid sequence")
+@click.option("--glycan", required=True, help='Glycan composition, e.g. "HexNAc(2)Hex(5)Fuc(1)"')
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1)")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(sequence, glycan, charge, output):
+    result = glycopeptide_mass(sequence, glycan, charge=charge)
 
     print(f"Sequence          : {result['sequence']}")
     print(f"Glycan            : {result['glycan']}")
@@ -167,9 +161,9 @@ def main():
     print(f"Charge            : {result['charge']}+")
     print(f"m/z               : {result['mz']:.6f}")
 
-    if args.output:
-        write_tsv([result], args.output)
-        print(f"\nResults written to {args.output}")
+    if output:
+        write_tsv([result], output)
+        print(f"\nResults written to {output}")
 
 
 if __name__ == "__main__":

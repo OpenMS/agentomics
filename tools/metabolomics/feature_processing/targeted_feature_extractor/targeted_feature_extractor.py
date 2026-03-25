@@ -13,9 +13,10 @@ Usage
         --ppm 5 --output quantified.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -139,28 +140,24 @@ def extract_targets(
     return results
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Extract features for known compounds from MS1 data."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="mzML file")
-    parser.add_argument("--targets", required=True, metavar="FILE", help="Compounds TSV (name, formula)")
-    parser.add_argument("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5)")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output quantified TSV")
-    args = parser.parse_args()
-
+@click.command()
+@click.option("--input", "input_file", required=True, help="mzML file")
+@click.option("--targets", required=True, help="Compounds TSV (name, formula)")
+@click.option("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5)")
+@click.option("--output", required=True, help="Output quantified TSV")
+def main(input_file, targets, ppm, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input_file, exp)
 
-    targets = []
-    with open(args.targets) as fh:
+    target_list = []
+    with open(targets) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
-            targets.append(row)
+            target_list.append(row)
 
-    results = extract_targets(exp, targets, ppm=args.ppm)
+    results = extract_targets(exp, target_list, ppm=ppm)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(
             fh,
             fieldnames=["name", "formula", "target_mz", "peak_area", "max_intensity", "n_points"],
@@ -169,7 +166,7 @@ def main():
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"Extracted {len(results)} targets, written to {args.output}")
+    print(f"Extracted {len(results)} targets, written to {output}")
 
 
 if __name__ == "__main__":

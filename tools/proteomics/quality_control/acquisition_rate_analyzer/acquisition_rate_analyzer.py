@@ -10,9 +10,10 @@ Usage
     python acquisition_rate_analyzer.py --input run.mzML --output rates.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -84,26 +85,22 @@ def analyze_acquisition_rates(exp: oms.MSExperiment) -> dict:
     return {"scans": scans, "summary": summary}
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Analyze MS1/MS2 acquisition rates over time."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Path to mzML file")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output TSV file")
-    args = parser.parse_args()
-
+@click.command(help="Analyze MS1/MS2 acquisition rates over time.")
+@click.option("--input", "input", required=True, help="Path to mzML file")
+@click.option("--output", required=True, help="Output TSV file")
+def main(input, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
     result = analyze_acquisition_rates(exp)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=["rt_sec", "ms_level", "delta_sec"], delimiter="\t")
         writer.writeheader()
         writer.writerows(result["scans"])
 
     s = result["summary"]
-    print(f"Rates written to {args.output}")
+    print(f"Rates written to {output}")
     print(f"  Total scans      : {s['total_scans']}")
     print(f"  MS1 rate         : {s['ms1_rate_per_min']:.1f} /min")
     print(f"  MS2 rate         : {s['ms2_rate_per_min']:.1f} /min")

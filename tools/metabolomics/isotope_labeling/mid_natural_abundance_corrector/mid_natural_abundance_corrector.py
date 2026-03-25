@@ -11,9 +11,10 @@ Usage
         --formula C6H12O6 --tracer 13C --output corrected.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -141,40 +142,36 @@ def correct_mid(measured_mid: list, formula: str, tracer: str = "13C") -> list:
     return [round(float(v), 6) for v in corrected]
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True,
+              help="TSV with columns: sample, M0, M1, M2, ... (fractional abundances).")
+@click.option("--formula", required=True, help="Molecular formula of the metabolite.")
+@click.option("--tracer", default="13C", help="Tracer isotope (default: 13C).")
+@click.option("--output", required=True, help="Output TSV with corrected MIDs.")
+def main(input_file, formula, tracer, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Correct mass isotopomer distributions for natural 13C abundance."
-    )
-    parser.add_argument("--input", required=True,
-                        help="TSV with columns: sample, M0, M1, M2, ... (fractional abundances).")
-    parser.add_argument("--formula", required=True, help="Molecular formula of the metabolite.")
-    parser.add_argument("--tracer", default="13C", help="Tracer isotope (default: 13C).")
-    parser.add_argument("--output", required=True, help="Output TSV with corrected MIDs.")
-    args = parser.parse_args()
-
-    n_atoms = get_num_tracer_atoms(args.formula, args.tracer)
+    n_atoms = get_num_tracer_atoms(formula, tracer)
 
     rows_out = []
-    with open(args.input, newline="") as fh:
+    with open(input_file, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         headers = reader.fieldnames or []
         mid_cols = [h for h in headers if h.startswith("M")]
         for row in reader:
             measured = [float(row[c]) for c in mid_cols]
-            corrected = correct_mid(measured, args.formula, args.tracer)
+            corrected = correct_mid(measured, formula, tracer)
             out_row = {"sample": row.get("sample", "")}
             for i, val in enumerate(corrected):
                 out_row[f"M{i}_corrected"] = val
             rows_out.append(out_row)
 
     fieldnames = ["sample"] + [f"M{i}_corrected" for i in range(n_atoms + 1)]
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(rows_out)
 
-    print(f"Wrote {len(rows_out)} corrected MIDs to {args.output}")
+    print(f"Wrote {len(rows_out)} corrected MIDs to {output}")
 
 
 if __name__ == "__main__":

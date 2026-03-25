@@ -14,8 +14,9 @@ Usage
     python spectral_library_format_converter.py --input library.msp --output library.traml --format traml
 """
 
-import argparse
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -194,17 +195,16 @@ def create_synthetic_msp(output_path: str, n_spectra: int = 3) -> None:
             f.write("\n")
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Convert between spectral library formats (MSP to TraML)."
-    )
-    parser.add_argument("--input", required=True, help="Path to input MSP file")
-    parser.add_argument("--output", required=True, help="Path to output file")
-    parser.add_argument("--format", default="traml", choices=["traml"], help="Output format (default: traml)")
-    args = parser.parse_args()
-
-    count = convert_msp_to_traml(args.input, args.output)
-    print(f"Converted {count} spectra to {args.format} format: {args.output}")
+@click.command(help="Convert between spectral library formats (MSP to TraML).")
+@click.option("--input", "input", required=True, help="Path to input MSP file")
+@click.option("--output", required=True, help="Path to output file")
+@click.option(
+    "--format", "format", default="traml",
+    type=click.Choice(["traml"]), help="Output format (default: traml)",
+)
+def main(input, output, format):
+    count = convert_msp_to_traml(input, output)
+    print(f"Converted {count} spectra to {format} format: {output}")
 
 
 if __name__ == "__main__":

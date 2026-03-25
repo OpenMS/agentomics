@@ -8,9 +8,10 @@ Usage
     python consensus_map_to_matrix.py --input consensus.consensusXML --output matrix.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -125,14 +126,12 @@ def create_synthetic_consensus(output_path: str, n_features: int = 5, n_maps: in
     oms.ConsensusXMLFile().store(output_path, cmap)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Convert consensusXML to quantification matrix.")
-    parser.add_argument("--input", required=True, help="Input consensusXML file")
-    parser.add_argument("--output", required=True, help="Output TSV matrix file")
-    args = parser.parse_args()
-
-    stats = consensus_to_matrix(args.input, args.output)
-    print(f"Exported {stats['consensus_features']} features across {stats['n_maps']} maps to {args.output}")
+@click.command(help="Convert consensusXML to quantification matrix.")
+@click.option("--input", "input", required=True, help="Input consensusXML file")
+@click.option("--output", required=True, help="Output TSV matrix file")
+def main(input, output) -> None:
+    stats = consensus_to_matrix(input, output)
+    print(f"Exported {stats['consensus_features']} features across {stats['n_maps']} maps to {output}")
 
 
 if __name__ == "__main__":

@@ -12,11 +12,12 @@ Usage
     python immunopeptide_filter.py --input peptides.tsv --class-ii --output immunopeptides.tsv
 """
 
-import argparse
 import csv
 import re
 import sys
 from typing import List, Optional, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -141,37 +142,32 @@ def write_tsv(results: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Filter peptides for MHC-I/II by length and motif."
-    )
-    parser.add_argument("--input", required=True, help="Input TSV with peptide sequences")
-    parser.add_argument("--column", default="sequence", help="Column name for sequences (default: sequence)")
-    mhc_group = parser.add_mutually_exclusive_group()
-    mhc_group.add_argument("--class-i", action="store_true", help="MHC class I defaults (8-11 aa)")
-    mhc_group.add_argument("--class-ii", action="store_true", help="MHC class II defaults (13-25 aa)")
-    parser.add_argument("--length-range", default=None, help="Custom length range, e.g. '8-11'")
-    parser.add_argument("--motif", default=None, help="Regex motif pattern to filter by")
-    parser.add_argument("--output", required=True, help="Output TSV file path")
-    args = parser.parse_args()
-
+@click.command(help="Filter peptides for MHC-I/II by length and motif.")
+@click.option("--input", "input", required=True, help="Input TSV with peptide sequences")
+@click.option("--column", default="sequence", help="Column name for sequences (default: sequence)")
+@click.option("--class-i", is_flag=True, help="MHC class I defaults (8-11 aa)")
+@click.option("--class-ii", is_flag=True, help="MHC class II defaults (13-25 aa)")
+@click.option("--length-range", default=None, help="Custom length range, e.g. '8-11'")
+@click.option("--motif", default=None, help="Regex motif pattern to filter by")
+@click.option("--output", required=True, help="Output TSV file path")
+def main(input, column, class_i, class_ii, length_range, motif, output):
     # Determine length range
-    if args.length_range:
-        min_len, max_len = parse_length_range(args.length_range)
-    elif args.class_ii:
+    if length_range:
+        min_len, max_len = parse_length_range(length_range)
+    elif class_ii:
         min_len, max_len = 13, 25
     else:
         # Default to class I
         min_len, max_len = 8, 11
 
-    peptides = read_peptides_from_tsv(args.input, column=args.column)
-    print(f"Read {len(peptides)} peptides from {args.input}")
+    peptides = read_peptides_from_tsv(input, column=column)
+    print(f"Read {len(peptides)} peptides from {input}")
 
-    results = filter_peptides(peptides, min_length=min_len, max_length=max_len, motif_pattern=args.motif)
+    results = filter_peptides(peptides, min_length=min_len, max_length=max_len, motif_pattern=motif)
     print(f"Passed filter: {len(results)} peptides (length {min_len}-{max_len})")
 
-    write_tsv(results, args.output)
-    print(f"Results written to {args.output}")
+    write_tsv(results, output)
+    print(f"Results written to {output}")
 
 
 if __name__ == "__main__":

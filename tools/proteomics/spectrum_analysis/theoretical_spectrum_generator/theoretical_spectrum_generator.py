@@ -17,9 +17,10 @@ Usage
         --ion-types b,y,a --add-losses --output fragments.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -168,23 +169,19 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate theoretical fragment ion spectra for a peptide sequence."
-    )
-    parser.add_argument("--sequence", required=True, help="Amino acid sequence (e.g. PEPTIDEK)")
-    parser.add_argument("--charge", type=int, default=1, help="Max charge state for fragment ions (default: 1)")
-    parser.add_argument("--ion-types", default="b,y", help="Comma-separated ion types: b,y,a,c,x,z (default: b,y)")
-    parser.add_argument("--add-losses", action="store_true", help="Include neutral losses (H2O, NH3)")
-    parser.add_argument("--output", default=None, help="Output TSV file path (default: print to stdout)")
-    args = parser.parse_args()
+@click.command(help="Generate theoretical fragment ion spectra for a peptide sequence.")
+@click.option("--sequence", required=True, help="Amino acid sequence (e.g. PEPTIDEK)")
+@click.option("--charge", type=int, default=1, help="Max charge state for fragment ions (default: 1)")
+@click.option("--ion-types", default="b,y", help="Comma-separated ion types: b,y,a,c,x,z (default: b,y)")
+@click.option("--add-losses", is_flag=True, help="Include neutral losses (H2O, NH3)")
+@click.option("--output", default=None, help="Output TSV file path (default: print to stdout)")
+def main(sequence, charge, ion_types, add_losses, output):
+    ion_type_list = [t.strip() for t in ion_types.split(",")]
+    results = generate_theoretical_spectrum(sequence, charge, ion_type_list, add_losses)
 
-    ion_types = [t.strip() for t in args.ion_types.split(",")]
-    results = generate_theoretical_spectrum(args.sequence, args.charge, ion_types, args.add_losses)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} fragment ions to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} fragment ions to {output}")
     else:
         print(f"{'ion_type'}\t{'ion_number'}\t{'charge'}\t{'mz'}\t{'annotation'}")
         for r in results:

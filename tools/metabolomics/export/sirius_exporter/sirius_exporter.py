@@ -8,10 +8,11 @@ Usage
     python sirius_exporter.py --features features.tsv --mzml data.mzML --output sirius_input.ms
 """
 
-import argparse
 import csv
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -133,18 +134,16 @@ def export_to_sirius(
     return write_sirius_ms(features, exp, output_path, mz_tolerance, rt_tolerance)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Export features + MS2 to SIRIUS .ms format.")
-    parser.add_argument("--features", required=True, help="Input features TSV (columns: mz, rt, charge, name)")
-    parser.add_argument("--mzml", required=True, help="Input mzML file")
-    parser.add_argument("--output", required=True, help="Output SIRIUS .ms file")
-    parser.add_argument("--mz-tolerance", type=float, default=0.01, help="m/z tolerance in Da (default: 0.01)")
-    parser.add_argument("--rt-tolerance", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
-    args = parser.parse_args()
-
-    stats = export_to_sirius(args.features, args.mzml, args.output, args.mz_tolerance, args.rt_tolerance)
+@click.command()
+@click.option("--features", required=True, help="Input features TSV (columns: mz, rt, charge, name)")
+@click.option("--mzml", required=True, help="Input mzML file")
+@click.option("--output", required=True, help="Output SIRIUS .ms file")
+@click.option("--mz-tolerance", type=float, default=0.01, help="m/z tolerance in Da (default: 0.01)")
+@click.option("--rt-tolerance", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
+def main(features, mzml, output, mz_tolerance, rt_tolerance) -> None:
+    stats = export_to_sirius(features, mzml, output, mz_tolerance, rt_tolerance)
     print(f"Exported {stats['features_exported']} features ({stats['features_with_ms2']} with MS2) "
-          f"to {args.output}")
+          f"to {output}")
 
 
 if __name__ == "__main__":

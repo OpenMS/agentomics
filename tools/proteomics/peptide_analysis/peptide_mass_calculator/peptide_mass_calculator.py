@@ -16,8 +16,9 @@ Usage
     python peptide_mass_calculator.py --sequence ACDEFGHIK --fragments
 """
 
-import argparse
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -89,29 +90,12 @@ def fragment_ions(sequence: str) -> dict:
     return {"b_ions": b_ions, "y_ions": y_ions}
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate peptide/fragment masses using pyopenms."
-    )
-    parser.add_argument(
-        "--sequence",
-        required=True,
-        help="Amino acid sequence (e.g. PEPTIDEK or PEPTM[147]IDEK)",
-    )
-    parser.add_argument(
-        "--charge",
-        type=int,
-        default=1,
-        help="Charge state for m/z calculation (default: 1)",
-    )
-    parser.add_argument(
-        "--fragments",
-        action="store_true",
-        help="Also compute b-ion and y-ion series",
-    )
-    args = parser.parse_args()
-
-    info = peptide_masses(args.sequence, args.charge)
+@click.command(help="Calculate peptide/fragment masses using pyopenms.")
+@click.option("--sequence", required=True, help="Amino acid sequence (e.g. PEPTIDEK or PEPTM[147]IDEK)")
+@click.option("--charge", type=int, default=1, help="Charge state for m/z calculation (default: 1)")
+@click.option("--fragments", is_flag=True, help="Also compute b-ion and y-ion series")
+def main(sequence, charge, fragments):
+    info = peptide_masses(sequence, charge)
     print(f"Sequence          : {info['sequence']}")
     print(f"Charge            : {info['charge']}+")
     print(f"Monoisotopic mass : {info['monoisotopic_mass']:.6f} Da")
@@ -119,8 +103,8 @@ def main():
     print(f"m/z (mono)        : {info['mz_monoisotopic']:.6f}")
     print(f"m/z (avg)         : {info['mz_average']:.6f}")
 
-    if args.fragments:
-        ions = fragment_ions(args.sequence)
+    if fragments:
+        ions = fragment_ions(sequence)
         print("\n--- b-ions ---")
         for idx, mass in ions["b_ions"]:
             print(f"  b{idx:>2}  {mass:.6f} Da")

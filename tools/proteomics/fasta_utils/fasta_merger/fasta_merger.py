@@ -8,9 +8,10 @@ Usage
     python fasta_merger.py --inputs db1.fasta db2.fasta --remove-duplicates --output merged.fasta
 """
 
-import argparse
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -102,19 +103,17 @@ def merge_fasta_files(
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Merge multiple FASTA files.")
-    parser.add_argument("--inputs", nargs="+", required=True, help="Input FASTA files")
-    parser.add_argument("--output", required=True, help="Output merged FASTA file")
-    parser.add_argument("--remove-duplicates", action="store_true", help="Remove duplicate entries")
-    parser.add_argument(
-        "--dedup-by", choices=["identifier", "sequence"], default="identifier",
-        help="Deduplication criterion (default: identifier)"
-    )
-    args = parser.parse_args()
-
-    stats = merge_fasta_files(args.inputs, args.output, args.remove_duplicates, args.dedup_by)
-    print(f"Merged {stats['total_before_dedup']} entries -> {stats['total_output']} written to {args.output}")
+@click.command(help="Merge multiple FASTA files.")
+@click.option("--inputs", multiple=True, required=True, help="Input FASTA files")
+@click.option("--output", required=True, help="Output merged FASTA file")
+@click.option("--remove-duplicates", is_flag=True, help="Remove duplicate entries")
+@click.option(
+    "--dedup-by", type=click.Choice(["identifier", "sequence"]),
+    default="identifier", help="Deduplication criterion (default: identifier)",
+)
+def main(inputs, output, remove_duplicates, dedup_by) -> None:
+    stats = merge_fasta_files(list(inputs), output, remove_duplicates, dedup_by)
+    print(f"Merged {stats['total_before_dedup']} entries -> {stats['total_output']} written to {output}")
 
 
 if __name__ == "__main__":

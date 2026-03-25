@@ -9,11 +9,12 @@ Usage
     python mzqc_generator.py --input run.mzML --output qc.mzQC
 """
 
-import argparse
 import json
 import math
 import sys
 from datetime import datetime, timezone
+
+import click
 
 try:
     import pyopenms as oms
@@ -117,24 +118,20 @@ def generate_mzqc(exp: oms.MSExperiment, input_file: str = "unknown.mzML") -> di
     return mzqc
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate mzQC JSON from an mzML file."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Path to mzML file")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output mzQC JSON path")
-    args = parser.parse_args()
-
+@click.command(help="Generate mzQC JSON from an mzML file.")
+@click.option("--input", "input", required=True, help="Path to mzML file")
+@click.option("--output", required=True, help="Output mzQC JSON path")
+def main(input, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
-    mzqc = generate_mzqc(exp, input_file=args.input)
+    mzqc = generate_mzqc(exp, input_file=input)
 
-    with open(args.output, "w") as fh:
+    with open(output, "w") as fh:
         json.dump(mzqc, fh, indent=2)
 
     n_metrics = len(mzqc["mzQC"]["runQualities"][0]["qualityMetrics"])
-    print(f"mzQC written to {args.output} ({n_metrics} metrics)")
+    print(f"mzQC written to {output} ({n_metrics} metrics)")
 
 
 if __name__ == "__main__":

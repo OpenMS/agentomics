@@ -16,10 +16,11 @@ Usage
     python amino_acid_composition_analyzer.py --sequence PEPTIDEK --output composition.json
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -104,28 +105,26 @@ def analyze_fasta(fasta_path: str) -> list:
     return results
 
 
-def main():
+@click.command(help="Analyze amino acid composition for FASTA proteins.")
+@click.option("--input", "input", type=str, default=None, help="Protein FASTA file.")
+@click.option("--sequence", type=str, default=None, help="Single sequence to analyze.")
+@click.option("--output", type=str, default=None, help="Output file (.tsv or .json).")
+def main(input, sequence, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Analyze amino acid composition for FASTA proteins.")
-    parser.add_argument("--input", type=str, help="Protein FASTA file.")
-    parser.add_argument("--sequence", type=str, help="Single sequence to analyze.")
-    parser.add_argument("--output", type=str, help="Output file (.tsv or .json).")
-    args = parser.parse_args()
+    if not input and not sequence:
+        raise click.UsageError("Provide --input or --sequence.")
 
-    if not args.input and not args.sequence:
-        parser.error("Provide --input or --sequence.")
-
-    if args.sequence:
-        results = [analyze_composition(args.sequence)]
+    if sequence:
+        results = [analyze_composition(sequence)]
     else:
-        results = analyze_fasta(args.input)
+        results = analyze_fasta(input)
 
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump(results if len(results) > 1 else results[0], fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 base_fields = ["accession", "length", "monoisotopic_mass",
                                "basic_residues", "acidic_residues", "hydrophobic_residues",
                                "polar_residues", "aromatic_residues"]
@@ -138,7 +137,7 @@ def main():
                     for aa in STANDARD_AAS:
                         row[f"count_{aa}"] = r["counts"].get(aa, 0)
                     writer.writerow(row)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         for r in results:
             acc = r.get("accession", r.get("sequence", ""))

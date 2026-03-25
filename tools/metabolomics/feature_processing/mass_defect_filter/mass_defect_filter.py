@@ -16,9 +16,10 @@ Usage
         --output filtered.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -166,23 +167,19 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compute mass defect and Kendrick mass defect, filter features."
-    )
-    parser.add_argument("--input", required=True, help="Input TSV with exact_mass column")
-    parser.add_argument("--mdf-min", type=float, default=0.0, help="Minimum mass defect (default: 0.0)")
-    parser.add_argument("--mdf-max", type=float, default=1.0, help="Maximum mass defect (default: 1.0)")
-    parser.add_argument("--kendrick-base", default="CH2", help="Kendrick base formula (default: CH2)")
-    parser.add_argument("--output", default=None, help="Output TSV file path (default: print to stdout)")
-    args = parser.parse_args()
+@click.command()
+@click.option("--input", "input_file", required=True, help="Input TSV with exact_mass column")
+@click.option("--mdf-min", type=float, default=0.0, help="Minimum mass defect (default: 0.0)")
+@click.option("--mdf-max", type=float, default=1.0, help="Maximum mass defect (default: 1.0)")
+@click.option("--kendrick-base", default="CH2", help="Kendrick base formula (default: CH2)")
+@click.option("--output", default=None, help="Output TSV file path (default: print to stdout)")
+def main(input_file, mdf_min, mdf_max, kendrick_base, output):
+    features = read_features_tsv(input_file)
+    results = filter_by_mass_defect(features, mdf_min, mdf_max, kendrick_base)
 
-    features = read_features_tsv(args.input)
-    results = filter_by_mass_defect(features, args.mdf_min, args.mdf_max, args.kendrick_base)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} filtered features to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} filtered features to {output}")
     else:
         if results:
             print("\t".join(results[0].keys()))

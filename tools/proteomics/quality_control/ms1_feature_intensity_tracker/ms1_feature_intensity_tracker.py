@@ -11,10 +11,11 @@ Usage
         --ppm 10 --output tracking.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List
+
+import click
 
 try:
     import pyopenms as oms
@@ -214,24 +215,20 @@ def write_tsv(results: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Track feature intensities across multiple mzML runs."
-    )
-    parser.add_argument("--inputs", nargs="+", required=True, help="Input mzML files")
-    parser.add_argument("--features", required=True, help="Target features TSV (feature_id, mz, rt)")
-    parser.add_argument("--ppm", type=float, default=10.0, help="m/z tolerance in ppm (default: 10)")
-    parser.add_argument("--rt-tolerance", type=float, default=30.0, help="RT tolerance in sec (default: 30)")
-    parser.add_argument("--output", required=True, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Track feature intensities across multiple mzML runs.")
+@click.option("--inputs", multiple=True, required=True, help="Input mzML files")
+@click.option("--features", required=True, help="Target features TSV (feature_id, mz, rt)")
+@click.option("--ppm", type=float, default=10.0, help="m/z tolerance in ppm (default: 10)")
+@click.option("--rt-tolerance", type=float, default=30.0, help="RT tolerance in sec (default: 30)")
+@click.option("--output", required=True, help="Output TSV file path")
+def main(inputs, features, ppm, rt_tolerance, output):
+    features_data = load_features(features)
+    print(f"Loaded {len(features_data)} target features")
 
-    features = load_features(args.features)
-    print(f"Loaded {len(features)} target features")
+    results = track_features(list(inputs), features_data, ppm=ppm, rt_tolerance=rt_tolerance)
 
-    results = track_features(args.inputs, features, ppm=args.ppm, rt_tolerance=args.rt_tolerance)
-
-    write_tsv(results, args.output)
-    print(f"Tracking results written to {args.output}")
+    write_tsv(results, output)
+    print(f"Tracking results written to {output}")
 
 
 if __name__ == "__main__":

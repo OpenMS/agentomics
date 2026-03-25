@@ -15,9 +15,10 @@ Usage
     python metabolite_class_predictor.py --input formulas.tsv --output predictions.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -267,19 +268,15 @@ def write_predictions(predictions: list[dict], path: str) -> None:
         writer.writerows(predictions)
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="Formulas table (TSV) with 'formula' column")
+@click.option("--output", required=True, help="Output predictions (TSV)")
+def main(input_file, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Predict compound class from molecular formula using mass defect, element ratios, and RDBE."
-    )
-    parser.add_argument("--input", required=True, help="Formulas table (TSV) with 'formula' column")
-    parser.add_argument("--output", required=True, help="Output predictions (TSV)")
-    args = parser.parse_args()
-
-    formulas = load_formulas(args.input)
+    formulas = load_formulas(input_file)
     predictions = classify_batch(formulas)
-    write_predictions(predictions, args.output)
-    print(f"Classified {len(predictions)} formulas, written to {args.output}")
+    write_predictions(predictions, output)
+    print(f"Classified {len(predictions)} formulas, written to {output}")
 
 
 if __name__ == "__main__":

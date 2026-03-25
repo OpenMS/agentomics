@@ -16,12 +16,13 @@ Usage
         --output length_dist.tsv --motifs anchor_freq.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
 from collections import Counter
 from typing import Dict, List, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -208,21 +209,15 @@ def run_qc(
     return dist, qc, anchors, ic_values
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="QC for immunopeptidomics: length distribution, anchor residue frequencies, information content."
-    )
-    parser.add_argument("--input", required=True, help="Input TSV with 'sequence' column")
-    parser.add_argument(
-        "--hla-class", required=True, choices=["I", "II"], help="HLA class (I or II)"
-    )
-    parser.add_argument("--output", required=True, help="Output TSV for length distribution")
-    parser.add_argument("--motifs", required=True, help="Output TSV for anchor residue frequencies")
-    args = parser.parse_args()
-
+@click.command(help="QC for immunopeptidomics: length distribution, anchor residue frequencies, information content.")
+@click.option("--input", "input", required=True, help="Input TSV with 'sequence' column")
+@click.option("--hla-class", required=True, type=click.Choice(["I", "II"]), help="HLA class (I or II)")
+@click.option("--output", required=True, help="Output TSV for length distribution")
+@click.option("--motifs", required=True, help="Output TSV for anchor residue frequencies")
+def main(input, hla_class, output, motifs) -> None:
     # Read sequences
     sequences: List[str] = []
-    with open(args.input, newline="") as fh:
+    with open(input, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             seq = row.get("sequence", "").strip()
@@ -232,10 +227,10 @@ def main() -> None:
     if not sequences:
         sys.exit("No valid sequences found in input file.")
 
-    dist, qc, anchors, ic_values = run_qc(sequences, args.hla_class)
+    dist, qc, anchors, ic_values = run_qc(sequences, hla_class)
 
     # Write length distribution
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.writer(fh, delimiter="\t")
         writer.writerow(["length", "count"])
         for length, count in dist.items():
@@ -251,15 +246,15 @@ def main() -> None:
                 writer.writerow([i, f"{ic:.4f}"])
 
     # Write anchor frequencies
-    with open(args.motifs, "w", newline="") as fh:
+    with open(motifs, "w", newline="") as fh:
         writer = csv.writer(fh, delimiter="\t")
         writer.writerow(["anchor_position", "residue", "frequency"])
         for pos_label, freq_dict in anchors.items():
             for residue, freq in sorted(freq_dict.items()):
                 writer.writerow([pos_label, residue, f"{freq:.4f}"])
 
-    print(f"Length distribution written to {args.output}")
-    print(f"Anchor frequencies written to {args.motifs}")
+    print(f"Length distribution written to {output}")
+    print(f"Anchor frequencies written to {motifs}")
     print(f"Total peptides: {sum(dist.values())}, in-range: {qc['in_range_fraction']:.1%}")
 
 

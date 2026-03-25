@@ -15,10 +15,11 @@ Usage
     python irt_calculator.py --input identifications.tsv --reference irt_standards.tsv --output irt_converted.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -139,17 +140,15 @@ def process_identifications(identifications: list, model: dict) -> list:
     return results
 
 
-def main():
+@click.command(help="Convert observed RT to indexed RT (iRT).")
+@click.option("--input", "input", required=True, help="TSV with sequence and rt columns.")
+@click.option("--reference", required=True, help="TSV with sequence, observed_rt, irt columns.")
+@click.option("--output", default=None, help="Output file (.tsv or .json).")
+def main(input, reference, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Convert observed RT to indexed RT (iRT).")
-    parser.add_argument("--input", required=True, help="TSV with sequence and rt columns.")
-    parser.add_argument("--reference", required=True, help="TSV with sequence, observed_rt, irt columns.")
-    parser.add_argument("--output", help="Output file (.tsv or .json).")
-    args = parser.parse_args()
-
     # Load reference peptides
     reference_data = []
-    with open(args.reference) as fh:
+    with open(reference) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             reference_data.append(row)
@@ -159,23 +158,23 @@ def main():
 
     # Load identifications
     identifications = []
-    with open(args.input) as fh:
+    with open(input) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             identifications.append(row)
 
     results = process_identifications(identifications, model)
 
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump({"model": model, "results": results}, fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 writer = csv.DictWriter(fh, fieldnames=["sequence", "observed_rt", "irt"], delimiter="\t")
                 writer.writeheader()
                 writer.writerows(results)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         for r in results:
             print(f"{r['sequence']}\t{r['observed_rt']}\t{r['irt']}")

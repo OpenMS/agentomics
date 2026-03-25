@@ -13,10 +13,11 @@ Usage
         --max-backexchange 40 --output report.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List
+
+import click
 
 try:
     import pyopenms as oms
@@ -187,35 +188,31 @@ def write_output(output_path: str, results: List[Dict[str, object]]) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Estimate per-peptide back-exchange from fully deuterated controls."
-    )
-    parser.add_argument("--peptides", required=True, help="Undeuterated peptides TSV (sequence, centroid_mass)")
-    parser.add_argument("--fully-deuterated", required=True, help="Fully deuterated TSV (sequence, centroid_mass)")
-    parser.add_argument(
-        "--max-backexchange", type=float, default=40.0,
-        help="Maximum allowed back-exchange percentage (default: 40)"
-    )
-    parser.add_argument("--output", required=True, help="Output report TSV file")
-    args = parser.parse_args()
-
-    peptides = read_peptides(args.peptides)
-    fd = read_fully_deuterated(args.fully_deuterated)
+@click.command(help="Estimate per-peptide back-exchange from fully deuterated controls.")
+@click.option("--peptides", required=True, help="Undeuterated peptides TSV (sequence, centroid_mass)")
+@click.option("--fully-deuterated", required=True, help="Fully deuterated TSV (sequence, centroid_mass)")
+@click.option(
+    "--max-backexchange", type=float, default=40.0,
+    help="Maximum allowed back-exchange percentage (default: 40)",
+)
+@click.option("--output", required=True, help="Output report TSV file")
+def main(peptides, fully_deuterated, max_backexchange, output):
+    peptides_data = read_peptides(peptides)
+    fd = read_fully_deuterated(fully_deuterated)
 
     results = []
-    for seq, undeut_mass in peptides.items():
+    for seq, undeut_mass in peptides_data.items():
         if seq in fd:
             result = compute_back_exchange(seq, undeut_mass, fd[seq])
             results.append(result)
 
-    flagged = flag_high_back_exchange(results, args.max_backexchange)
-    write_output(args.output, flagged)
+    flagged = flag_high_back_exchange(results, max_backexchange)
+    write_output(output, flagged)
 
     n_flagged = sum(1 for r in flagged if r["exceeds_threshold"] == "YES")
     print(f"Processed {len(flagged)} peptides")
-    print(f"Peptides exceeding {args.max_backexchange}% back-exchange: {n_flagged}")
-    print(f"Output written to {args.output}")
+    print(f"Peptides exceeding {max_backexchange}% back-exchange: {n_flagged}")
+    print(f"Output written to {output}")
 
 
 if __name__ == "__main__":

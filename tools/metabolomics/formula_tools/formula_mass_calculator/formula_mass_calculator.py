@@ -10,10 +10,11 @@ Usage
     python formula_mass_calculator.py --batch formulas.tsv --output masses.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -100,20 +101,20 @@ def batch_calculate(rows: list[dict]) -> list[dict]:
     return results
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate masses for molecular formulas with adducts."
-    )
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--formula", help="Single molecular formula (e.g. C6H12O6)")
-    group.add_argument("--batch", metavar="FILE", help="Batch TSV file with formula column")
-    parser.add_argument("--adduct", default="[M]", help='Adduct type (default: "[M]" = neutral)')
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output JSON or TSV file")
-    args = parser.parse_args()
+@click.command()
+@click.option("--formula", default=None, help="Single molecular formula (e.g. C6H12O6)")
+@click.option("--batch", default=None, help="Batch TSV file with formula column")
+@click.option("--adduct", default="[M]", help='Adduct type (default: "[M]" = neutral)')
+@click.option("--output", required=True, help="Output JSON or TSV file")
+def main(formula, batch, adduct, output):
+    if not formula and not batch:
+        raise click.UsageError("Either --formula or --batch must be provided.")
+    if formula and batch:
+        raise click.UsageError("--formula and --batch are mutually exclusive.")
 
-    if args.formula:
-        result = calculate_formula_mass(args.formula, args.adduct)
-        with open(args.output, "w") as fh:
+    if formula:
+        result = calculate_formula_mass(formula, adduct)
+        with open(output, "w") as fh:
             json.dump(result, fh, indent=2)
         print(f"Formula: {result['formula']}")
         print(f"Adduct:  {result['adduct']}")
@@ -122,14 +123,14 @@ def main():
         print(f"m/z:     {result['mz']:.6f}")
     else:
         rows = []
-        with open(args.batch) as fh:
+        with open(batch) as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             for row in reader:
                 rows.append(row)
 
         results = batch_calculate(rows)
 
-        with open(args.output, "w", newline="") as fh:
+        with open(output, "w", newline="") as fh:
             writer = csv.DictWriter(
                 fh,
                 fieldnames=["formula", "adduct", "monoisotopic_mass", "average_mass", "mz", "charge"],
@@ -138,7 +139,7 @@ def main():
             writer.writeheader()
             writer.writerows(results)
 
-        print(f"Calculated masses for {len(results)} formulas, written to {args.output}")
+        print(f"Calculated masses for {len(results)} formulas, written to {output}")
 
 
 if __name__ == "__main__":

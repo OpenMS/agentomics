@@ -13,10 +13,11 @@ Usage
         --timepoints 0,10,60 --output uptake.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List
+
+import click
 
 try:
     import pyopenms as oms
@@ -231,42 +232,32 @@ def write_output(output_path: str, results: List[Dict[str, object]]) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate deuterium uptake from HDX-MS data."
-    )
-    parser.add_argument("--peptides", required=True, help="Peptides TSV (sequence, timepoint, centroid_mass)")
-    parser.add_argument("--undeuterated", required=True, help="Undeuterated reference TSV (sequence, centroid_mass)")
-    parser.add_argument(
-        "--timepoints", default="0,10,60",
-        help="Comma-separated timepoints to process (default: 0,10,60)"
-    )
-    parser.add_argument(
-        "--back-exchange", type=float, default=0.0,
-        help="Back-exchange correction fraction (default: 0.0)"
-    )
-    parser.add_argument("--output", required=True, help="Output uptake TSV file")
-    args = parser.parse_args()
-
-    ref = read_undeuterated(args.undeuterated)
-    peptide_rows = read_peptides(args.peptides)
+@click.command(help="Calculate deuterium uptake from HDX-MS data.")
+@click.option("--peptides", required=True, help="Peptides TSV (sequence, timepoint, centroid_mass)")
+@click.option("--undeuterated", required=True, help="Undeuterated reference TSV (sequence, centroid_mass)")
+@click.option("--timepoints", default="0,10,60", help="Comma-separated timepoints to process (default: 0,10,60)")
+@click.option("--back-exchange", type=float, default=0.0, help="Back-exchange correction fraction (default: 0.0)")
+@click.option("--output", required=True, help="Output uptake TSV file")
+def main(peptides, undeuterated, timepoints, back_exchange, output):
+    ref = read_undeuterated(undeuterated)
+    peptide_rows = read_peptides(peptides)
     grouped = group_by_peptide(peptide_rows)
-    timepoints = [t.strip() for t in args.timepoints.split(",")]
+    timepoints_list = [t.strip() for t in timepoints.split(",")]
 
     results = []
     for seq, tp_masses in grouped.items():
         if seq not in ref:
             continue
-        filtered = {tp: m for tp, m in tp_masses.items() if tp in timepoints}
-        result = compute_uptake_for_peptide(seq, ref[seq], filtered, args.back_exchange)
+        filtered = {tp: m for tp, m in tp_masses.items() if tp in timepoints_list}
+        result = compute_uptake_for_peptide(seq, ref[seq], filtered, back_exchange)
         results.append(result)
 
-    write_output(args.output, results)
+    write_output(output, results)
 
     print(f"Processed {len(results)} peptides")
     print(f"Timepoints: {timepoints}")
-    print(f"Back-exchange correction: {args.back_exchange:.2f}")
-    print(f"Output written to {args.output}")
+    print(f"Back-exchange correction: {back_exchange:.2f}")
+    print(f"Output written to {output}")
 
 
 if __name__ == "__main__":

@@ -11,9 +11,10 @@ Usage
     python lipid_ecn_rt_predictor.py --input lipids.tsv --calibration standards.tsv --output predictions.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -170,28 +171,20 @@ def write_predictions(predictions: list[dict], path: str) -> None:
         writer.writerows(predictions)
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True,
+              help="Lipid table (TSV) with lipid_class, total_carbons, double_bonds")
+@click.option("--calibration", required=True,
+              help="Standards table (TSV) with lipid_class, total_carbons, double_bonds, rt")
+@click.option("--output", required=True, help="Output predictions (TSV)")
+def main(input_file, calibration, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Predict lipid RT from ECN using linear regression per lipid class."
-    )
-    parser.add_argument(
-        "--input", required=True,
-        help="Lipid table (TSV) with lipid_class, total_carbons, double_bonds",
-    )
-    parser.add_argument(
-        "--calibration", required=True,
-        help="Standards table (TSV) with lipid_class, total_carbons, double_bonds, rt",
-    )
-    parser.add_argument("--output", required=True, help="Output predictions (TSV)")
-    args = parser.parse_args()
-
-    lipids = load_tsv(args.input)
-    standards = load_tsv(args.calibration)
+    lipids = load_tsv(input_file)
+    standards = load_tsv(calibration)
     models = build_calibration_models(standards)
     predictions = predict_rt(lipids, models)
-    write_predictions(predictions, args.output)
-    print(f"Predicted RT for {len(predictions)} lipids, written to {args.output}")
+    write_predictions(predictions, output)
+    print(f"Predicted RT for {len(predictions)} lipids, written to {output}")
 
 
 if __name__ == "__main__":

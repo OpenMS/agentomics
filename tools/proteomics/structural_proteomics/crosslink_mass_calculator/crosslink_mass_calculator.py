@@ -16,10 +16,11 @@ Usage
         --crosslinker DSSO --output masses.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Optional
+
+import click
 
 try:
     import pyopenms as oms
@@ -125,24 +126,20 @@ def write_tsv(results: list, output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate masses for crosslinked peptide pairs."
-    )
-    parser.add_argument("--peptide1", required=True, help="First peptide sequence")
-    parser.add_argument("--peptide2", required=True, help="Second peptide sequence")
-    parser.add_argument(
-        "--crosslinker", required=True,
-        help="Crosslinker name (DSS, BS3, DSSO) or custom name with --custom-mass"
-    )
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1)")
-    parser.add_argument("--custom-mass", type=float, default=None, help="Custom crosslinker mass in Da")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
-
+@click.command(help="Calculate masses for crosslinked peptide pairs.")
+@click.option("--peptide1", required=True, help="First peptide sequence")
+@click.option("--peptide2", required=True, help="Second peptide sequence")
+@click.option(
+    "--crosslinker", required=True,
+    help="Crosslinker name (DSS, BS3, DSSO) or custom name with --custom-mass",
+)
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1)")
+@click.option("--custom-mass", type=float, default=None, help="Custom crosslinker mass in Da")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(peptide1, peptide2, crosslinker, charge, custom_mass, output):
     result = crosslinked_mass(
-        args.peptide1, args.peptide2, args.crosslinker,
-        charge=args.charge, custom_mass=args.custom_mass,
+        peptide1, peptide2, crosslinker,
+        charge=charge, custom_mass=custom_mass,
     )
 
     print(f"Peptide 1         : {result['peptide1']} ({result['mass_peptide1']:.6f} Da)")
@@ -152,9 +149,9 @@ def main():
     print(f"Charge            : {result['charge']}+")
     print(f"m/z               : {result['mz']:.6f}")
 
-    if args.output:
-        write_tsv([result], args.output)
-        print(f"\nResults written to {args.output}")
+    if output:
+        write_tsv([result], output)
+        print(f"\nResults written to {output}")
 
 
 if __name__ == "__main__":

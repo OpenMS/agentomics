@@ -9,10 +9,11 @@ Usage
     python fasta_cleaner.py --input messy.fasta --remove-duplicates --min-length 6 --output clean.fasta
 """
 
-import argparse
 import re
 import sys
 from typing import List, Optional
+
+import click
 
 try:
     import pyopenms as oms
@@ -121,31 +122,30 @@ def clean_fasta(
     return {"total_input": total_input, "total_output": len(entries)}
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Clean a FASTA database: remove duplicates, fix headers, filter by length."
-    )
-    parser.add_argument("--input", required=True, help="Input FASTA file")
-    parser.add_argument("--output", required=True, help="Output cleaned FASTA file")
-    parser.add_argument("--remove-duplicates", action="store_true", help="Remove duplicate sequences")
-    parser.add_argument("--min-length", type=int, default=None, help="Minimum sequence length")
-    parser.add_argument("--max-length", type=int, default=None, help="Maximum sequence length")
-    parser.add_argument("--remove-stop-codons", action="store_true", help="Remove trailing stop codons (*)")
-    parser.add_argument("--fix-headers", action="store_true", help="Fix header whitespace issues")
-    parser.add_argument("--remove-invalid-chars", action="store_true", help="Remove non-amino-acid characters")
-    args = parser.parse_args()
-
+@click.command(help="Clean a FASTA database: remove duplicates, fix headers, filter by length.")
+@click.option("--input", "input", required=True, help="Input FASTA file")
+@click.option("--output", required=True, help="Output cleaned FASTA file")
+@click.option("--remove-duplicates", is_flag=True, help="Remove duplicate sequences")
+@click.option("--min-length", type=int, default=None, help="Minimum sequence length")
+@click.option("--max-length", type=int, default=None, help="Maximum sequence length")
+@click.option("--remove-stop-codons", is_flag=True, help="Remove trailing stop codons (*)")
+@click.option("--fix-headers", is_flag=True, help="Fix header whitespace issues")
+@click.option("--remove-invalid-chars", is_flag=True, help="Remove non-amino-acid characters")
+def main(
+    input, output, remove_duplicates, min_length, max_length,
+    remove_stop_codons, fix_headers, remove_invalid_chars,
+) -> None:
     stats = clean_fasta(
-        args.input,
-        args.output,
-        dedup=args.remove_duplicates,
-        min_length=args.min_length,
-        max_length=args.max_length,
-        strip_stop_codons=args.remove_stop_codons,
-        do_fix_headers=args.fix_headers,
-        do_remove_invalid=args.remove_invalid_chars,
+        input,
+        output,
+        dedup=remove_duplicates,
+        min_length=min_length,
+        max_length=max_length,
+        strip_stop_codons=remove_stop_codons,
+        do_fix_headers=fix_headers,
+        do_remove_invalid=remove_invalid_chars,
     )
-    print(f"Cleaned: {stats['total_input']} -> {stats['total_output']} proteins written to {args.output}")
+    print(f"Cleaned: {stats['total_input']} -> {stats['total_output']} proteins written to {output}")
 
 
 if __name__ == "__main__":

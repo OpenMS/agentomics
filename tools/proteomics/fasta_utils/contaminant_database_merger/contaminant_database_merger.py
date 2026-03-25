@@ -10,9 +10,10 @@ Usage
     python contaminant_database_merger.py --input target.fasta --contaminants custom.fasta --output merged.fasta
 """
 
-import argparse
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -133,21 +134,17 @@ def merge_contaminants(
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Append contaminant proteins to a FASTA database."
-    )
-    parser.add_argument("--input", required=True, help="Input target FASTA file")
-    parser.add_argument("--add-crap", action="store_true", help="Add built-in cRAP contaminants")
-    parser.add_argument("--contaminants", default=None, help="Custom contaminant FASTA file")
-    parser.add_argument("--prefix", default="CONT_", help="Prefix for contaminant accessions (default: CONT_)")
-    parser.add_argument("--output", required=True, help="Output merged FASTA file")
-    args = parser.parse_args()
+@click.command(help="Append contaminant proteins to a FASTA database.")
+@click.option("--input", "input", required=True, help="Input target FASTA file")
+@click.option("--add-crap", is_flag=True, help="Add built-in cRAP contaminants")
+@click.option("--contaminants", default=None, help="Custom contaminant FASTA file")
+@click.option("--prefix", default="CONT_", help="Prefix for contaminant accessions (default: CONT_)")
+@click.option("--output", required=True, help="Output merged FASTA file")
+def main(input, add_crap, contaminants, prefix, output) -> None:
+    if not add_crap and not contaminants:
+        raise click.UsageError("At least one of --add-crap or --contaminants is required.")
 
-    if not args.add_crap and not args.contaminants:
-        parser.error("At least one of --add-crap or --contaminants is required.")
-
-    stats = merge_contaminants(args.input, args.output, args.add_crap, args.contaminants, args.prefix)
+    stats = merge_contaminants(input, output, add_crap, contaminants, prefix)
     print(f"Target: {stats['target_count']}, Contaminants: {stats['contaminant_count']}, "
           f"Merged (dedup): {stats['deduplicated_count']}")
 

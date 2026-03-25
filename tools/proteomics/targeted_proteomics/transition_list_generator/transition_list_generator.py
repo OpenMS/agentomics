@@ -16,9 +16,10 @@ Usage
     python transition_list_generator.py --peptides PEPTIDEK --charge 2 --product-ions y3-y8 --output transitions.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -130,34 +131,31 @@ def generate_transitions(sequence: str, precursor_charges: list = None,
     return transitions
 
 
-def main():
+@click.command(help="Generate SRM/MRM/PRM transition lists.")
+@click.option("--peptides", required=True, help="Comma-separated peptide sequences.")
+@click.option("--charge", type=str, default="2", help="Comma-separated precursor charges (default: 2).")
+@click.option("--product-charge", type=str, default="1", help="Comma-separated product ion charges (default: 1).")
+@click.option("--product-ions", type=str, default=None, help="Ion range filter (e.g., 'y3-y8').")
+@click.option("--output", default=None, help="Output TSV file.")
+def main(peptides, charge, product_charge, product_ions, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Generate SRM/MRM/PRM transition lists.")
-    parser.add_argument("--peptides", required=True, help="Comma-separated peptide sequences.")
-    parser.add_argument("--charge", type=str, default="2", help="Comma-separated precursor charges (default: 2).")
-    parser.add_argument("--product-charge", type=str, default="1",
-                        help="Comma-separated product ion charges (default: 1).")
-    parser.add_argument("--product-ions", type=str, help="Ion range filter (e.g., 'y3-y8').")
-    parser.add_argument("--output", help="Output TSV file.")
-    args = parser.parse_args()
-
-    peptide_list = [p.strip() for p in args.peptides.split(",") if p.strip()]
-    precursor_charges = [int(c.strip()) for c in args.charge.split(",")]
-    product_charges = [int(c.strip()) for c in args.product_charge.split(",")]
+    peptide_list = [p.strip() for p in peptides.split(",") if p.strip()]
+    precursor_charges = [int(c.strip()) for c in charge.split(",")]
+    product_charges_list = [int(c.strip()) for c in product_charge.split(",")]
 
     all_transitions = []
     for pep in peptide_list:
-        transitions = generate_transitions(pep, precursor_charges, product_charges, args.product_ions)
+        transitions = generate_transitions(pep, precursor_charges, product_charges_list, product_ions)
         all_transitions.extend(transitions)
 
-    if args.output:
-        with open(args.output, "w", newline="") as fh:
+    if output:
+        with open(output, "w", newline="") as fh:
             fieldnames = ["peptide", "precursor_mz", "precursor_charge", "product_mz",
                           "product_charge", "annotation"]
             writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
             writer.writeheader()
             writer.writerows(all_transitions)
-        print(f"Generated {len(all_transitions)} transitions -> {args.output}")
+        print(f"Generated {len(all_transitions)} transitions -> {output}")
     else:
         for t in all_transitions:
             print(f"{t['peptide']}\t{t['precursor_mz']}\t{t['product_mz']}\t{t['annotation']}")

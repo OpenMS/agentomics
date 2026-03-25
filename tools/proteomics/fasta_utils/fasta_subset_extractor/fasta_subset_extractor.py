@@ -10,9 +10,10 @@ Usage
     python fasta_subset_extractor.py --input db.fasta --min-length 50 --max-length 500 --output subset.fasta
 """
 
-import argparse
 import sys
 from typing import List, Optional
+
+import click
 
 try:
     import pyopenms as oms
@@ -109,25 +110,21 @@ def extract_subset(
     return {"total_input": total, "total_output": len(filtered)}
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Extract proteins from a FASTA database by accession list, keyword, or length range."
-    )
-    parser.add_argument("--input", required=True, help="Input FASTA file")
-    parser.add_argument("--accessions", default=None, help="Text file with one accession per line")
-    parser.add_argument("--keyword", default=None, help="Keyword to match in header/description")
-    parser.add_argument("--min-length", type=int, default=None, help="Minimum sequence length")
-    parser.add_argument("--max-length", type=int, default=None, help="Maximum sequence length")
-    parser.add_argument("--output", required=True, help="Output FASTA file")
-    args = parser.parse_args()
-
-    if not args.accessions and not args.keyword and args.min_length is None and args.max_length is None:
-        parser.error("At least one filter (--accessions, --keyword, --min-length, --max-length) is required.")
+@click.command(help="Extract proteins from a FASTA database by accession list, keyword, or length range.")
+@click.option("--input", "input", required=True, help="Input FASTA file")
+@click.option("--accessions", default=None, help="Text file with one accession per line")
+@click.option("--keyword", default=None, help="Keyword to match in header/description")
+@click.option("--min-length", type=int, default=None, help="Minimum sequence length")
+@click.option("--max-length", type=int, default=None, help="Maximum sequence length")
+@click.option("--output", required=True, help="Output FASTA file")
+def main(input, accessions, keyword, min_length, max_length, output) -> None:
+    if not accessions and not keyword and min_length is None and max_length is None:
+        raise click.UsageError("At least one filter (--accessions, --keyword, --min-length, --max-length) is required.")
 
     stats = extract_subset(
-        args.input, args.output, args.accessions, args.keyword, args.min_length, args.max_length
+        input, output, accessions, keyword, min_length, max_length
     )
-    print(f"Extracted {stats['total_output']} / {stats['total_input']} proteins to {args.output}")
+    print(f"Extracted {stats['total_output']} / {stats['total_input']} proteins to {output}")
 
 
 if __name__ == "__main__":

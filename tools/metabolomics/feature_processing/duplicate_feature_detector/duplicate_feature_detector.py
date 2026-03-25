@@ -13,9 +13,10 @@ Usage
         --rt-tolerance 5 --output deduplicated.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -121,32 +122,24 @@ def deduplicate(features: list[dict], mz_tolerance_ppm: float = 10.0, rt_toleran
     return [f for f in annotated if f["is_duplicate"] == "false"]
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Detect duplicate features by m/z+RT proximity."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Features TSV")
-    parser.add_argument(
-        "--mz-tolerance", type=float, default=10.0,
-        help="m/z tolerance in ppm (default: 10)"
-    )
-    parser.add_argument(
-        "--rt-tolerance", type=float, default=5.0,
-        help="RT tolerance in seconds (default: 5)"
-    )
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output deduplicated TSV")
-    args = parser.parse_args()
-
+@click.command()
+@click.option("--input", "input_file", required=True, help="Features TSV")
+@click.option("--mz-tolerance", type=float, default=10.0,
+              help="m/z tolerance in ppm (default: 10)")
+@click.option("--rt-tolerance", type=float, default=5.0,
+              help="RT tolerance in seconds (default: 5)")
+@click.option("--output", required=True, help="Output deduplicated TSV")
+def main(input_file, mz_tolerance, rt_tolerance, output):
     features = []
-    with open(args.input) as fh:
+    with open(input_file) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             features.append(row)
 
-    deduped = deduplicate(features, args.mz_tolerance, args.rt_tolerance)
+    deduped = deduplicate(features, mz_tolerance, rt_tolerance)
 
     fieldnames = list(features[0].keys()) if features else ["mz", "rt", "intensity"]
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         # Write without the extra keys
@@ -156,7 +149,7 @@ def main():
 
     removed = len(features) - len(deduped)
     print(f"Deduplication: {len(features)} input, {removed} duplicates removed, {len(deduped)} kept")
-    print(f"Output written to {args.output}")
+    print(f"Output written to {output}")
 
 
 if __name__ == "__main__":

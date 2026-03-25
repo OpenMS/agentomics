@@ -11,10 +11,11 @@ Usage
     python ms_data_ml_exporter.py --input run.mzML --output ml_matrix.csv
 """
 
-import argparse
 import csv
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -104,22 +105,18 @@ def write_csv(records: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Export MS features as ML-ready matrices."
-    )
-    parser.add_argument("--input", required=True, help="Input mzML file")
-    parser.add_argument("--output", required=True, help="Output CSV file path")
-    args = parser.parse_args()
-
+@click.command(help="Export MS features as ML-ready matrices.")
+@click.option("--input", "input", required=True, help="Input mzML file")
+@click.option("--output", required=True, help="Output CSV file path")
+def main(input, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
     records = extract_features(exp)
     print(f"Extracted features for {len(records)} spectra")
 
-    write_csv(records, args.output)
-    print(f"ML matrix written to {args.output}")
+    write_csv(records, output)
+    print(f"ML matrix written to {output}")
 
 
 if __name__ == "__main__":

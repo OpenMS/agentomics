@@ -17,10 +17,11 @@ Usage
     python modification_mass_calculator.py --sequence PEPTIDEK --modifications "Oxidation(M):4"
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -135,44 +136,42 @@ def modified_peptide_mass(sequence: str, modifications: str = "", charge: int = 
     }
 
 
-def main():
+@click.command(help="Query Unimod modifications and compute modified peptide masses.")
+@click.option("--search-mod", type=str, default=None, help="Search for a modification by name.")
+@click.option("--list-mods", is_flag=True, help="List common modifications.")
+@click.option("--sequence", type=str, default=None, help="Peptide sequence for mass calculation.")
+@click.option("--modifications", type=str, default="", help="Modifications (e.g., 'Oxidation(M):4').")
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1).")
+@click.option("--output", type=str, default=None, help="Output file.")
+def main(search_mod, list_mods, sequence, modifications, charge, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Query Unimod modifications and compute modified peptide masses.")
-    parser.add_argument("--search-mod", type=str, help="Search for a modification by name.")
-    parser.add_argument("--list-mods", action="store_true", help="List common modifications.")
-    parser.add_argument("--sequence", type=str, help="Peptide sequence for mass calculation.")
-    parser.add_argument("--modifications", type=str, default="", help="Modifications (e.g., 'Oxidation(M):4').")
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1).")
-    parser.add_argument("--output", type=str, help="Output file.")
-    args = parser.parse_args()
-
-    if args.list_mods:
+    if list_mods:
         results = list_common_modifications()
-        if args.output:
-            with open(args.output, "w", newline="") as fh:
+        if output:
+            with open(output, "w", newline="") as fh:
                 writer = csv.DictWriter(fh, fieldnames=["full_id", "name", "delta_mass", "origin"], delimiter="\t")
                 writer.writeheader()
                 writer.writerows(results)
         else:
             for r in results:
                 print(f"{r['name']}\t{r['delta_mass']}\t{r['origin']}\t{r['full_id']}")
-    elif args.search_mod:
-        results = search_modification(args.search_mod)
-        if args.output:
-            with open(args.output, "w") as fh:
+    elif search_mod:
+        results = search_modification(search_mod)
+        if output:
+            with open(output, "w") as fh:
                 json.dump(results, fh, indent=2)
         else:
             for r in results:
                 print(f"{r['name']}\t{r['delta_mass']}\t{r['origin']}\t{r['full_id']}")
-    elif args.sequence:
-        result = modified_peptide_mass(args.sequence, args.modifications, args.charge)
-        if args.output:
-            with open(args.output, "w") as fh:
+    elif sequence:
+        result = modified_peptide_mass(sequence, modifications, charge)
+        if output:
+            with open(output, "w") as fh:
                 json.dump(result, fh, indent=2)
         else:
             print(json.dumps(result, indent=2))
     else:
-        parser.print_help()
+        click.echo(click.get_current_context().get_help())
 
 
 if __name__ == "__main__":

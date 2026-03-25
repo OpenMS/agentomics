@@ -12,11 +12,12 @@ Usage
     python phospho_motif_analyzer.py --input phosphosites.tsv --fasta proteome.fasta --window 7 --output motifs.tsv
 """
 
-import argparse
 import csv
 import sys
 from collections import Counter
 from typing import Dict, List, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -224,26 +225,22 @@ def write_output(
             f.write(f"{pos}\t{aa}\t{freq:.4f}\n")
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Extract motif windows around phosphosites and compute position-specific frequencies."
-    )
-    parser.add_argument("--input", required=True, help="Input phosphosites TSV file")
-    parser.add_argument("--fasta", required=True, help="Proteome FASTA file")
-    parser.add_argument("--window", type=int, default=7, help="Window size on each side (default: 7)")
-    parser.add_argument("--output", required=True, help="Output motifs TSV file")
-    args = parser.parse_args()
-
-    proteins = load_fasta(args.fasta)
-    rows = read_input(args.input)
-    motif_rows = extract_motif_windows(rows, proteins, args.window)
-    windows = [r["motif_window"] for r in motif_rows]
-    frequencies = compute_position_frequencies(windows, args.window)
-    write_output(args.output, motif_rows, frequencies)
+@click.command(help="Extract motif windows around phosphosites and compute position-specific frequencies.")
+@click.option("--input", "input", required=True, help="Input phosphosites TSV file")
+@click.option("--fasta", required=True, help="Proteome FASTA file")
+@click.option("--window", type=int, default=7, help="Window size on each side (default: 7)")
+@click.option("--output", required=True, help="Output motifs TSV file")
+def main(input, fasta, window, output):
+    proteins = load_fasta(fasta)
+    rows = read_input(input)
+    motif_rows = extract_motif_windows(rows, proteins, window)
+    windows_list = [r["motif_window"] for r in motif_rows]
+    frequencies = compute_position_frequencies(windows_list, window)
+    write_output(output, motif_rows, frequencies)
 
     print(f"Processed {len(motif_rows)} phosphosites")
-    print(f"Window size: +/-{args.window} residues")
-    print(f"Output written to {args.output}")
+    print(f"Window size: +/-{window} residues")
+    print(f"Output written to {output}")
 
 
 if __name__ == "__main__":

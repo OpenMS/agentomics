@@ -15,10 +15,11 @@ Usage
     python spectrum_entropy_calculator.py --input run.mzML --ms-level 2 --output entropy.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -167,20 +168,16 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate spectral entropy for MS2 spectra in mzML."
-    )
-    parser.add_argument("--input", required=True, help="Path to input mzML file")
-    parser.add_argument("--ms-level", type=int, default=2, help="MS level (default: 2)")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Calculate spectral entropy for MS2 spectra in mzML.")
+@click.option("--input", "input", required=True, help="Path to input mzML file")
+@click.option("--ms-level", type=int, default=2, help="MS level (default: 2)")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(input, ms_level, output):
+    results = compute_spectrum_entropies(input, ms_level)
 
-    results = compute_spectrum_entropies(args.input, args.ms_level)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} entropy values to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} entropy values to {output}")
     else:
         print("scan_index\trt\tn_peaks\tentropy\tprecursor_mz")
         for r in results:

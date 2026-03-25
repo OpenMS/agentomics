@@ -16,10 +16,11 @@ Usage
     python rt_prediction_additive.py --sequence PEPTIDEK --model meek --output prediction.json
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -107,48 +108,48 @@ def predict_batch(sequences: list, model: str = "krokhin") -> list:
     return [predict_rt(seq, model) for seq in sequences if seq.strip()]
 
 
-def main():
+@click.command(help="Predict peptide RT using additive hydrophobicity models.")
+@click.option("--sequence", type=str, default=None, help="Single peptide sequence.")
+@click.option("--input", "input", type=str, default=None, help="TSV file with 'sequence' column.")
+@click.option(
+    "--model", type=click.Choice(["krokhin", "meek"]),
+    default="krokhin", help="Retention model (default: krokhin).",
+)
+@click.option("--output", type=str, default=None, help="Output file (.json or .tsv).")
+def main(sequence, input, model, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Predict peptide RT using additive hydrophobicity models.")
-    parser.add_argument("--sequence", type=str, help="Single peptide sequence.")
-    parser.add_argument("--input", type=str, help="TSV file with 'sequence' column.")
-    parser.add_argument("--model", choices=["krokhin", "meek"], default="krokhin",
-                        help="Retention model (default: krokhin).")
-    parser.add_argument("--output", type=str, help="Output file (.json or .tsv).")
-    args = parser.parse_args()
+    if not sequence and not input:
+        raise click.UsageError("Provide --sequence or --input.")
 
-    if not args.sequence and not args.input:
-        parser.error("Provide --sequence or --input.")
-
-    if args.sequence:
-        result = predict_rt(args.sequence, args.model)
-        if args.output:
-            with open(args.output, "w") as fh:
+    if sequence:
+        result = predict_rt(sequence, model)
+        if output:
+            with open(output, "w") as fh:
                 json.dump(result, fh, indent=2)
         else:
             print(json.dumps(result, indent=2))
-    elif args.input:
+    elif input:
         sequences = []
-        with open(args.input) as fh:
+        with open(input) as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             for row in reader:
                 seq = row.get("sequence", "").strip()
                 if seq:
                     sequences.append(seq)
-        results = predict_batch(sequences, args.model)
-        if args.output:
-            if args.output.endswith(".json"):
-                with open(args.output, "w") as fh:
+        results = predict_batch(sequences, model)
+        if output:
+            if output.endswith(".json"):
+                with open(output, "w") as fh:
                     json.dump(results, fh, indent=2)
             else:
-                with open(args.output, "w", newline="") as fh:
+                with open(output, "w", newline="") as fh:
                     writer = csv.DictWriter(
                         fh, fieldnames=["sequence", "model", "predicted_rt", "length"], delimiter="\t"
                     )
                     writer.writeheader()
                     for r in results:
                         writer.writerow({k: r[k] for k in ["sequence", "model", "predicted_rt", "length"]})
-            print(f"Results written to {args.output}")
+            print(f"Results written to {output}")
         else:
             for r in results:
                 print(f"{r['sequence']}\t{r['predicted_rt']}")

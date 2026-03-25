@@ -14,9 +14,10 @@ Usage
     python precursor_charge_distribution.py --input run.mzML --output charge_dist.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -123,19 +124,15 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Analyze charge state distribution across MS2 spectra."
-    )
-    parser.add_argument("--input", required=True, help="Path to input mzML file")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Analyze charge state distribution across MS2 spectra.")
+@click.option("--input", "input", required=True, help="Path to input mzML file")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(input, output):
+    results = analyze_charge_distribution(input)
 
-    results = analyze_charge_distribution(args.input)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote charge distribution to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote charge distribution to {output}")
     else:
         print("charge\tcount\tpercentage")
         for r in results:

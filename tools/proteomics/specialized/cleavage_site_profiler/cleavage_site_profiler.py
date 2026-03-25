@@ -12,11 +12,12 @@ Usage
     python cleavage_site_profiler.py --input neo_nterm.tsv --fasta reference.fasta --window 4 --output profile.tsv
 """
 
-import argparse
 import csv
 import sys
 from collections import Counter
 from typing import Dict, List, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -254,25 +255,21 @@ def write_output(
                 f.write(f"{pos_label}\t{aa}\t{freq:.4f}\n")
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Profile cleavage sites from neo-N-terminal peptides."
-    )
-    parser.add_argument("--input", required=True, help="Neo-N-terminal peptides TSV file")
-    parser.add_argument("--fasta", required=True, help="Reference proteome FASTA file")
-    parser.add_argument("--window", type=int, default=4, help="Window size on each side (default: 4)")
-    parser.add_argument("--output", required=True, help="Output profile TSV file")
-    args = parser.parse_args()
-
-    proteins = load_fasta(args.fasta)
-    rows = read_input(args.input)
-    result_rows, valid_windows = process_neo_nterm_peptides(rows, proteins, args.window)
-    frequencies = compute_position_frequencies(valid_windows, args.window)
-    write_output(args.output, result_rows, frequencies)
+@click.command(help="Profile cleavage sites from neo-N-terminal peptides.")
+@click.option("--input", "input", required=True, help="Neo-N-terminal peptides TSV file")
+@click.option("--fasta", required=True, help="Reference proteome FASTA file")
+@click.option("--window", type=int, default=4, help="Window size on each side (default: 4)")
+@click.option("--output", required=True, help="Output profile TSV file")
+def main(input, fasta, window, output):
+    proteins = load_fasta(fasta)
+    rows = read_input(input)
+    result_rows, valid_windows = process_neo_nterm_peptides(rows, proteins, window)
+    frequencies = compute_position_frequencies(valid_windows, window)
+    write_output(output, result_rows, frequencies)
 
     print(f"Total peptides: {len(result_rows)}")
     print(f"Cleavage sites found: {len(valid_windows)}")
-    print(f"Window size: P{args.window}-P{args.window}'")
+    print(f"Window size: P{window}-P{window}'")
 
 
 if __name__ == "__main__":

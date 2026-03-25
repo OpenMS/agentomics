@@ -11,9 +11,10 @@ Usage
     python mzml_metadata_extractor.py --input run.mzML --output metadata.json
 """
 
-import argparse
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -150,23 +151,19 @@ def format_metadata(metadata: dict) -> str:
     return "\n".join(lines)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Extract instrument metadata from mzML files."
-    )
-    parser.add_argument("--input", required=True, help="Input mzML file")
-    parser.add_argument("--output", default=None, help="Output JSON file path")
-    args = parser.parse_args()
-
+@click.command(help="Extract instrument metadata from mzML files.")
+@click.option("--input", "input", required=True, help="Input mzML file")
+@click.option("--output", default=None, help="Output JSON file path")
+def main(input, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
     metadata = extract_metadata(exp)
     print(format_metadata(metadata))
 
-    if args.output:
-        write_json(metadata, args.output)
-        print(f"\nMetadata written to {args.output}")
+    if output:
+        write_json(metadata, output)
+        print(f"\nMetadata written to {output}")
 
 
 if __name__ == "__main__":

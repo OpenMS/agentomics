@@ -8,9 +8,10 @@ Usage
     python mzml_to_mgf_converter.py --input run.mzML --ms-level 2 --output spectra.mgf
 """
 
-import argparse
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -125,16 +126,14 @@ def create_synthetic_mzml(output_path: str, n_spectra: int = 5) -> None:
     oms.MzMLFile().store(output_path, exp)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Convert MS2 spectra from mzML to MGF format.")
-    parser.add_argument("--input", required=True, help="Input mzML file")
-    parser.add_argument("--ms-level", type=int, default=2, help="MS level to extract (default: 2)")
-    parser.add_argument("--min-peaks", type=int, default=1, help="Minimum peaks per spectrum (default: 1)")
-    parser.add_argument("--output", required=True, help="Output MGF file")
-    args = parser.parse_args()
-
-    stats = convert_mzml_to_mgf(args.input, args.output, args.ms_level, args.min_peaks)
-    print(f"Converted {stats['converted']} / {stats['ms_level_spectra']} MS{args.ms_level} spectra to {args.output}")
+@click.command(help="Convert MS2 spectra from mzML to MGF format.")
+@click.option("--input", "input", required=True, help="Input mzML file")
+@click.option("--ms-level", type=int, default=2, help="MS level to extract (default: 2)")
+@click.option("--min-peaks", type=int, default=1, help="Minimum peaks per spectrum (default: 1)")
+@click.option("--output", required=True, help="Output MGF file")
+def main(input, ms_level, min_peaks, output) -> None:
+    stats = convert_mzml_to_mgf(input, output, ms_level, min_peaks)
+    print(f"Converted {stats['converted']} / {stats['ms_level_spectra']} MS{ms_level} spectra to {output}")
 
 
 if __name__ == "__main__":

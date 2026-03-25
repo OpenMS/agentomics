@@ -9,10 +9,11 @@ Usage
     python fasta_in_silico_digest_stats.py --input db.fasta --enzyme Trypsin --missed-cleavages 2 --output stats.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List
+
+import click
 
 try:
     import pyopenms as oms
@@ -106,27 +107,23 @@ def write_tsv(stats: dict, output_path: str) -> None:
             writer.writerow([pep["sequence"], pep["length"], pep["mass"], pep["protein"]])
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Digest a FASTA database and report peptide statistics."
-    )
-    parser.add_argument("--input", required=True, help="Input FASTA file")
-    parser.add_argument("--enzyme", default="Trypsin", help="Enzyme name (default: Trypsin)")
-    parser.add_argument("--missed-cleavages", type=int, default=0, help="Missed cleavages (default: 0)")
-    parser.add_argument("--min-length", type=int, default=6, help="Min peptide length (default: 6)")
-    parser.add_argument("--max-length", type=int, default=50, help="Max peptide length (default: 50)")
-    parser.add_argument("--output", required=True, help="Output TSV file")
-    args = parser.parse_args()
-
-    stats = digest_fasta(args.input, args.enzyme, args.missed_cleavages, args.min_length, args.max_length)
-    write_tsv(stats, args.output)
+@click.command(help="Digest a FASTA database and report peptide statistics.")
+@click.option("--input", "input", required=True, help="Input FASTA file")
+@click.option("--enzyme", default="Trypsin", help="Enzyme name (default: Trypsin)")
+@click.option("--missed-cleavages", type=int, default=0, help="Missed cleavages (default: 0)")
+@click.option("--min-length", type=int, default=6, help="Min peptide length (default: 6)")
+@click.option("--max-length", type=int, default=50, help="Max peptide length (default: 50)")
+@click.option("--output", required=True, help="Output TSV file")
+def main(input, enzyme, missed_cleavages, min_length, max_length, output) -> None:
+    stats = digest_fasta(input, enzyme, missed_cleavages, min_length, max_length)
+    write_tsv(stats, output)
 
     print(f"Proteins: {stats['protein_count']}")
     print(f"Total peptides: {stats['total_peptides']}")
     print(f"Unique peptides: {stats['unique_peptides']}")
     if stats["mass_stats"]:
         print(f"Mass range: {stats['mass_stats']['min']} - {stats['mass_stats']['max']}")
-    print(f"Results written to {args.output}")
+    print(f"Results written to {output}")
 
 
 if __name__ == "__main__":

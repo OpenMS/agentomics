@@ -16,11 +16,12 @@ Usage
     python modified_peptide_generator.py --sequence PEPTMIDEK --variable-mods Oxidation,Phospho --output variants.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
 from itertools import combinations
+
+import click
 
 try:
     import pyopenms as oms
@@ -152,36 +153,32 @@ def generate_variants(sequence: str, variable_mods: list, fixed_mods: list = Non
     return variants
 
 
-def main():
+@click.command(help="Generate modified peptide variants.")
+@click.option("--sequence", required=True, help="Peptide sequence.")
+@click.option("--variable-mods", type=str, default="", help="Comma-separated variable modification names.")
+@click.option("--fixed-mods", type=str, default="", help="Comma-separated fixed modification names.")
+@click.option("--max-mods", type=int, default=2, help="Maximum simultaneous variable mods (default: 2).")
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1).")
+@click.option("--output", type=str, default=None, help="Output file (.tsv or .json).")
+def main(sequence, variable_mods, fixed_mods, max_mods, charge, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Generate modified peptide variants.")
-    parser.add_argument("--sequence", required=True, help="Peptide sequence.")
-    parser.add_argument("--variable-mods", type=str, default="",
-                        help="Comma-separated variable modification names.")
-    parser.add_argument("--fixed-mods", type=str, default="",
-                        help="Comma-separated fixed modification names.")
-    parser.add_argument("--max-mods", type=int, default=2, help="Maximum simultaneous variable mods (default: 2).")
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1).")
-    parser.add_argument("--output", type=str, help="Output file (.tsv or .json).")
-    args = parser.parse_args()
+    var_mods = [m.strip() for m in variable_mods.split(",") if m.strip()]
+    fix_mods = [m.strip() for m in fixed_mods.split(",") if m.strip()]
 
-    var_mods = [m.strip() for m in args.variable_mods.split(",") if m.strip()]
-    fix_mods = [m.strip() for m in args.fixed_mods.split(",") if m.strip()]
+    variants = generate_variants(sequence, var_mods, fix_mods, max_mods, charge)
 
-    variants = generate_variants(args.sequence, var_mods, fix_mods, args.max_mods, args.charge)
-
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump(variants, fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 fieldnames = ["sequence", "modified_sequence", "modifications", "num_modifications",
                               "monoisotopic_mass", "mz", "charge"]
                 writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
                 writer.writeheader()
                 writer.writerows(variants)
-        print(f"Generated {len(variants)} variants -> {args.output}")
+        print(f"Generated {len(variants)} variants -> {output}")
     else:
         for v in variants:
             print(f"{v['modified_sequence']}\t{v['modifications']}\t{v['monoisotopic_mass']}")

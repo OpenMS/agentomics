@@ -8,10 +8,11 @@ Usage
     python fasta_decoy_validator.py --input db.fasta --decoy-prefix DECOY_ --output validation.json
 """
 
-import argparse
 import json
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -98,24 +99,20 @@ def validate_decoys(
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Validate decoy sequences in a FASTA database."
-    )
-    parser.add_argument("--input", required=True, help="Input FASTA file")
-    parser.add_argument("--decoy-prefix", default="DECOY_", help="Expected decoy prefix (default: DECOY_)")
-    parser.add_argument("--output", default=None, help="Output JSON file (default: stdout)")
-    args = parser.parse_args()
+@click.command(help="Validate decoy sequences in a FASTA database.")
+@click.option("--input", "input", required=True, help="Input FASTA file")
+@click.option("--decoy-prefix", default="DECOY_", help="Expected decoy prefix (default: DECOY_)")
+@click.option("--output", default=None, help="Output JSON file (default: stdout)")
+def main(input, decoy_prefix, output) -> None:
+    result = validate_decoys(input, decoy_prefix)
+    output_str = json.dumps(result, indent=2)
 
-    result = validate_decoys(args.input, args.decoy_prefix)
-    output = json.dumps(result, indent=2)
-
-    if args.output:
-        with open(args.output, "w") as fh:
-            fh.write(output + "\n")
-        print(f"Validation results written to {args.output}")
+    if output:
+        with open(output, "w") as fh:
+            fh.write(output_str + "\n")
+        print(f"Validation results written to {output}")
     else:
-        print(output)
+        print(output_str)
 
 
 if __name__ == "__main__":

@@ -8,10 +8,11 @@ Usage
     python mztab_summarizer.py --input results.mzTab --output summary.tsv
 """
 
-import argparse
 import csv
 import sys
 from collections import Counter
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -145,17 +146,15 @@ def write_summary_tsv(summary: dict, output_path: str) -> None:
                 writer.writerow([key, value])
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Parse mzTab and extract summary statistics.")
-    parser.add_argument("--input", required=True, help="Input mzTab file")
-    parser.add_argument("--output", default=None, help="Output summary TSV file (default: stdout)")
-    args = parser.parse_args()
+@click.command(help="Parse mzTab and extract summary statistics.")
+@click.option("--input", "input", required=True, help="Input mzTab file")
+@click.option("--output", default=None, help="Output summary TSV file (default: stdout)")
+def main(input, output) -> None:
+    summary = summarize_mztab(input)
 
-    summary = summarize_mztab(args.input)
-
-    if args.output:
-        write_summary_tsv(summary, args.output)
-        print(f"Summary written to {args.output}")
+    if output:
+        write_summary_tsv(summary, output)
+        print(f"Summary written to {output}")
     else:
         for key, value in summary.items():
             print(f"{key}: {value}")

@@ -12,9 +12,10 @@ Usage
     python precursor_isolation_purity.py --input run.mzML --output purity.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -107,24 +108,17 @@ def compute_all_purities(exp: oms.MSExperiment, isolation_width: float = 2.0) ->
     return results
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Estimate precursor isolation purity from mzML."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Path to mzML file")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output purity TSV")
-    parser.add_argument(
-        "--isolation-width", type=float, default=2.0,
-        help="Default isolation window width in Da (default: 2.0)"
-    )
-    args = parser.parse_args()
-
+@click.command(help="Estimate precursor isolation purity from mzML.")
+@click.option("--input", "input", required=True, help="Path to mzML file")
+@click.option("--output", required=True, help="Output purity TSV")
+@click.option("--isolation-width", type=float, default=2.0, help="Default isolation window width in Da (default: 2.0)")
+def main(input, output, isolation_width):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
-    purities = compute_all_purities(exp, args.isolation_width)
+    purities = compute_all_purities(exp, isolation_width)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(
             fh, fieldnames=["scan_index", "rt", "precursor_mz", "purity"], delimiter="\t"
         )
@@ -133,7 +127,7 @@ def main():
 
     if purities:
         avg = sum(p["purity"] for p in purities) / len(purities)
-        print(f"Wrote {len(purities)} purity values to {args.output}")
+        print(f"Wrote {len(purities)} purity values to {output}")
         print(f"  Mean purity: {avg:.4f}")
     else:
         print("No MS2 spectra with precursors found.")

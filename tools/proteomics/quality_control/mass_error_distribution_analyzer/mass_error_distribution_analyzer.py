@@ -12,10 +12,11 @@ Usage
     python mass_error_distribution_analyzer.py --input peptides.tsv --mzml run.mzML --output errors.tsv
 """
 
-import argparse
 import csv
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -119,27 +120,23 @@ def summarize_errors(errors: list[dict]) -> dict:
     }
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compute precursor mass error distributions."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Peptide TSV file")
-    parser.add_argument("--mzml", required=True, metavar="FILE", help="mzML file")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output errors TSV")
-    args = parser.parse_args()
-
+@click.command(help="Compute precursor mass error distributions.")
+@click.option("--input", "input", required=True, help="Peptide TSV file")
+@click.option("--mzml", required=True, help="mzML file")
+@click.option("--output", required=True, help="Output errors TSV")
+def main(input, mzml, output):
     rows = []
-    with open(args.input) as fh:
+    with open(input) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             rows.append(row)
 
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.mzml, exp)
+    oms.MzMLFile().load(mzml, exp)
 
     errors = compute_mass_errors(rows, exp)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(
             fh,
             fieldnames=["sequence", "charge", "theo_mz", "obs_mz", "error_da", "error_ppm"],
@@ -149,7 +146,7 @@ def main():
         writer.writerows(errors)
 
     summary = summarize_errors(errors)
-    print(f"Wrote {summary['count']} mass errors to {args.output}")
+    print(f"Wrote {summary['count']} mass errors to {output}")
     if summary["count"] > 0:
         print(f"  Mean error: {summary['ppm_mean']:.2f} ppm (std {summary['ppm_std']:.2f})")
 

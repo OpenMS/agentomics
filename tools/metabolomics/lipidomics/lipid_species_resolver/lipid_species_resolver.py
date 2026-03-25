@@ -10,9 +10,10 @@ Usage
     python lipid_species_resolver.py --input lipids.tsv --lipid-class PC --output resolved.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -240,20 +241,16 @@ def write_resolved(resolved: list[dict], path: str) -> None:
         writer.writerows(resolved)
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="Lipid table (TSV) with 'lipid' column (e.g. 'PC 36:2')")
+@click.option("--lipid-class", default=None, help="Override lipid class (e.g. PC)")
+@click.option("--output", required=True, help="Output resolved species (TSV)")
+def main(input_file, lipid_class, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Resolve sum-composition lipids into acyl chain combinations."
-    )
-    parser.add_argument("--input", required=True, help="Lipid table (TSV) with 'lipid' column (e.g. 'PC 36:2')")
-    parser.add_argument("--lipid-class", default=None, help="Override lipid class (e.g. PC)")
-    parser.add_argument("--output", required=True, help="Output resolved species (TSV)")
-    args = parser.parse_args()
-
-    lipids = load_lipids(args.input)
-    resolved = resolve_lipids(lipids, lipid_class_override=args.lipid_class)
-    write_resolved(resolved, args.output)
-    print(f"Resolved {len(resolved)} species from {len(lipids)} lipid(s), written to {args.output}")
+    lipids = load_lipids(input_file)
+    resolved = resolve_lipids(lipids, lipid_class_override=lipid_class)
+    write_resolved(resolved, output)
+    print(f"Resolved {len(resolved)} species from {len(lipids)} lipid(s), written to {output}")
 
 
 if __name__ == "__main__":

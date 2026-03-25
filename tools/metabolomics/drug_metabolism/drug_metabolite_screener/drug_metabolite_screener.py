@@ -10,9 +10,10 @@ Usage
         --reactions phase1,phase2 --input run.mzML --ppm 5 --output metabolites.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -146,36 +147,32 @@ def screen_mzml(mzml_path: str, target_masses: list, ppm: float = 5.0) -> list:
     return matches
 
 
-def main() -> None:
+@click.command()
+@click.option("--parent-formula", required=True, help="Molecular formula of the parent drug.")
+@click.option("--reactions", default="phase1,phase2",
+              help="Comma-separated reaction sets: phase1, phase2 (default: phase1,phase2).")
+@click.option("--input", "input_file", default=None, help="mzML file to screen (optional).")
+@click.option("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5).")
+@click.option("--output", required=True, help="Output TSV file.")
+def main(parent_formula, reactions, input_file, ppm, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Predict drug metabolites and screen mzML for matches."
-    )
-    parser.add_argument("--parent-formula", required=True, help="Molecular formula of the parent drug.")
-    parser.add_argument("--reactions", default="phase1,phase2",
-                        help="Comma-separated reaction sets: phase1, phase2 (default: phase1,phase2).")
-    parser.add_argument("--input", default=None, help="mzML file to screen (optional).")
-    parser.add_argument("--ppm", type=float, default=5.0, help="Mass tolerance in ppm (default: 5).")
-    parser.add_argument("--output", required=True, help="Output TSV file.")
-    args = parser.parse_args()
+    reaction_sets = [r.strip() for r in reactions.split(",")]
+    metabolites = predict_metabolites(parent_formula, reaction_sets)
 
-    reaction_sets = [r.strip() for r in args.reactions.split(",")]
-    metabolites = predict_metabolites(args.parent_formula, reaction_sets)
-
-    if args.input:
-        matches = screen_mzml(args.input, metabolites, ppm=args.ppm)
+    if input_file:
+        matches = screen_mzml(input_file, metabolites, ppm=ppm)
         fieldnames = ["reaction", "expected_mass", "observed_mz", "intensity", "rt", "ppm_error"]
         output_data = matches
     else:
         fieldnames = ["reaction", "formula", "exact_mass", "mass_shift"]
         output_data = metabolites
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(output_data)
 
-    print(f"Wrote {len(output_data)} entries to {args.output}")
+    print(f"Wrote {len(output_data)} entries to {output}")
 
 
 if __name__ == "__main__":

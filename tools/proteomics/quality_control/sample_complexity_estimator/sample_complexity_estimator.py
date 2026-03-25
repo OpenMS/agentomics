@@ -11,9 +11,10 @@ Usage
     python sample_complexity_estimator.py --input run.mzML --output complexity.json
 """
 
-import argparse
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -115,22 +116,15 @@ def write_json(result: dict, output_path: str) -> None:
         json.dump(result, fh, indent=2)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Estimate sample complexity from MS1 peak density."
-    )
-    parser.add_argument("--input", required=True, help="Input mzML file")
-    parser.add_argument(
-        "--intensity-threshold", type=float, default=0.0,
-        help="Minimum intensity to count a peak (default: 0)"
-    )
-    parser.add_argument("--output", default=None, help="Output JSON file path")
-    args = parser.parse_args()
-
+@click.command(help="Estimate sample complexity from MS1 peak density.")
+@click.option("--input", "input", required=True, help="Input mzML file")
+@click.option("--intensity-threshold", type=float, default=0.0, help="Minimum intensity to count a peak (default: 0)")
+@click.option("--output", default=None, help="Output JSON file path")
+def main(input, intensity_threshold, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
-    result = estimate_complexity(exp, intensity_threshold=args.intensity_threshold)
+    result = estimate_complexity(exp, intensity_threshold=intensity_threshold)
 
     print(f"MS1 spectra       : {result['n_ms1_spectra']}")
     print(f"Total peaks       : {result['total_peaks']}")
@@ -138,9 +132,9 @@ def main():
     print(f"Max peaks/spectrum: {result['max_peaks_per_spectrum']}")
     print(f"Complexity score  : {result['complexity_score']}")
 
-    if args.output:
-        write_json(result, args.output)
-        print(f"\nResults written to {args.output}")
+    if output:
+        write_json(result, output)
+        print(f"\nResults written to {output}")
 
 
 if __name__ == "__main__":

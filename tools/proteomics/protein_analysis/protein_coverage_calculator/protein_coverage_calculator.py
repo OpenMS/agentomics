@@ -14,9 +14,10 @@ Usage
     python protein_coverage_calculator.py --fasta proteins.fasta --peptides identified.tsv --output coverage.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -91,18 +92,16 @@ def calculate_coverage(proteins: dict, peptides: list) -> list:
     return results
 
 
-def main():
+@click.command(help="Calculate protein sequence coverage from peptides.")
+@click.option("--fasta", required=True, help="Protein FASTA file.")
+@click.option("--peptides", required=True, help="TSV file with 'sequence' column.")
+@click.option("--output", default=None, help="Output TSV file.")
+def main(fasta, peptides, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Calculate protein sequence coverage from peptides.")
-    parser.add_argument("--fasta", required=True, help="Protein FASTA file.")
-    parser.add_argument("--peptides", required=True, help="TSV file with 'sequence' column.")
-    parser.add_argument("--output", help="Output TSV file.")
-    args = parser.parse_args()
-
-    proteins = load_fasta(args.fasta)
+    proteins = load_fasta(fasta)
 
     peptide_list = []
-    with open(args.peptides) as fh:
+    with open(peptides) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             seq = row.get("sequence", "").strip()
@@ -111,14 +110,14 @@ def main():
 
     results = calculate_coverage(proteins, peptide_list)
 
-    if args.output:
-        with open(args.output, "w", newline="") as fh:
+    if output:
+        with open(output, "w", newline="") as fh:
             fieldnames = ["accession", "protein_length", "covered_residues", "coverage_percent",
                           "matched_peptides", "peptides"]
             writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
             writer.writeheader()
             writer.writerows(results)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         for r in results:
             print(f"{r['accession']}\t{r['coverage_percent']}%\t{r['matched_peptides']} peptides")

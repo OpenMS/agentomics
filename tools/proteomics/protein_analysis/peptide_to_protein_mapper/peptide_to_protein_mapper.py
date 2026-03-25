@@ -11,9 +11,10 @@ Usage
     python peptide_to_protein_mapper.py --peptides peptides.tsv --fasta db.fasta --output mapped.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -134,19 +135,17 @@ def _strip_modifications(sequence: str) -> str:
     return "".join(result)
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Map peptides to proteins in a FASTA database.")
-    parser.add_argument("--peptides", required=True, help="Input peptide TSV (must have 'peptide' column)")
-    parser.add_argument("--fasta", required=True, help="FASTA database file")
-    parser.add_argument("--output", required=True, help="Output TSV file")
-    args = parser.parse_args()
-
-    peptide_rows = read_peptides(args.peptides)
-    fasta_entries = read_fasta(args.fasta)
+@click.command(help="Map peptides to proteins in a FASTA database.")
+@click.option("--peptides", required=True, help="Input peptide TSV (must have 'peptide' column)")
+@click.option("--fasta", required=True, help="FASTA database file")
+@click.option("--output", required=True, help="Output TSV file")
+def main(peptides, fasta, output):
+    peptide_rows = read_peptides(peptides)
+    fasta_entries = read_fasta(fasta)
     mappings = map_peptides_to_proteins(peptide_rows, fasta_entries)
 
     fieldnames = ["peptide", "protein", "protein_description", "start", "end", "is_unique"]
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(mappings)
@@ -157,7 +156,7 @@ def main():
     print(f"Proteins in FASTA: {len(fasta_entries)}")
     print(f"Mappings: {n_mapped}")
     print(f"Unique peptides: {n_unique}")
-    print(f"Output written to {args.output}")
+    print(f"Output written to {output}")
 
 
 if __name__ == "__main__":

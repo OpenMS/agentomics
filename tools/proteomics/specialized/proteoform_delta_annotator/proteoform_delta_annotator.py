@@ -12,10 +12,11 @@ Usage
         --tolerance 0.5 --output annotated.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List, Optional, Tuple
+
+import click
 
 try:
     import pyopenms as oms
@@ -129,23 +130,13 @@ def annotate_proteoform_deltas(
     return results
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Annotate mass differences between proteoforms with known PTMs."
-    )
-    parser.add_argument(
-        "--input", required=True,
-        help="Input TSV with 'proteoform_id' and 'mass' columns",
-    )
-    parser.add_argument(
-        "--tolerance", type=float, default=0.5,
-        help="Mass tolerance in Da (default: 0.5)",
-    )
-    parser.add_argument("--output", required=True, help="Output annotated TSV")
-    args = parser.parse_args()
-
+@click.command(help="Annotate mass differences between proteoforms with known PTMs.")
+@click.option("--input", "input", required=True, help="Input TSV with 'proteoform_id' and 'mass' columns")
+@click.option("--tolerance", type=float, default=0.5, help="Mass tolerance in Da (default: 0.5)")
+@click.option("--output", required=True, help="Output annotated TSV")
+def main(input, tolerance, output) -> None:
     masses: List[Tuple[str, float]] = []
-    with open(args.input, newline="") as fh:
+    with open(input, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             pf_id = row.get("proteoform_id", "").strip()
@@ -156,15 +147,15 @@ def main() -> None:
     if len(masses) < 1:
         sys.exit("Need at least one proteoform in input.")
 
-    results = annotate_proteoform_deltas(masses, args.tolerance)
+    results = annotate_proteoform_deltas(masses, tolerance)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.writer(fh, delimiter="\t")
         writer.writerow(["proteoform_id", "mass", "delta", "annotations"])
         for r in results:
             writer.writerow([r["proteoform_id"], r["mass"], f"{r['delta']:.4f}", r["annotations"]])
 
-    print(f"Annotated {len(results)} proteoforms -> {args.output}")
+    print(f"Annotated {len(results)} proteoforms -> {output}")
 
 
 if __name__ == "__main__":

@@ -11,8 +11,9 @@ Usage
     python metabolite_feature_detection.py --input sample.mzML --output features.featureXML --noise 1e5
 """
 
-import argparse
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -105,40 +106,15 @@ def print_feature_summary(feature_map: oms.FeatureMap, top_n: int = 20) -> None:
         )
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Detect metabolite features in an mzML file using pyopenms."
-    )
-    parser.add_argument(
-        "--input",
-        required=True,
-        metavar="FILE",
-        help="Centroided mzML input file",
-    )
-    parser.add_argument(
-        "--output",
-        metavar="FILE",
-        help="Output featureXML file (default: <input>.featureXML)",
-    )
-    parser.add_argument(
-        "--noise",
-        type=float,
-        default=1e4,
-        metavar="THRESHOLD",
-        help="Noise intensity threshold for mass tracing (default: 1e4)",
-    )
-    parser.add_argument(
-        "--top",
-        type=int,
-        default=20,
-        metavar="N",
-        help="Number of top features to print (default: 20)",
-    )
-    args = parser.parse_args()
-
-    output_path = args.output or args.input.replace(".mzML", "_metabolites.featureXML")
-    feature_map = detect_metabolite_features(args.input, output_path, args.noise)
-    print_feature_summary(feature_map, args.top)
+@click.command()
+@click.option("--input", "input_file", required=True, help="Centroided mzML input file")
+@click.option("--output", default=None, help="Output featureXML file (default: <input>.featureXML)")
+@click.option("--noise", type=float, default=1e4, help="Noise intensity threshold for mass tracing (default: 1e4)")
+@click.option("--top", type=int, default=20, help="Number of top features to print (default: 20)")
+def main(input_file, output, noise, top):
+    output_path = output or input_file.replace(".mzML", "_metabolites.featureXML")
+    feature_map = detect_metabolite_features(input_file, output_path, noise)
+    print_feature_summary(feature_map, top)
 
 
 if __name__ == "__main__":

@@ -9,10 +9,11 @@ Usage
     python precursor_recurrence_analyzer.py --input run.mzML --mz-tolerance 10 --rt-tolerance 30 --output recurrence.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -168,23 +169,19 @@ def write_tsv(groups: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Analyze precursor resampling in DDA runs."
-    )
-    parser.add_argument("--input", required=True, help="Input mzML file")
-    parser.add_argument("--mz-tolerance", type=float, default=10.0, help="m/z tolerance in ppm (default: 10)")
-    parser.add_argument("--rt-tolerance", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
-
+@click.command(help="Analyze precursor resampling in DDA runs.")
+@click.option("--input", "input", required=True, help="Input mzML file")
+@click.option("--mz-tolerance", type=float, default=10.0, help="m/z tolerance in ppm (default: 10)")
+@click.option("--rt-tolerance", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(input, mz_tolerance, rt_tolerance, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
     precursors = extract_precursors(exp)
     print(f"Extracted {len(precursors)} precursors")
 
-    groups = find_recurrent_precursors(precursors, args.mz_tolerance, args.rt_tolerance)
+    groups = find_recurrent_precursors(precursors, mz_tolerance, rt_tolerance)
     summary = summarize_recurrence(groups)
 
     print(f"Precursor groups  : {summary['total_precursor_groups']}")
@@ -193,9 +190,9 @@ def main():
     print(f"Recurrence rate   : {summary['recurrence_rate']:.2%}")
     print(f"Max resampling    : {summary['max_resampling']}")
 
-    if args.output:
-        write_tsv(groups, args.output)
-        print(f"\nResults written to {args.output}")
+    if output:
+        write_tsv(groups, output)
+        print(f"\nResults written to {output}")
 
 
 if __name__ == "__main__":

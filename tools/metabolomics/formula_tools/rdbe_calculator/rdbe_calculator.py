@@ -9,9 +9,10 @@ Usage
     python rdbe_calculator.py --input formulas.tsv --output rdbe.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -85,17 +86,13 @@ def calculate_rdbe_batch(formulas: list) -> list:
     return results
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="TSV file with a 'formula' column.")
+@click.option("--output", required=True, help="Output TSV file with RDBE values.")
+def main(input_file, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Calculate RDBE (Ring and Double Bond Equivalents) for molecular formulas."
-    )
-    parser.add_argument("--input", required=True, help="TSV file with a 'formula' column.")
-    parser.add_argument("--output", required=True, help="Output TSV file with RDBE values.")
-    args = parser.parse_args()
-
     formulas = []
-    with open(args.input, newline="") as fh:
+    with open(input_file, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             formulas.append(row["formula"])
@@ -103,12 +100,12 @@ def main() -> None:
     results = calculate_rdbe_batch(formulas)
 
     fieldnames = ["formula", "C", "H", "N", "P", "rdbe"]
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"Calculated RDBE for {len(results)} formulas, wrote to {args.output}")
+    print(f"Calculated RDBE for {len(results)} formulas, wrote to {output}")
 
 
 if __name__ == "__main__":

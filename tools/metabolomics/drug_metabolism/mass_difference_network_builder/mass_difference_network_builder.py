@@ -13,9 +13,10 @@ Usage
         --tolerance 0.005 --output network.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -123,32 +124,24 @@ def build_network(
     return edges
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Build a mass-difference network from features and biotransformation list."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Features TSV (feature_id, mz)")
-    parser.add_argument(
-        "--reactions", default=None, metavar="FILE",
-        help="Reactions TSV (reaction_name, mass_diff). Uses built-in table if omitted."
-    )
-    parser.add_argument(
-        "--tolerance", type=float, default=0.005,
-        help="Mass tolerance in Da (default: 0.005)"
-    )
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output network TSV")
-    args = parser.parse_args()
-
+@click.command()
+@click.option("--input", "input_file", required=True, help="Features TSV (feature_id, mz)")
+@click.option("--reactions", "reactions_file", default=None,
+              help="Reactions TSV (reaction_name, mass_diff). Uses built-in table if omitted.")
+@click.option("--tolerance", type=float, default=0.005,
+              help="Mass tolerance in Da (default: 0.005)")
+@click.option("--output", required=True, help="Output network TSV")
+def main(input_file, reactions_file, tolerance, output):
     features = []
-    with open(args.input) as fh:
+    with open(input_file) as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             features.append(row)
 
-    reactions = load_reactions(args.reactions)
-    edges = build_network(features, reactions, tolerance=args.tolerance)
+    reactions = load_reactions(reactions_file)
+    edges = build_network(features, reactions, tolerance=tolerance)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(
             fh,
             fieldnames=["source_id", "target_id", "reaction", "mass_diff", "error_da"],
@@ -157,7 +150,7 @@ def main():
         writer.writeheader()
         writer.writerows(edges)
 
-    print(f"Network: {len(edges)} edges from {len(features)} features, written to {args.output}")
+    print(f"Network: {len(edges)} edges from {len(features)} features, written to {output}")
 
 
 if __name__ == "__main__":

@@ -12,9 +12,10 @@ Usage
         --output-mgf gnps.mgf --output-quant quant.csv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -241,23 +242,19 @@ def export_fbmn(
     return n_spectra, len(features)
 
 
-def main() -> None:
+@click.command()
+@click.option("--mzml", required=True, help="Input mzML file")
+@click.option("--features", required=True, help="Feature table (TSV) with feature_id, mz, rt, intensity")
+@click.option("--output-mgf", required=True, help="Output MGF file")
+@click.option("--output-quant", required=True, help="Output quantification CSV")
+@click.option("--mz-tol", type=float, default=0.01, help="m/z tolerance in Da (default: 0.01)")
+@click.option("--rt-tol", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
+def main(mzml, features, output_mgf, output_quant, mz_tol, rt_tol) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Export MS2 + quant table in GNPS FBMN format."
-    )
-    parser.add_argument("--mzml", required=True, help="Input mzML file")
-    parser.add_argument("--features", required=True, help="Feature table (TSV) with feature_id, mz, rt, intensity")
-    parser.add_argument("--output-mgf", required=True, help="Output MGF file")
-    parser.add_argument("--output-quant", required=True, help="Output quantification CSV")
-    parser.add_argument("--mz-tol", type=float, default=0.01, help="m/z tolerance in Da (default: 0.01)")
-    parser.add_argument("--rt-tol", type=float, default=30.0, help="RT tolerance in seconds (default: 30)")
-    args = parser.parse_args()
-
-    features = load_features(args.features)
+    features_data = load_features(features)
     n_spectra, n_features = export_fbmn(
-        args.mzml, features, args.output_mgf, args.output_quant,
-        mz_tol=args.mz_tol, rt_tol=args.rt_tol,
+        mzml, features_data, output_mgf, output_quant,
+        mz_tol=mz_tol, rt_tol=rt_tol,
     )
     print(f"Exported {n_spectra} MS2 spectra and {n_features} features for GNPS FBMN")
 

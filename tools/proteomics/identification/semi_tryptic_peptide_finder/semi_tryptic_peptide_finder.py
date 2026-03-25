@@ -9,10 +9,11 @@ Usage
     python semi_tryptic_peptide_finder.py --input peptides.tsv --fasta db.fasta --enzyme Trypsin --output classified.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -211,24 +212,20 @@ def write_tsv(results: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Classify peptides as fully/semi/non-tryptic."
-    )
-    parser.add_argument("--input", required=True, help="Input TSV with peptide sequences")
-    parser.add_argument("--fasta", required=True, help="FASTA database file")
-    parser.add_argument("--enzyme", default="Trypsin", help="Enzyme name (default: Trypsin)")
-    parser.add_argument("--column", default="sequence", help="Column name for sequences (default: sequence)")
-    parser.add_argument("--output", required=True, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Classify peptides as fully/semi/non-tryptic.")
+@click.option("--input", "input", required=True, help="Input TSV with peptide sequences")
+@click.option("--fasta", required=True, help="FASTA database file")
+@click.option("--enzyme", default="Trypsin", help="Enzyme name (default: Trypsin)")
+@click.option("--column", default="sequence", help="Column name for sequences (default: sequence)")
+@click.option("--output", required=True, help="Output TSV file path")
+def main(input, fasta, enzyme, column, output):
+    proteins = load_fasta(fasta)
+    print(f"Loaded {len(proteins)} proteins from {fasta}")
 
-    proteins = load_fasta(args.fasta)
-    print(f"Loaded {len(proteins)} proteins from {args.fasta}")
+    peptides = read_peptides_from_tsv(input, column=column)
+    print(f"Read {len(peptides)} peptides from {input}")
 
-    peptides = read_peptides_from_tsv(args.input, column=args.column)
-    print(f"Read {len(peptides)} peptides from {args.input}")
-
-    results = classify_peptides_against_fasta(peptides, proteins, enzyme=args.enzyme)
+    results = classify_peptides_against_fasta(peptides, proteins, enzyme=enzyme)
 
     counts = {}
     for r in results:
@@ -236,8 +233,8 @@ def main():
     for cls, cnt in sorted(counts.items()):
         print(f"  {cls}: {cnt}")
 
-    write_tsv(results, args.output)
-    print(f"Results written to {args.output}")
+    write_tsv(results, output)
+    print(f"Results written to {output}")
 
 
 if __name__ == "__main__":

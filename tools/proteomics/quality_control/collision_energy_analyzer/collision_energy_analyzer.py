@@ -9,10 +9,11 @@ Usage
     python collision_energy_analyzer.py --input run.mzML --output ce_analysis.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -112,16 +113,12 @@ def write_tsv(records: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Extract collision energy values from mzML MS2 spectra."
-    )
-    parser.add_argument("--input", required=True, help="Input mzML file")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
-
+@click.command(help="Extract collision energy values from mzML MS2 spectra.")
+@click.option("--input", "input", required=True, help="Input mzML file")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(input, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.input, exp)
+    oms.MzMLFile().load(input, exp)
 
     records = extract_collision_energies(exp)
     summary = summarize_ce(records)
@@ -133,9 +130,9 @@ def main():
         print(f"Mean CE           : {summary['mean_ce']}")
         print(f"Unique CE values  : {summary['unique_ce']}")
 
-    if args.output:
-        write_tsv(records, args.output)
-        print(f"\nResults written to {args.output}")
+    if output:
+        write_tsv(records, output)
+        print(f"\nResults written to {output}")
 
 
 if __name__ == "__main__":

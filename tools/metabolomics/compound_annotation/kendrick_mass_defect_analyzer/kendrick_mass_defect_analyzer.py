@@ -9,9 +9,10 @@ Usage
     python kendrick_mass_defect_analyzer.py --input features.tsv --base CH2 --output kmd.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -126,40 +127,36 @@ def group_homologous_series(kmd_results: list, kmd_tolerance: float = 0.005) -> 
     return sorted_results
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="TSV file with 'mz' or 'formula' column.")
+@click.option("--base", default="CH2", help="Base unit formula (default: CH2).")
+@click.option("--kmd-tolerance", type=float, default=0.005,
+              help="KMD tolerance for grouping homologous series (default: 0.005).")
+@click.option("--output", required=True, help="Output TSV file with KMD values.")
+def main(input_file, base, kmd_tolerance, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Compute Kendrick Mass Defect for configurable base units."
-    )
-    parser.add_argument("--input", required=True, help="TSV file with 'mz' or 'formula' column.")
-    parser.add_argument("--base", default="CH2", help="Base unit formula (default: CH2).")
-    parser.add_argument("--kmd-tolerance", type=float, default=0.005,
-                        help="KMD tolerance for grouping homologous series (default: 0.005).")
-    parser.add_argument("--output", required=True, help="Output TSV file with KMD values.")
-    args = parser.parse_args()
-
     results = []
-    with open(args.input, newline="") as fh:
+    with open(input_file, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         headers = reader.fieldnames or []
         for row in reader:
             if "formula" in headers:
-                result = compute_kmd_from_formula(row["formula"], args.base)
+                result = compute_kmd_from_formula(row["formula"], base)
             elif "mz" in headers:
-                result = compute_kmd(float(row["mz"]), args.base)
+                result = compute_kmd(float(row["mz"]), base)
             else:
                 sys.exit("Input TSV must have a 'formula' or 'mz' column.")
             results.append(result)
 
-    results = group_homologous_series(results, kmd_tolerance=args.kmd_tolerance)
+    results = group_homologous_series(results, kmd_tolerance=kmd_tolerance)
 
     fieldnames = list(results[0].keys()) if results else []
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(results)
 
-    print(f"Wrote {len(results)} entries to {args.output}")
+    print(f"Wrote {len(results)} entries to {output}")
 
 
 if __name__ == "__main__":

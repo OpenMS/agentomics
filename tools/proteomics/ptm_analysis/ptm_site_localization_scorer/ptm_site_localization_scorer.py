@@ -16,10 +16,11 @@ Usage
         --peptide "PEPS(Phospho)TIDEK" --tolerance 0.02 --output scores.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -213,34 +214,32 @@ def score_localization(experimental_mz: list, experimental_intensities: list,
     }
 
 
-def main():
+@click.command(help="Score PTM site localization confidence.")
+@click.option("--mz-list", required=True, help="Comma-separated experimental m/z values.")
+@click.option("--intensities", required=True, help="Comma-separated intensities.")
+@click.option("--peptide", required=True, help="Modified peptide sequence.")
+@click.option("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02).")
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1).")
+@click.option("--output", default=None, help="Output file (.tsv or .json).")
+def main(mz_list, intensities, peptide, tolerance, charge, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Score PTM site localization confidence.")
-    parser.add_argument("--mz-list", required=True, help="Comma-separated experimental m/z values.")
-    parser.add_argument("--intensities", required=True, help="Comma-separated intensities.")
-    parser.add_argument("--peptide", required=True, help="Modified peptide sequence.")
-    parser.add_argument("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02).")
-    parser.add_argument("--charge", type=int, default=1, help="Charge state (default: 1).")
-    parser.add_argument("--output", help="Output file (.tsv or .json).")
-    args = parser.parse_args()
+    mz_values = [float(x.strip()) for x in mz_list.split(",")]
+    intensities_list = [float(x.strip()) for x in intensities.split(",")]
 
-    mz_values = [float(x.strip()) for x in args.mz_list.split(",")]
-    intensities = [float(x.strip()) for x in args.intensities.split(",")]
+    result = score_localization(mz_values, intensities_list, peptide, tolerance, charge)
 
-    result = score_localization(mz_values, intensities, args.peptide, args.tolerance, args.charge)
-
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump(result, fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 writer = csv.DictWriter(
                     fh, fieldnames=["sequence", "matched_ions", "probability"], delimiter="\t"
                 )
                 writer.writeheader()
                 writer.writerows(result["candidates"])
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         print(json.dumps(result, indent=2))
 

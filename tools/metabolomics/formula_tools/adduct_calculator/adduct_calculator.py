@@ -12,9 +12,10 @@ Usage
     python adduct_calculator.py --mass 180.0634 --mode negative --output adducts.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -95,35 +96,32 @@ def formula_to_mass(formula: str) -> float:
     return ef.getMonoWeight()
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compute m/z for all ESI adducts given formula or mass."
-    )
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--formula", help="Molecular formula (e.g. C6H12O6)")
-    group.add_argument("--mass", type=float, help="Neutral monoisotopic mass in Da")
-    parser.add_argument(
-        "--mode", choices=["positive", "negative"], default="positive",
-        help="Ionization mode (default: positive)"
-    )
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output TSV file")
-    args = parser.parse_args()
+@click.command()
+@click.option("--formula", default=None, help="Molecular formula (e.g. C6H12O6)")
+@click.option("--mass", type=float, default=None, help="Neutral monoisotopic mass in Da")
+@click.option("--mode", type=click.Choice(["positive", "negative"]), default="positive",
+              help="Ionization mode (default: positive)")
+@click.option("--output", required=True, help="Output TSV file")
+def main(formula, mass, mode, output):
+    if not formula and mass is None:
+        raise click.UsageError("Either --formula or --mass must be provided.")
+    if formula and mass is not None:
+        raise click.UsageError("--formula and --mass are mutually exclusive.")
 
-    if args.formula:
-        mass = formula_to_mass(args.formula)
-        print(f"Formula: {args.formula}  Mass: {mass:.6f} Da")
+    if formula:
+        mass = formula_to_mass(formula)
+        print(f"Formula: {formula}  Mass: {mass:.6f} Da")
     else:
-        mass = args.mass
         print(f"Mass: {mass:.6f} Da")
 
-    adducts = compute_adducts(mass, args.mode)
+    adducts = compute_adducts(mass, mode)
 
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=["adduct", "mz", "charge"], delimiter="\t")
         writer.writeheader()
         writer.writerows(adducts)
 
-    print(f"\n{len(adducts)} adducts written to {args.output}")
+    print(f"\n{len(adducts)} adducts written to {output}")
     for a in adducts:
         print(f"  {a['adduct']:<20}  m/z = {a['mz']:.6f}  (z={a['charge']})")
 

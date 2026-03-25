@@ -15,9 +15,10 @@ Usage
         --peaks 181.0709,100.0 182.0742,6.7 183.0775,0.4
 """
 
-import argparse
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -109,53 +110,30 @@ def parse_peaks(peak_strings: list) -> list:
     return peaks
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate theoretical isotope patterns and optionally "
-                    "compare them against observed peaks using pyopenms."
-    )
-    parser.add_argument(
-        "--formula",
-        required=True,
-        help="Molecular formula (e.g. C6H12O6)",
-    )
-    parser.add_argument(
-        "--max-isotopes",
-        type=int,
-        default=5,
-        dest="max_isotopes",
-        help="Maximum isotope peaks to compute (default: 5)",
-    )
-    parser.add_argument(
-        "--peaks",
-        nargs="+",
-        metavar="MZ,INTENSITY",
-        help="Observed peaks as 'mz,intensity' pairs for similarity scoring",
-    )
-    parser.add_argument(
-        "--tolerance",
-        type=float,
-        default=0.02,
-        metavar="DA",
-        help="m/z tolerance in Da for peak matching (default: 0.02)",
-    )
-    args = parser.parse_args()
-
-    distribution = get_isotope_distribution(args.formula, args.max_isotopes)
+@click.command()
+@click.option("--formula", required=True, help="Molecular formula (e.g. C6H12O6)")
+@click.option("--max-isotopes", type=int, default=5,
+              help="Maximum isotope peaks to compute (default: 5)")
+@click.option("--peaks", multiple=True,
+              help="Observed peaks as 'mz,intensity' pairs for similarity scoring")
+@click.option("--tolerance", type=float, default=0.02,
+              help="m/z tolerance in Da for peak matching (default: 0.02)")
+def main(formula, max_isotopes, peaks, tolerance):
+    distribution = get_isotope_distribution(formula, max_isotopes)
     if not distribution:
         print("Could not compute isotope distribution for the given formula.")
         return
 
-    print(f"Isotope distribution for {args.formula}:")
+    print(f"Isotope distribution for {formula}:")
     print(f"\n{'Peak':>5}  {'m/z':>12}  {'Relative Abundance (%)':>22}")
     print("-" * 44)
     for i, (mz, rel_ab) in enumerate(distribution):
         bar = "#" * int(rel_ab / 5)
         print(f"  M+{i}  {mz:>12.4f}  {rel_ab:>6.2f} %  {bar}")
 
-    if args.peaks:
-        observed = parse_peaks(args.peaks)
-        sim = cosine_similarity(distribution, observed, args.tolerance)
+    if peaks:
+        observed = parse_peaks(list(peaks))
+        sim = cosine_similarity(distribution, observed, tolerance)
         print(f"\nCosine similarity vs. observed peaks: {sim:.4f}")
         if sim >= 0.9:
             print("  ✓ Excellent match (≥ 0.90)")

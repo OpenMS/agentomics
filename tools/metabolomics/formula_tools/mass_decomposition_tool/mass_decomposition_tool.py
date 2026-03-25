@@ -16,9 +16,10 @@ Usage
     python mass_decomposition_tool.py --mass 180.0634 --tolerance 0.01 --output decompositions.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -190,20 +191,16 @@ def write_tsv(results: list[dict], output_path: str) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Find molecular formula compositions for a given mass within tolerance."
-    )
-    parser.add_argument("--mass", type=float, required=True, help="Target mass in Da")
-    parser.add_argument("--tolerance", type=float, default=0.01, help="Mass tolerance in Da (default: 0.01)")
-    parser.add_argument("--output", default=None, help="Output TSV file path (default: print to stdout)")
-    args = parser.parse_args()
+@click.command()
+@click.option("--mass", type=float, required=True, help="Target mass in Da")
+@click.option("--tolerance", type=float, default=0.01, help="Mass tolerance in Da (default: 0.01)")
+@click.option("--output", default=None, help="Output TSV file path (default: print to stdout)")
+def main(mass, tolerance, output):
+    results = decompose_mass(mass, tolerance)
 
-    results = decompose_mass(args.mass, args.tolerance)
-
-    if args.output:
-        write_tsv(results, args.output)
-        print(f"Wrote {len(results)} decompositions to {args.output}")
+    if output:
+        write_tsv(results, output)
+        print(f"Wrote {len(results)} decompositions to {output}")
     else:
         if results:
             print("formula\tmass\terror_da")

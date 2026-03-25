@@ -16,10 +16,11 @@ Usage
     python isoelectric_point_calculator.py --fasta proteins.fasta --output pi.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -175,48 +176,48 @@ def calculate_pi_from_sequence(sequence: str, pk_set: str = "lehninger") -> dict
     }
 
 
-def main():
+@click.command(help="Calculate isoelectric point for peptides/proteins.")
+@click.option("--sequence", type=str, default=None, help="Single amino acid sequence.")
+@click.option("--fasta", type=str, default=None, help="FASTA file with protein sequences.")
+@click.option(
+    "--pk-set", type=click.Choice(["lehninger", "emboss", "stryer", "solomon"]),
+    default="lehninger", help="pKa value set (default: lehninger).",
+)
+@click.option("--charge-curve", is_flag=True, help="Also output charge curve.")
+@click.option("--output", type=str, default=None, help="Output file (.json or .tsv).")
+def main(sequence, fasta, pk_set, charge_curve, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Calculate isoelectric point for peptides/proteins.")
-    parser.add_argument("--sequence", type=str, help="Single amino acid sequence.")
-    parser.add_argument("--fasta", type=str, help="FASTA file with protein sequences.")
-    parser.add_argument("--pk-set", choices=list(PKA_SETS.keys()), default="lehninger",
-                        help="pKa value set (default: lehninger).")
-    parser.add_argument("--charge-curve", action="store_true", help="Also output charge curve.")
-    parser.add_argument("--output", type=str, help="Output file (.json or .tsv).")
-    args = parser.parse_args()
-
-    if not args.sequence and not args.fasta:
-        parser.error("Provide --sequence or --fasta.")
+    if not sequence and not fasta:
+        raise click.UsageError("Provide --sequence or --fasta.")
 
     results = []
-    if args.sequence:
-        result = calculate_pi_from_sequence(args.sequence, args.pk_set)
-        if args.charge_curve:
-            aa_seq = oms.AASequence.fromString(args.sequence)
-            result["charge_curve"] = calculate_charge_curve(aa_seq.toUnmodifiedString(), args.pk_set)
+    if sequence:
+        result = calculate_pi_from_sequence(sequence, pk_set)
+        if charge_curve:
+            aa_seq = oms.AASequence.fromString(sequence)
+            result["charge_curve"] = calculate_charge_curve(aa_seq.toUnmodifiedString(), pk_set)
         results.append(result)
-    elif args.fasta:
+    elif fasta:
         entries = []
-        oms.FASTAFile().load(args.fasta, entries)
+        oms.FASTAFile().load(fasta, entries)
         for entry in entries:
-            result = calculate_pi_from_sequence(entry.sequence, args.pk_set)
+            result = calculate_pi_from_sequence(entry.sequence, pk_set)
             result["accession"] = entry.identifier
             results.append(result)
 
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump(results if len(results) > 1 else results[0], fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 fieldnames = ["sequence", "length", "pI", "charge_at_pI", "pk_set"]
-                if args.fasta:
+                if fasta:
                     fieldnames.insert(0, "accession")
                 writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t", extrasaction="ignore")
                 writer.writeheader()
                 writer.writerows(results)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         for r in results:
             acc = r.get("accession", r.get("sequence", ""))

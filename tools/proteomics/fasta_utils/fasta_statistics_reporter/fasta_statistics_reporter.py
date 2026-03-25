@@ -9,11 +9,12 @@ Usage
     python fasta_statistics_reporter.py --input db.fasta --enzyme Trypsin --output stats.json
 """
 
-import argparse
 import json
 import sys
 from collections import Counter
 from typing import Dict, List, Optional
+
+import click
 
 try:
     import pyopenms as oms
@@ -95,25 +96,21 @@ def compute_statistics(
     return stats
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Report statistics for a FASTA database."
-    )
-    parser.add_argument("--input", required=True, help="Input FASTA file")
-    parser.add_argument("--enzyme", default=None, help="Enzyme for digestion (e.g. Trypsin)")
-    parser.add_argument("--missed-cleavages", type=int, default=0, help="Missed cleavages (default: 0)")
-    parser.add_argument("--output", default=None, help="Output JSON file (default: stdout)")
-    args = parser.parse_args()
+@click.command(help="Report statistics for a FASTA database.")
+@click.option("--input", "input", required=True, help="Input FASTA file")
+@click.option("--enzyme", default=None, help="Enzyme for digestion (e.g. Trypsin)")
+@click.option("--missed-cleavages", type=int, default=0, help="Missed cleavages (default: 0)")
+@click.option("--output", default=None, help="Output JSON file (default: stdout)")
+def main(input, enzyme, missed_cleavages, output) -> None:
+    stats = compute_statistics(input, enzyme, missed_cleavages)
+    output_str = json.dumps(stats, indent=2)
 
-    stats = compute_statistics(args.input, args.enzyme, args.missed_cleavages)
-    output = json.dumps(stats, indent=2)
-
-    if args.output:
-        with open(args.output, "w") as fh:
-            fh.write(output + "\n")
-        print(f"Statistics written to {args.output}")
+    if output:
+        with open(output, "w") as fh:
+            fh.write(output_str + "\n")
+        print(f"Statistics written to {output}")
     else:
-        print(output)
+        print(output_str)
 
 
 if __name__ == "__main__":

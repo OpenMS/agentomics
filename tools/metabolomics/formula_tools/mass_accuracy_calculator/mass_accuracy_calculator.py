@@ -21,8 +21,9 @@ Usage
         --observed 554.2478 554.2480 554.2482
 """
 
-import argparse
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -92,46 +93,28 @@ def ppm_error(theoretical: float, observed: float) -> float:
     return (observed - theoretical) / theoretical * 1e6
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Compute m/z mass accuracy (ppm error) using pyopenms."
-    )
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--sequence",
-        help="Peptide sequence (e.g. PEPTIDEK)",
-    )
-    group.add_argument(
-        "--formula",
-        help="Molecular formula (e.g. C6H12O6)",
-    )
-    parser.add_argument(
-        "--charge",
-        type=int,
-        default=1,
-        help="Charge state (default: 1)",
-    )
-    parser.add_argument(
-        "--observed",
-        nargs="+",
-        type=float,
-        required=True,
-        metavar="MZ",
-        help="Observed m/z value(s)",
-    )
-    args = parser.parse_args()
+@click.command()
+@click.option("--sequence", default=None, help="Peptide sequence (e.g. PEPTIDEK)")
+@click.option("--formula", default=None, help="Molecular formula (e.g. C6H12O6)")
+@click.option("--charge", type=int, default=1, help="Charge state (default: 1)")
+@click.option("--observed", multiple=True, type=float, required=True, help="Observed m/z value(s)")
+def main(sequence, formula, charge, observed):
+    if not sequence and not formula:
+        raise click.UsageError("Either --sequence or --formula must be provided.")
+    if sequence and formula:
+        raise click.UsageError("--sequence and --formula are mutually exclusive.")
 
-    if args.sequence:
-        theoretical = theoretical_mz_from_sequence(args.sequence, args.charge)
-        label = f"sequence={args.sequence}"
+    if sequence:
+        theoretical = theoretical_mz_from_sequence(sequence, charge)
+        label = f"sequence={sequence}"
     else:
-        theoretical = theoretical_mz_from_formula(args.formula, args.charge)
-        label = f"formula={args.formula}"
+        theoretical = theoretical_mz_from_formula(formula, charge)
+        label = f"formula={formula}"
 
-    print(f"Theoretical m/z ({label}, charge {args.charge}+): {theoretical:.6f}")
+    print(f"Theoretical m/z ({label}, charge {charge}+): {theoretical:.6f}")
     print(f"\n{'Observed m/z':>14}  {'PPM error':>10}")
     print("-" * 28)
-    for obs in args.observed:
+    for obs in observed:
         ppm = ppm_error(theoretical, obs)
         print(f"{obs:>14.6f}  {ppm:>+10.4f}")
 

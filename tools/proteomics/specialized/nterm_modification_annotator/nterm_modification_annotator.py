@@ -12,11 +12,12 @@ Usage
     python nterm_modification_annotator.py --input nterm_peptides.tsv --fasta reference.fasta --output annotated.tsv
 """
 
-import argparse
 import csv
 import re
 import sys
 from typing import Dict, List
+
+import click
 
 try:
     import pyopenms as oms
@@ -263,19 +264,15 @@ def write_output(output_path: str, results: List[Dict[str, str]]) -> None:
         writer.writerows(results)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Classify N-terminal peptides as protein N-term, signal peptide, neo-N-term, etc."
-    )
-    parser.add_argument("--input", required=True, help="Input N-terminal peptides TSV file")
-    parser.add_argument("--fasta", required=True, help="Reference proteome FASTA file")
-    parser.add_argument("--output", required=True, help="Output annotated TSV file")
-    args = parser.parse_args()
-
-    proteins = load_fasta(args.fasta)
-    rows = read_input(args.input)
+@click.command(help="Classify N-terminal peptides as protein N-term, signal peptide, neo-N-term, etc.")
+@click.option("--input", "input", required=True, help="Input N-terminal peptides TSV file")
+@click.option("--fasta", required=True, help="Reference proteome FASTA file")
+@click.option("--output", required=True, help="Output annotated TSV file")
+def main(input, fasta, output):
+    proteins = load_fasta(fasta)
+    rows = read_input(input)
     results = annotate_nterm_peptides(rows, proteins)
-    write_output(args.output, results)
+    write_output(output, results)
 
     summary = compute_summary(results)
     print(f"Total peptides: {len(results)}")

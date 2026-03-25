@@ -14,11 +14,12 @@ Usage
     python identification_qc_reporter.py --input results.tsv --output id_qc.json
 """
 
-import argparse
 import csv
 import json
 import math
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -116,21 +117,17 @@ def load_peptide_tsv(path: str) -> list[dict]:
     return rows
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Report identification-level QC from peptide TSV."
-    )
-    parser.add_argument("--input", required=True, metavar="FILE", help="Peptide TSV file")
-    parser.add_argument("--output", required=True, metavar="FILE", help="Output JSON report")
-    args = parser.parse_args()
-
-    rows = load_peptide_tsv(args.input)
+@click.command(help="Report identification-level QC from peptide TSV.")
+@click.option("--input", "input", required=True, help="Peptide TSV file")
+@click.option("--output", required=True, help="Output JSON report")
+def main(input, output):
+    rows = load_peptide_tsv(input)
     metrics = compute_id_qc(rows)
 
-    with open(args.output, "w") as fh:
+    with open(output, "w") as fh:
         json.dump(metrics, fh, indent=2)
 
-    print(f"ID QC report written to {args.output}")
+    print(f"ID QC report written to {output}")
     print(f"  PSMs            : {metrics['psm_count']}")
     print(f"  Unique peptides : {metrics['unique_peptides']}")
 

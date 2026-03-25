@@ -9,10 +9,11 @@ Usage
     python peptide_spectral_match_validator.py --mzml run.mzML --peptides psms.tsv --output validation.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import List
+
+import click
 
 try:
     import pyopenms as oms
@@ -196,29 +197,25 @@ def write_tsv(results: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Validate PSMs by recomputing fragment coverage."
-    )
-    parser.add_argument("--mzml", required=True, help="Input mzML file")
-    parser.add_argument("--peptides", required=True, help="PSM TSV (spectrum_index, sequence, charge)")
-    parser.add_argument("--tolerance", type=float, default=0.02, help="Fragment tolerance in Da (default: 0.02)")
-    parser.add_argument("--output", required=True, help="Output TSV file path")
-    args = parser.parse_args()
-
+@click.command(help="Validate PSMs by recomputing fragment coverage.")
+@click.option("--mzml", required=True, help="Input mzML file")
+@click.option("--peptides", required=True, help="PSM TSV (spectrum_index, sequence, charge)")
+@click.option("--tolerance", type=float, default=0.02, help="Fragment tolerance in Da (default: 0.02)")
+@click.option("--output", required=True, help="Output TSV file path")
+def main(mzml, peptides, tolerance, output):
     exp = oms.MSExperiment()
-    oms.MzMLFile().load(args.mzml, exp)
+    oms.MzMLFile().load(mzml, exp)
 
-    psms = load_psms(args.peptides)
+    psms = load_psms(peptides)
     print(f"Loaded {len(psms)} PSMs")
 
-    results = validate_psms(exp, psms, tolerance=args.tolerance)
+    results = validate_psms(exp, psms, tolerance=tolerance)
 
     valid_count = sum(1 for r in results if r["status"] == "valid")
     print(f"Validated: {valid_count}/{len(results)} PSMs with fragment matches")
 
-    write_tsv(results, args.output)
-    print(f"Results written to {args.output}")
+    write_tsv(results, output)
+    print(f"Results written to {output}")
 
 
 if __name__ == "__main__":

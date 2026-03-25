@@ -10,10 +10,11 @@ Usage
         --tolerance 0.02 --min-tag-length 3 --output tags.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import List, Optional
+
+import click
 
 try:
     import pyopenms as oms  # noqa: F401
@@ -185,39 +186,29 @@ def write_tsv(tags: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate de novo sequence tags from MS2 spectra."
-    )
-    parser.add_argument(
-        "--mz-list", required=True,
-        help="Comma-separated list of m/z values"
-    )
-    parser.add_argument(
-        "--intensities", default=None,
-        help="Comma-separated list of intensities (optional)"
-    )
-    parser.add_argument("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
-    parser.add_argument("--min-tag-length", type=int, default=3, help="Minimum tag length (default: 3)")
-    parser.add_argument("--output", default=None, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Generate de novo sequence tags from MS2 spectra.")
+@click.option("--mz-list", required=True, help="Comma-separated list of m/z values")
+@click.option("--intensities", default=None, help="Comma-separated list of intensities (optional)")
+@click.option("--tolerance", type=float, default=0.02, help="Mass tolerance in Da (default: 0.02)")
+@click.option("--min-tag-length", type=int, default=3, help="Minimum tag length (default: 3)")
+@click.option("--output", default=None, help="Output TSV file path")
+def main(mz_list, intensities, tolerance, min_tag_length, output):
+    mz_values = [float(x.strip()) for x in mz_list.split(",")]
+    intensities_list = None
+    if intensities:
+        intensities_list = [float(x.strip()) for x in intensities.split(",")]
 
-    mz_values = [float(x.strip()) for x in args.mz_list.split(",")]
-    intensities = None
-    if args.intensities:
-        intensities = [float(x.strip()) for x in args.intensities.split(",")]
+    tags = generate_tags(mz_values, intensities_list, tolerance=tolerance, min_tag_length=min_tag_length)
 
-    tags = generate_tags(mz_values, intensities, tolerance=args.tolerance, min_tag_length=args.min_tag_length)
-
-    print(f"Found {len(tags)} sequence tags (min length {args.min_tag_length})")
+    print(f"Found {len(tags)} sequence tags (min length {min_tag_length})")
     for t in tags[:20]:
         print(f"  {t['tag']} (length {t['length']}, end m/z {t['end_mz']})")
     if len(tags) > 20:
         print(f"  ... and {len(tags) - 20} more")
 
-    if args.output:
-        write_tsv(tags, args.output)
-        print(f"Results written to {args.output}")
+    if output:
+        write_tsv(tags, output)
+        print(f"Results written to {output}")
 
 
 if __name__ == "__main__":

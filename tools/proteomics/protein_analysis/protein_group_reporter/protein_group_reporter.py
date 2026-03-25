@@ -9,10 +9,11 @@ Usage
     python protein_group_reporter.py --input peptides.tsv --fasta db.fasta --output groups.tsv
 """
 
-import argparse
 import csv
 import sys
 from typing import Dict, List, Set
+
+import click
 
 try:
     import pyopenms as oms
@@ -193,21 +194,17 @@ def write_tsv(results: List[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Parse protein groups from peptide data and report clean table."
-    )
-    parser.add_argument("--input", required=True, help="Input TSV with peptide sequences")
-    parser.add_argument("--fasta", required=True, help="FASTA database file")
-    parser.add_argument("--column", default="sequence", help="Column name for sequences (default: sequence)")
-    parser.add_argument("--output", required=True, help="Output TSV file path")
-    args = parser.parse_args()
+@click.command(help="Parse protein groups from peptide data and report clean table.")
+@click.option("--input", "input", required=True, help="Input TSV with peptide sequences")
+@click.option("--fasta", required=True, help="FASTA database file")
+@click.option("--column", default="sequence", help="Column name for sequences (default: sequence)")
+@click.option("--output", required=True, help="Output TSV file path")
+def main(input, fasta, column, output):
+    proteins = load_fasta(fasta)
+    print(f"Loaded {len(proteins)} proteins from {fasta}")
 
-    proteins = load_fasta(args.fasta)
-    print(f"Loaded {len(proteins)} proteins from {args.fasta}")
-
-    peptides = read_peptides_from_tsv(args.input, column=args.column)
-    print(f"Read {len(peptides)} peptides from {args.input}")
+    peptides = read_peptides_from_tsv(input, column=column)
+    print(f"Read {len(peptides)} peptides from {input}")
 
     protein_peptides = map_peptides_to_proteins(peptides, proteins)
     print(f"Mapped peptides to {len(protein_peptides)} proteins")
@@ -215,8 +212,8 @@ def main():
     groups = build_protein_groups(protein_peptides, proteins)
     print(f"Built {len(groups)} protein groups")
 
-    write_tsv(groups, args.output)
-    print(f"Results written to {args.output}")
+    write_tsv(groups, output)
+    print(f"Results written to {output}")
 
 
 if __name__ == "__main__":

@@ -8,12 +8,13 @@ Usage
     python fasta_taxonomy_splitter.py --input combined.fasta --pattern "OS=([^=]+) OX=" --output-dir split/
 """
 
-import argparse
 import os
 import re
 import sys
 from collections import defaultdict
 from typing import Dict, List, Optional
+
+import click
 
 try:
     import pyopenms as oms
@@ -96,19 +97,15 @@ def split_by_taxonomy(
     }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Split a multi-organism FASTA file by taxonomy from headers."
-    )
-    parser.add_argument("--input", required=True, help="Input FASTA file")
-    parser.add_argument(
-        "--pattern", default=r"OS=([^=]+)\s+OX=",
-        help="Regex pattern with one capture group for taxonomy (default: OS=... OX=)"
-    )
-    parser.add_argument("--output-dir", required=True, help="Output directory for split files")
-    args = parser.parse_args()
-
-    stats = split_by_taxonomy(args.input, args.output_dir, args.pattern)
+@click.command(help="Split a multi-organism FASTA file by taxonomy from headers.")
+@click.option("--input", "input", required=True, help="Input FASTA file")
+@click.option(
+    "--pattern", default=r"OS=([^=]+)\s+OX=",
+    help="Regex pattern with one capture group for taxonomy (default: OS=... OX=)",
+)
+@click.option("--output-dir", required=True, help="Output directory for split files")
+def main(input, pattern, output_dir) -> None:
+    stats = split_by_taxonomy(input, output_dir, pattern)
     print(f"Total entries: {stats['total_entries']}")
     print(f"Taxonomy groups: {stats['taxonomy_groups']}")
     print(f"Unmatched: {stats['unmatched_count']}")

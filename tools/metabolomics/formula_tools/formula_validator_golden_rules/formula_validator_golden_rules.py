@@ -9,9 +9,10 @@ Usage
     python formula_validator_golden_rules.py --input formulas.tsv --rules all --output validated.tsv
 """
 
-import argparse
 import csv
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -230,21 +231,17 @@ def validate_formulas(formulas: list, rules: list) -> list:
     return [validate_formula(f, rules) for f in formulas]
 
 
-def main() -> None:
+@click.command()
+@click.option("--input", "input_file", required=True, help="TSV file with a 'formula' column.")
+@click.option("--rules", default="all",
+              help="Comma-separated rules: rdbe,hc,nc,oc,sc,pc or 'all' (default: all).")
+@click.option("--output", required=True, help="Output TSV with validation results.")
+def main(input_file, rules, output) -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(
-        description="Apply Seven Golden Rules to validate molecular formulas."
-    )
-    parser.add_argument("--input", required=True, help="TSV file with a 'formula' column.")
-    parser.add_argument("--rules", default="all",
-                        help="Comma-separated rules: rdbe,hc,nc,oc,sc,pc or 'all' (default: all).")
-    parser.add_argument("--output", required=True, help="Output TSV with validation results.")
-    args = parser.parse_args()
-
-    rules = [r.strip() for r in args.rules.split(",")]
+    rules = [r.strip() for r in rules.split(",")]
 
     formulas = []
-    with open(args.input, newline="") as fh:
+    with open(input_file, newline="") as fh:
         reader = csv.DictReader(fh, delimiter="\t")
         for row in reader:
             formulas.append(row["formula"])
@@ -252,7 +249,7 @@ def main() -> None:
     results = validate_formulas(formulas, rules)
 
     fieldnames = list(results[0].keys()) if results else []
-    with open(args.output, "w", newline="") as fh:
+    with open(output, "w", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t")
         writer.writeheader()
         writer.writerows(results)

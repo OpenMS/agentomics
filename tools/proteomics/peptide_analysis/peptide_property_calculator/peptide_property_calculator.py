@@ -19,10 +19,11 @@ Usage
     python peptide_property_calculator.py --input peptides.tsv --output properties.tsv
 """
 
-import argparse
 import csv
 import json
 import sys
+
+import click
 
 try:
     import pyopenms as oms
@@ -214,35 +215,33 @@ def calculate_properties(sequence: str, ph: float = 7.0) -> dict:
     }
 
 
-def main():
+@click.command(help="Calculate peptide physicochemical properties.")
+@click.option("--sequence", type=str, default=None, help="Single peptide sequence.")
+@click.option("--ph", type=float, default=7.0, help="pH for charge calculation (default: 7.0).")
+@click.option("--input", "input", type=str, default=None, help="TSV file with 'sequence' column.")
+@click.option("--output", type=str, default=None, help="Output file (.json or .tsv).")
+def main(sequence, ph, input, output):
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Calculate peptide physicochemical properties.")
-    parser.add_argument("--sequence", type=str, help="Single peptide sequence.")
-    parser.add_argument("--ph", type=float, default=7.0, help="pH for charge calculation (default: 7.0).")
-    parser.add_argument("--input", type=str, help="TSV file with 'sequence' column.")
-    parser.add_argument("--output", type=str, help="Output file (.json or .tsv).")
-    args = parser.parse_args()
-
-    if not args.sequence and not args.input:
-        parser.error("Provide --sequence or --input.")
+    if not sequence and not input:
+        raise click.UsageError("Provide --sequence or --input.")
 
     results = []
-    if args.sequence:
-        results.append(calculate_properties(args.sequence, args.ph))
-    elif args.input:
-        with open(args.input) as fh:
+    if sequence:
+        results.append(calculate_properties(sequence, ph))
+    elif input:
+        with open(input) as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             for row in reader:
                 seq = row.get("sequence", "").strip()
                 if seq:
-                    results.append(calculate_properties(seq, args.ph))
+                    results.append(calculate_properties(seq, ph))
 
-    if args.output:
-        if args.output.endswith(".json"):
-            with open(args.output, "w") as fh:
+    if output:
+        if output.endswith(".json"):
+            with open(output, "w") as fh:
                 json.dump(results if len(results) > 1 else results[0], fh, indent=2)
         else:
-            with open(args.output, "w", newline="") as fh:
+            with open(output, "w", newline="") as fh:
                 fieldnames = [
                     "sequence", "unmodified_sequence", "length", "monoisotopic_mass",
                     "formula", "pI", "gravy", "charge_at_ph", "ph", "instability_index",
@@ -252,7 +251,7 @@ def main():
                 for r in results:
                     row = {k: r[k] for k in fieldnames}
                     writer.writerow(row)
-        print(f"Results written to {args.output}")
+        print(f"Results written to {output}")
     else:
         for r in results:
             print(json.dumps(r, indent=2))
