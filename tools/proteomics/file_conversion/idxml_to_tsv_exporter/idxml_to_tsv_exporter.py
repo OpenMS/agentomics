@@ -114,7 +114,7 @@ def create_synthetic_idxml(output_path: str) -> None:
         pep_id.setHits([pep_hit])
         peptide_ids.append(pep_id)
 
-    oms.IdXMLFile().store(output_path, [protein_id], peptide_ids)
+    oms.IdXMLFile().store(output_path, [protein_id], peptide_ids, "")
 
 
 @click.command(help="Export idXML to flat TSV format.")
