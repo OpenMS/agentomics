@@ -8,10 +8,10 @@ Agentomics is a collection of standalone CLI tools built with [pyopenms](https:/
 
 ## Contribution Requirements
 
-Every script must be a **self-contained directory** under `scripts/<domain>/<tool_name>/`:
+Every script must be a **self-contained directory** under `scripts/<domain>/<topic>/<tool_name>/`:
 
 ```
-scripts/<domain>/<tool_name>/
+scripts/<domain>/<topic>/<tool_name>/
 ├── <tool_name>.py        # The tool itself
 ├── requirements.txt      # pyopenms + any script-specific deps (no version pins)
 ├── README.md             # Brief description + CLI usage examples
@@ -20,9 +20,16 @@ scripts/<domain>/<tool_name>/
     └── test_<tool_name>.py
 ```
 
+### Topics
+
+**Proteomics topics:** `spectrum_analysis/`, `peptide_analysis/`, `protein_analysis/`, `fasta_utils/`, `file_conversion/`, `quality_control/`, `targeted_proteomics/`, `identification/`, `ptm_analysis/`, `structural_proteomics/`, `specialized/`, `rna/`
+
+**Metabolomics topics:** `formula_tools/`, `feature_processing/`, `spectral_analysis/`, `compound_annotation/`, `drug_metabolism/`, `isotope_labeling/`, `lipidomics/`, `export/`
+
 ### Rules
 
 - `<domain>` is `proteomics` or `metabolomics`
+- `<topic>` is one of the topic directories listed above
 - `requirements.txt` always includes `pyopenms` with no version pin — builds against latest
 - No cross-script imports — each script is fully independent
 - No `__init__.py` files — these are NOT Python packages
