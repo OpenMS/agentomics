@@ -23,20 +23,24 @@ Ask the user:
 
 Ask: Is this a **proteomics** or **metabolomics** tool? If neither fits, discuss whether a new domain directory is needed.
 
-### 3. Pick a name
+### 3. Pick a topic
+
+Choose the topic directory under the selected domain from the options documented in `AGENTS.md`. Confirm the topic with the user before scaffolding files.
+
+### 4. Pick a name
 
 Choose a descriptive snake_case name for the tool (e.g. `peptide_mass_calculator`, `isotope_pattern_matcher`). Confirm with the user.
 
-### 4. Create a feature branch
+### 5. Create a feature branch
 
 ```bash
 git checkout -b add/<tool_name>
 ```
 
-### 5. Scaffold the directory
+### 6. Scaffold the directory
 
 ```bash
-mkdir -p tools/<domain>/<tool_name>/tests
+mkdir -p tools/<domain>/<topic>/<tool_name>/tests
 ```
 
 Create these files:
@@ -44,6 +48,7 @@ Create these files:
 **`requirements.txt`:**
 ```
 pyopenms
+click
 ```
 Add any additional dependencies the script needs (one per line, no version pins).
 
@@ -66,9 +71,9 @@ except ImportError:
 requires_pyopenms = pytest.mark.skipif(not HAS_PYOPENMS, reason="pyopenms not installed")
 ```
 
-### 6. Write the script
+### 7. Write the script
 
-Create `tools/<domain>/<tool_name>/<tool_name>.py` following these patterns:
+Create `tools/<domain>/<topic>/<tool_name>/<tool_name>.py` following these patterns:
 
 - Module-level docstring with description, supported features, and CLI usage examples
 - pyopenms import guard:
@@ -83,9 +88,9 @@ Create `tools/<domain>/<tool_name>/<tool_name>.py` following these patterns:
 - `main()` function with click CLI
 - `if __name__ == "__main__": main()` guard
 
-### 7. Write tests
+### 8. Write tests
 
-Create `tools/<domain>/<tool_name>/tests/test_<tool_name>.py`:
+Create `tools/<domain>/<topic>/<tool_name>/tests/test_<tool_name>.py`:
 
 - Import `requires_pyopenms` from conftest
 - Decorate test classes with `@requires_pyopenms`
@@ -93,17 +98,17 @@ Create `tools/<domain>/<tool_name>/tests/test_<tool_name>.py`:
 - For file-I/O scripts: generate synthetic data using pyopenms objects in test fixtures, write to `tempfile.TemporaryDirectory()`
 - Cover: basic functionality, edge cases, key parameters
 
-### 8. Write README
+### 9. Write README
 
-Create `tools/<domain>/<tool_name>/README.md` with a brief description and CLI usage examples.
+Create `tools/<domain>/<topic>/<tool_name>/README.md` with a brief description and CLI usage examples.
 
-### 9. Validate
+### 10. Validate
 
 Invoke the `validate-script` skill on the new script directory. Both ruff and pytest must pass.
 
-### 10. Commit
+### 11. Commit
 
 ```bash
-git add tools/<domain>/<tool_name>/
+git add tools/<domain>/<topic>/<tool_name>/
 git commit -m "Add <tool_name>: <brief description>"
 ```
