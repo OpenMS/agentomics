@@ -14,17 +14,10 @@ Usage
 
 import csv
 import re
-import sys
 from typing import List, Optional, Tuple
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit(
-        "pyopenms is required. Install it with:  pip install pyopenms"
-    )
+import pyopenms as oms
 
 
 def parse_length_range(range_str: str) -> Tuple[int, int]:

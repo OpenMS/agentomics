@@ -11,16 +11,9 @@ Usage
     python spectrum_file_info.py --input sample.mzML --tic
 """
 
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit(
-        "pyopenms is required. Install it with:  pip install pyopenms"
-    )
+import pyopenms as oms
 
 
 def summarise_experiment(exp: oms.MSExperiment) -> dict:

@@ -18,15 +18,10 @@ Usage
 
 import csv
 import json
-import sys
 from itertools import combinations
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 PROTON = 1.007276
 

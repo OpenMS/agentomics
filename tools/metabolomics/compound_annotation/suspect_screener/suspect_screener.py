@@ -11,14 +11,9 @@ Usage
 """
 
 import csv
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 
 def exact_mass_from_formula(formula: str) -> float:

@@ -14,16 +14,10 @@ Usage
 """
 
 import csv
-import sys
 from typing import Dict, List
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
-
+import pyopenms as oms
 
 DEUTERIUM_MASS_SHIFT = 1.00628  # Da difference between D and H
 

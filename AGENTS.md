@@ -42,13 +42,9 @@ tools/<domain>/<topic>/<tool_name>/
 Every tool must have:
 
 1. **Module docstring** with description, features, and usage examples
-2. **pyopenms import guard:**
+2. **pyopenms import** (direct, no try/except guard — let Python raise ImportError naturally):
    ```python
-   import sys
-   try:
-       import pyopenms as oms
-   except ImportError:
-       sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+   import pyopenms as oms
    ```
 3. **Importable functions** as the primary interface (with type hints and numpy-style docstrings)
 4. **`main()` function** with click CLI

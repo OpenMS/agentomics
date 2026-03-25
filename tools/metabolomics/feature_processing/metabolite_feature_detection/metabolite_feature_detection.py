@@ -11,16 +11,9 @@ Usage
     python metabolite_feature_detection.py --input sample.mzML --output features.featureXML --noise 1e5
 """
 
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit(
-        "pyopenms is required. Install it with:  pip install pyopenms"
-    )
+import pyopenms as oms
 
 
 def detect_metabolite_features(

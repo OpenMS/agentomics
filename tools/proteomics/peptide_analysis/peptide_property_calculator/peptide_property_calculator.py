@@ -21,14 +21,9 @@ Usage
 
 import csv
 import json
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 # Kyte-Doolittle hydropathicity scale
 KYTE_DOOLITTLE = {

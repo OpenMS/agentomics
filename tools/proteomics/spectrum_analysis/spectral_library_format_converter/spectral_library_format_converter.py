@@ -14,14 +14,9 @@ Usage
     python spectral_library_format_converter.py --input library.msp --output library.traml --format traml
 """
 
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 
 def parse_msp(filepath: str) -> list[dict]:

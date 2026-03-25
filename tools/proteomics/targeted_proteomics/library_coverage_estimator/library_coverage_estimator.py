@@ -15,15 +15,10 @@ Usage
 """
 
 import csv
-import sys
 from typing import Dict, List, Set, Tuple
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 
 def read_library_peptides(library_path: str) -> Set[str]:

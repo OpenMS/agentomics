@@ -14,14 +14,9 @@ Usage
 
 import csv
 import math
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 PROTON = 1.007276
 

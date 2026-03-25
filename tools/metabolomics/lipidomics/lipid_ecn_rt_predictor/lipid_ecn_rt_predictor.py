@@ -12,16 +12,10 @@ Usage
 """
 
 import csv
-import sys
 
 import click
-
-try:
-    import pyopenms as oms  # noqa: F401
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
-
 import numpy as np
+import pyopenms as oms  # noqa: F401
 from scipy import stats
 
 

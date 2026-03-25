@@ -12,17 +12,10 @@ Usage
 """
 
 import csv
-import sys
 from typing import Dict, List
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit(
-        "pyopenms is required. Install it with:  pip install pyopenms"
-    )
+import pyopenms as oms
 
 
 def load_features(features_path: str) -> List[dict]:

@@ -14,16 +14,10 @@ Usage
 
 import csv
 import re
-import sys
 from typing import Dict, List
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
-
+import pyopenms as oms
 
 # Typical signal peptide cleavage sites - residues that commonly precede signal peptide cleavage
 SIGNAL_PEPTIDE_MAX_POS = 70  # Signal peptides are typically 15-70 residues

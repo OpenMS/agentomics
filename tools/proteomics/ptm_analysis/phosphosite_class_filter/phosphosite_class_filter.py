@@ -14,16 +14,10 @@ Usage
 """
 
 import csv
-import sys
 from typing import Dict, List, Tuple
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
-
+import pyopenms as oms
 
 CLASS1_DEFAULT_THRESHOLD = 0.75
 CLASS2_LOWER = 0.50

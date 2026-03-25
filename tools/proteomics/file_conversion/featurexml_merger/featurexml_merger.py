@@ -8,15 +8,10 @@ Usage
     python featurexml_merger.py --inputs f1.featureXML f2.featureXML --output merged.featureXML
 """
 
-import sys
 from typing import List
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 
 def load_featurexml(input_path: str) -> oms.FeatureMap:

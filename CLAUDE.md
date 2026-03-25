@@ -53,7 +53,7 @@ Metabolomics topics: `formula_tools/`, `feature_processing/`, `spectral_analysis
 
 ### Key Patterns
 
-- pyopenms import wrapped in try/except with user-friendly error message
+- pyopenms imported directly (`import pyopenms as oms`) — no try/except guard, let Python raise ImportError naturally
 - Mass-to-charge: `(mass + charge * PROTON) / charge` with `PROTON = 1.007276`
 - Every script has dual interface: importable functions + click CLI + `__main__` guard
 - Tests use `@requires_pyopenms` skip marker from conftest.py

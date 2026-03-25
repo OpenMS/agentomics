@@ -10,15 +10,10 @@ Usage
     python contaminant_database_merger.py --input target.fasta --contaminants custom.fasta --output merged.fasta
 """
 
-import sys
 from typing import List
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 # Built-in common contaminant sequences (subset of cRAP database)
 BUILTIN_CONTAMINANTS = [

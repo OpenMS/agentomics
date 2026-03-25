@@ -21,16 +21,9 @@ Usage
         --observed 554.2478 --observed 554.2480 --observed 554.2482
 """
 
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit(
-        "pyopenms is required. Install it with:  pip install pyopenms"
-    )
+import pyopenms as oms
 
 PROTON = 1.007276
 

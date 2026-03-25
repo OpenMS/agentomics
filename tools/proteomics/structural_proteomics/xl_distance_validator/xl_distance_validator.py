@@ -13,15 +13,10 @@ Usage
 
 import csv
 import math
-import sys
 from typing import Dict, List, Optional, Tuple
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 
 def parse_pdb_ca_atoms(pdb_path: str) -> Dict[Tuple[str, int], Tuple[float, float, float]]:

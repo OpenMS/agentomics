@@ -17,11 +17,7 @@ import sys
 from typing import Dict, List, Optional, Tuple
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 
 def build_ptm_mass_table() -> List[Dict[str, object]]:

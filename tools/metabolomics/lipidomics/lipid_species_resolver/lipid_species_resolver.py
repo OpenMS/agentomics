@@ -11,15 +11,9 @@ Usage
 """
 
 import csv
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
-
+import pyopenms as oms
 
 # Head-group formulas for common lipid classes (without acyl chains).
 # Acyl chains contribute CnH(2n-2*db-1)O for each chain (ester linkage).

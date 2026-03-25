@@ -23,11 +23,7 @@ from collections import Counter
 from typing import Dict, List, Tuple
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 # Expected peptide length ranges per HLA class
 HLA_LENGTH_RANGES: Dict[str, Tuple[int, int]] = {

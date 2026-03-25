@@ -11,16 +11,9 @@ Usage
     python feature_detection_proteomics.py --input sample.mzML --output features.featureXML
 """
 
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit(
-        "pyopenms is required. Install it with:  pip install pyopenms"
-    )
+import pyopenms as oms
 
 
 def detect_features(

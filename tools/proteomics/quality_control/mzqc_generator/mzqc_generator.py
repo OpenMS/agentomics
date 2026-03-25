@@ -11,15 +11,10 @@ Usage
 
 import json
 import math
-import sys
 from datetime import datetime, timezone
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 
 def generate_mzqc(exp: oms.MSExperiment, input_file: str = "unknown.mzML") -> dict:

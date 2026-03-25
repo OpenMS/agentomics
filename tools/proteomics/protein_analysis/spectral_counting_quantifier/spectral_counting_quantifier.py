@@ -18,14 +18,9 @@ Usage
 
 import csv
 import json
-import sys
 
 import click
-
-try:
-    import pyopenms as oms  # noqa: F401
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms  # noqa: F401
 
 
 def load_fasta_proteins(fasta_path: str) -> dict:

@@ -13,14 +13,9 @@ Usage
     python mzml_spectrum_subsetter.py --input run.mzML --scans 0,1,5 --output subset.mzML
 """
 
-import sys
 
 import click
-
-try:
-    import pyopenms as oms
-except ImportError:
-    sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
+import pyopenms as oms
 
 
 def subset_spectra(
