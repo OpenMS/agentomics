@@ -1,6 +1,6 @@
 # Agentomics
 
-A growing collection of **123 standalone CLI tools** built with [pyopenms](https://pyopenms.readthedocs.io/) for proteomics and metabolomics workflows. Every tool in this repository fills a gap not covered by existing OpenMS TOPP tools — small, focused utilities that researchers need daily but typically write as throwaway scripts.
+A growing collection of **118 standalone CLI tools** built with [pyopenms](https://pyopenms.readthedocs.io/) for proteomics and metabolomics workflows. Every tool in this repository fills a gap not covered by existing OpenMS TOPP tools — small, focused utilities that researchers need daily but typically write as throwaway scripts.
 
 ## Why This Exists
 
@@ -155,12 +155,11 @@ Both `ruff` and `pytest` must pass with zero errors.
 | [`fasta_in_silico_digest_stats`](tools/proteomics/fasta_utils/fasta_in_silico_digest_stats/) | Digest a FASTA and report peptide-level statistics |
 | [`fasta_taxonomy_splitter`](tools/proteomics/fasta_utils/fasta_taxonomy_splitter/) | Split multi-organism FASTA by taxonomy from headers |
 
-#### File Conversion (8 tools)
+#### File Conversion (7 tools)
 
 | Tool | Description |
 |------|-------------|
-| [`mzml_to_mgf_converter`](tools/proteomics/file_conversion/mzml_to_mgf_converter/) | Convert MS2 spectra from mzML to MGF format |
-| [`mgf_to_mzml_converter`](tools/proteomics/file_conversion/mgf_to_mzml_converter/) | Convert MGF files to mzML format |
+| [`mgf_mzml_converter`](tools/proteomics/file_conversion/mgf_mzml_converter/) | Bidirectional MGF ↔ mzML converter with spectrum filtering (merged from `mgf_to_mzml_converter` + `mzml_to_mgf_converter`) |
 | [`consensus_map_to_matrix`](tools/proteomics/file_conversion/consensus_map_to_matrix/) | Convert consensusXML to flat quantification matrix |
 | [`idxml_to_tsv_exporter`](tools/proteomics/file_conversion/idxml_to_tsv_exporter/) | Export idXML identification results to flat TSV |
 | [`ms_data_to_csv_exporter`](tools/proteomics/file_conversion/ms_data_to_csv_exporter/) | Export mzML/featureXML data to CSV with column selection |
@@ -281,15 +280,13 @@ Both `ruff` and `pytest` must pass with zero errors.
 | [`mass_defect_filter`](tools/metabolomics/feature_processing/mass_defect_filter/) | Filter features by mass defect and Kendrick mass defect |
 | [`metabolite_feature_detection`](tools/metabolomics/feature_processing/metabolite_feature_detection/) | Metabolite feature detection from LC-MS data |
 
-#### Spectral Analysis (6 tools)
+#### Spectral Analysis (4 tools)
 
 | Tool | Description |
 |------|-------------|
 | [`spectral_entropy_scorer`](tools/metabolomics/spectral_analysis/spectral_entropy_scorer/) | Compute spectral entropy similarity (Li & Fiehn 2021) |
 | [`neutral_loss_scanner`](tools/metabolomics/spectral_analysis/neutral_loss_scanner/) | Scan MS2 spectra for characteristic neutral losses |
-| [`isotope_pattern_scorer`](tools/metabolomics/spectral_analysis/isotope_pattern_scorer/) | Score observed vs. theoretical isotope patterns |
-| [`isotope_pattern_matcher`](tools/metabolomics/spectral_analysis/isotope_pattern_matcher/) | Generate theoretical isotope distributions and cosine similarity scoring |
-| [`isotope_pattern_fit_scorer`](tools/metabolomics/spectral_analysis/isotope_pattern_fit_scorer/) | Score isotope pattern fit, detect Cl/Br from M+2 enhancement |
+| [`isotope_pattern_analyzer`](tools/metabolomics/spectral_analysis/isotope_pattern_analyzer/) | Generate theoretical isotope distributions, cosine similarity scoring, Da/ppm tolerance, Cl/Br halogen detection (merged from `isotope_pattern_matcher` + `isotope_pattern_scorer` + `isotope_pattern_fit_scorer`) |
 | [`massql_query_tool`](tools/metabolomics/spectral_analysis/massql_query_tool/) | Query mzML data using MassQL-like syntax |
 
 #### Compound Annotation (4 tools)

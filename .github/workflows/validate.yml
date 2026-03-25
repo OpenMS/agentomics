@@ -20,10 +20,12 @@ jobs:
         name: Detect changed tool directories
         run: |
           # Note: github.base_ref is only available on pull_request events
-          # Find all tool directories that changed in this PR
+          # Find all tool directories that changed in this PR, keeping only
+          # those that still exist (deleted tool dirs must not be linted/tested).
           CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'tools/' \
             | grep -oP 'tools/[^/]+/[^/]+/[^/]+/' \
             | sort -u \
+            | while read -r dir; do [ -d "$dir" ] && echo "$dir"; done \
             | jq -R -s -c 'split("\n") | map(select(length > 0))')
 
           if [ "$CHANGED" = "[]" ] || [ -z "$CHANGED" ]; then
@@ -60,9 +62,11 @@ jobs:
         run: |
           DIRS='${{ needs.detect-changes.outputs.matrix }}'
           echo "$DIRS" | jq -r '.[]' | while read -r dir; do
-            echo "::group::ruff $dir"
-            /tmp/validate_venv/bin/python -m ruff check "$dir"
-            echo "::endgroup::"
+            if [ -d "$dir" ]; then
+              echo "::group::ruff $dir"
+              /tmp/validate_venv/bin/python -m ruff check "$dir"
+              echo "::endgroup::"
+            fi
           done
 
       - name: Test changed tools
