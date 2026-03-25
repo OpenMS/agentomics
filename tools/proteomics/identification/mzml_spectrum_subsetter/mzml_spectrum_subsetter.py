@@ -92,12 +92,12 @@ def create_synthetic_mzml(output_path: str, n_scans: int = 10) -> None:
 
 
 @click.command(help="Extract specific spectra from mzML by scan number list.")
-@click.option("--input", "input", required=True, help="Path to input mzML file")
+@click.option("--input", "input_path", required=True, help="Path to input mzML file")
 @click.option("--scans", required=True, help="Comma-separated scan indices (0-based)")
 @click.option("--output", required=True, help="Path to output mzML file")
-def main(input, scans, output):
+def main(input_path, scans, output):
     scan_indices = [int(x.strip()) for x in scans.split(",")]
-    count = subset_spectra(input, scan_indices, output)
+    count = subset_spectra(input_path, scan_indices, output)
     print(f"Extracted {count} spectra to {output}")
 
 

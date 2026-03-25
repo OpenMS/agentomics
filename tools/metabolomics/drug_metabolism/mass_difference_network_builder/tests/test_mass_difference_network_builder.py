@@ -52,7 +52,7 @@ class TestMassDifferenceNetworkBuilder:
         assert "Dehydration" in names
 
     def test_load_reactions_none(self):
-        from mass_difference_network_builder import load_reactions
+        from mass_difference_network_builder import DEFAULT_REACTIONS, load_reactions
 
         reactions = load_reactions(None)
-        assert reactions == __import__("mass_difference_network_builder").DEFAULT_REACTIONS
+        assert reactions == DEFAULT_REACTIONS

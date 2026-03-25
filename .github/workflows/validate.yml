@@ -49,6 +49,12 @@ jobs:
         run: |
           python -m venv /tmp/validate_venv
           /tmp/validate_venv/bin/python -m pip install pyopenms numpy scipy click pytest ruff
+          DIRS='${{ needs.detect-changes.outputs.matrix }}'
+          echo "$DIRS" | jq -r '.[]' | while read -r dir; do
+            if [ -f "${dir}requirements.txt" ]; then
+              /tmp/validate_venv/bin/python -m pip install -r "${dir}requirements.txt"
+            fi
+          done
 
       - name: Lint changed tools
         run: |

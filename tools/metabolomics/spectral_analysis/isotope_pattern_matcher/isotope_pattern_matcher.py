@@ -12,7 +12,7 @@ Usage
 
     # Compare against observed peaks (m/z intensity pairs on stdin or --peaks)
     python isotope_pattern_matcher.py --formula C6H12O6 \\
-        --peaks 181.0709,100.0 182.0742,6.7 183.0775,0.4
+        --peaks 181.0709,100.0 --peaks 182.0742,6.7 --peaks 183.0775,0.4
 """
 
 import math

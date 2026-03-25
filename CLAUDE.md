@@ -26,7 +26,7 @@ for d in tools/*/*/*/; do PYTHONPATH="$d" python -m pytest "$d/tests/" -v; done
 
 # Run a script directly
 python tools/proteomics/peptide_analysis/peptide_mass_calculator/peptide_mass_calculator.py --sequence PEPTIDEK --charge 2
-python tools/metabolomics/formula_tools/isotope_pattern_matcher/isotope_pattern_matcher.py --formula C6H12O6
+python tools/metabolomics/spectral_analysis/isotope_pattern_matcher/isotope_pattern_matcher.py --formula C6H12O6
 ```
 
 ## Architecture

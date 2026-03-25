@@ -18,7 +18,7 @@ Usage
 
     # Multiple observed values at charge 2
     python mass_accuracy_calculator.py --sequence ACDEFGHIK --charge 2 \\
-        --observed 554.2478 554.2480 554.2482
+        --observed 554.2478 --observed 554.2480 --observed 554.2482
 """
 
 import sys
