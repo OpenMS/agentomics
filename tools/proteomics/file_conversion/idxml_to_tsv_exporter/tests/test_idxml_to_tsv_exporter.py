@@ -8,16 +8,14 @@ from conftest import requires_pyopenms
 
 @requires_pyopenms
 def test_create_synthetic_idxml():
-    import pyopenms as oms
     from idxml_to_tsv_exporter import create_synthetic_idxml
 
     with tempfile.TemporaryDirectory() as tmp:
         idxml_path = os.path.join(tmp, "test.idXML")
         create_synthetic_idxml(idxml_path)
 
-        protein_ids = []
-        peptide_ids = []
-        oms.IdXMLFile().load(idxml_path, protein_ids, peptide_ids)
+        from idxml_to_tsv_exporter import load_idxml
+        protein_ids, peptide_ids = load_idxml(idxml_path)
         assert len(protein_ids) == 1
         assert len(peptide_ids) == 3
 

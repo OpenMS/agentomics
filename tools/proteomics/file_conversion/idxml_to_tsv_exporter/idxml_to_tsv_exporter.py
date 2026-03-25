@@ -20,12 +20,19 @@ except ImportError:
     sys.exit("pyopenms is required. Install it with:  pip install pyopenms")
 
 
+def _make_peptide_id_list():
+    """Create a peptide ID container compatible with the installed pyopenms version."""
+    if hasattr(oms, "PeptideIdentificationList"):
+        return oms.PeptideIdentificationList()
+    return []
+
+
 def load_idxml(input_path: str) -> tuple:
     """Load an idXML file and return (protein_ids, peptide_ids)."""
     protein_ids = []
-    peptide_ids = []
+    peptide_ids = _make_peptide_id_list()
     oms.IdXMLFile().load(input_path, protein_ids, peptide_ids)
-    return protein_ids, peptide_ids
+    return protein_ids, list(peptide_ids)
 
 
 def export_peptide_ids(peptide_ids: List[oms.PeptideIdentification], output_path: str) -> dict:
@@ -92,7 +99,7 @@ def create_synthetic_idxml(output_path: str) -> None:
     prot_hit.setScore(100.0)
     protein_id.setHits([prot_hit])
 
-    peptide_ids = []
+    peptide_ids = _make_peptide_id_list()
     sequences = ["ACDEFGHIK", "MNPQRSTWY", "ACDEFGHIK"]
     for i, seq in enumerate(sequences):
         pep_id = oms.PeptideIdentification()
@@ -112,9 +119,12 @@ def create_synthetic_idxml(output_path: str) -> None:
         pep_hit.setPeptideEvidences([ev])
 
         pep_id.setHits([pep_hit])
-        peptide_ids.append(pep_id)
+        if hasattr(peptide_ids, "push_back"):
+            peptide_ids.push_back(pep_id)
+        else:
+            peptide_ids.append(pep_id)
 
-    oms.IdXMLFile().store(output_path, [protein_id], peptide_ids, "")
+    oms.IdXMLFile().store(output_path, [protein_id], peptide_ids)
 
 
 @click.command(help="Export idXML to flat TSV format.")
