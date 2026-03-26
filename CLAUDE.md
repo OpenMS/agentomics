@@ -47,9 +47,9 @@ tools/<domain>/<topic>/<tool_name>/
 
 Domains: `proteomics/`, `metabolomics/`
 
-Proteomics topics: `spectrum_analysis/`, `peptide_analysis/`, `protein_analysis/`, `fasta_utils/`, `file_conversion/`, `quality_control/`, `targeted_proteomics/`, `identification/`, `ptm_analysis/`, `structural_proteomics/`, `specialized/`, `rna/`
+Proteomics topics: `spectrum_analysis/`, `peptide_analysis/`, `protein_analysis/`, `fasta_utils/`, `file_conversion/`, `quality_control/`, `targeted_proteomics/`, `identification/`, `ptm_analysis/`, `structural_proteomics/`, `specialized/`, `rna/`, `signal_processing/`, `map_alignment/`, `quantification/`, `inference/`, `dia_analysis/`
 
-Metabolomics topics: `formula_tools/`, `feature_processing/`, `spectral_analysis/`, `compound_annotation/`, `drug_metabolism/`, `isotope_labeling/`, `lipidomics/`, `export/`
+Metabolomics topics: `formula_tools/`, `feature_processing/`, `spectral_analysis/`, `compound_annotation/`, `drug_metabolism/`, `isotope_labeling/`, `lipidomics/`, `export/`, `identification/`, `preprocessing/`
 
 ### Key Patterns
 
